@@ -1,0 +1,24 @@
+{
+    "name": "florea-prototype",
+    "version": "1.0.0",
+    "description": "Floréa UI/UX Prototype - Florist Cafe & Flowershop System",
+    "main": "florea-prototype.js",
+    "scripts": {
+        "start": "live-server --host=0.0.0.0 --port=3000",
+        "dev": "live-server --host=0.0.0.0 --port=3000",
+        "build": "echo \"Build process - add your build tools here\"",
+        "serve": "live-server --host=0.0.0.0 --port=8000"
+    },
+    "keywords": [
+        "ui",
+        "ux",
+        "prototype",
+        "florist",
+        "cafe"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "live-server": "^1.2.2"
+    }
+}
