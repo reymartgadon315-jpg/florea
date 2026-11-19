@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { getStore } from '@netlify/blobs';
+import { getStore } from './lib/get-store.mjs';
 import { verifyAdminSession } from './lib/admin-session.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/product-images/:key' };
 
@@ -62,7 +63,7 @@ export function getProductImageStore() {
 export async function handleProductImageRequest(request, store, env = process.env) {
     if (request.method === 'POST') {
         if (!env.ADMIN_PASSWORD || !env.ADMIN_SESSION_SECRET || env.ADMIN_SESSION_SECRET.length < 32) {
-            return jsonResponse(503, { error: 'Admin image uploads are not configured in Netlify.' });
+            return jsonResponse(503, { error: 'Admin image uploads are not configured on the server.' });
         }
         if (!verifyAdminSession(request, env.ADMIN_SESSION_SECRET)) {
             return jsonResponse(401, { error: 'Admin sign-in is required to upload product images.' });
@@ -119,5 +120,7 @@ export async function handleProductImageRequest(request, store, env = process.en
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     return handleProductImageRequest(request, getProductImageStore());
 }

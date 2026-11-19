@@ -1,4 +1,4 @@
-import { getStore } from '@netlify/blobs';
+import { getStore } from './lib/get-store.mjs';
 import webPush from 'web-push';
 import { applyOrderToInventory, restoreOrderInventory } from '../../florea-inventory-shared.mjs';
 import { getInventoryStore, updateInventory } from './lib/inventory-store.mjs';
@@ -11,6 +11,7 @@ import {
 } from './lib/order-validation.mjs';
 import { verifyCashierSession } from './lib/cashier-session.mjs';
 import { isTwilioSmsConfigured, sendOrderStatusSms } from './lib/twilio-sms.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/orders/:orderId' };
 
@@ -41,6 +42,8 @@ async function sendPushWithRetry(subscription, message, orderId) {
 }
 
 export default async function handler(request, context) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     const store = getStore('florea-orders', { consistency: 'strong' });
     const orderId = context.params.orderId;
     if (!/^ORD-[\w-]{1,60}$/.test(orderId)) {

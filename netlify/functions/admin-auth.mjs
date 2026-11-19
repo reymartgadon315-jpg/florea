@@ -5,6 +5,7 @@ import {
     verifyAdminPassword,
     verifyAdminSession
 } from './lib/admin-session.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/admin-auth' };
 
@@ -20,6 +21,8 @@ function jsonResponse(statusCode, body, headers = {}) {
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     const { ADMIN_PASSWORD, ADMIN_SESSION_SECRET } = process.env;
 
     if (request.method === 'DELETE') {
@@ -38,7 +41,7 @@ export default async function handler(request) {
 
     if (!ADMIN_PASSWORD || !ADMIN_SESSION_SECRET || ADMIN_SESSION_SECRET.length < 32) {
         return jsonResponse(503, {
-            error: 'Admin sign-in is not configured. Set ADMIN_PASSWORD and a 32-character ADMIN_SESSION_SECRET in Netlify.'
+            error: 'Admin sign-in is not configured. Set ADMIN_PASSWORD and a 32-character ADMIN_SESSION_SECRET in the server environment.'
         });
     }
 

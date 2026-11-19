@@ -4,6 +4,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'dist');
 const publicFiles = [
+    'index.html',
     'florea-prototype.html',
     'cashier-dashboard.html',
     'florea-cashier.js',

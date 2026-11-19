@@ -1,4 +1,4 @@
-import { getStore } from '@netlify/blobs';
+import { getStore } from './lib/get-store.mjs';
 import { applyOrderToInventory, restoreOrderInventory } from '../../florea-inventory-shared.mjs';
 import { getInventoryStore, updateInventory } from './lib/inventory-store.mjs';
 import {
@@ -8,6 +8,7 @@ import {
     validatePushSubscription
 } from './lib/order-validation.mjs';
 import { isTwilioSmsConfigured } from './lib/twilio-sms.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/orders' };
 
@@ -19,6 +20,8 @@ function jsonResponse(statusCode, body) {
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     const store = getStore('florea-orders', { consistency: 'strong' });
 
     if (request.method === 'GET') {

@@ -1,8 +1,11 @@
 import webPush from 'web-push';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/push-key' };
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     if (request.method !== 'GET') {
         return new Response(JSON.stringify({ error: 'Method not allowed.' }), {
             status: 405,

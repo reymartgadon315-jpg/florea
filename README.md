@@ -2,8 +2,63 @@
 
 ## Run locally
 
-Run `npm install` and `npm start`, then open `http://localhost:3000/florea-prototype.html`.
+Run `npm install` and `npm run dev`, then open `http://localhost:3000/florea-prototype.html`.
 Local orders, inventory and product ratings use browser storage and are only shared between tabs in the same browser.
+
+## Deploy to Render with existing Netlify data
+
+The Render web service runs the site's API and serves the production build. Render
+PostgreSQL replaces Netlify Blobs for the API, including orders, inventory, ratings,
+feedback, notification subscriptions, SMS contacts, and uploaded product images.
+The existing Netlify deployment continues to use Netlify Blobs.
+
+1. Push the project to GitHub, then create a Render Blueprint from the repository's
+   `render.yaml`. It creates a web service and a persistent PostgreSQL database.
+   Review Render's current pricing before creating resources; the database and web
+   service may incur charges.
+2. Keep `API_MAINTENANCE_MODE=true` on Render while migrating. In the existing
+   Netlify site's environment settings, set `API_MAINTENANCE_MODE=true` and wait
+   for the new deploy. This pauses its API so no orders or inventory changes are
+   missed during the copy. The Netlify site remains the source and is not modified
+   by the migration script.
+3. From Netlify's site settings, get the source **Site ID** and create a
+   **Personal access token**. From Render's database settings, copy the external
+   database connection string. Run the migration from this project in PowerShell;
+   enter the token and database URL only at the secure prompts:
+
+   ```powershell
+   function Set-SecureEnv([string]$Name, [string]$Prompt) {
+       $secure = Read-Host $Prompt -AsSecureString
+       $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+       try {
+           Set-Item -Path "Env:$Name" -Value ([Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer))
+       } finally {
+           [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
+       }
+   }
+   $env:NETLIFY_SITE_ID = Read-Host "Netlify source Site ID"
+   $env:NETLIFY_SOURCE_URL = "https://flore3aaa.netlify.app"
+   $env:CONFIRM_NETLIFY_READ_ONLY = "YES"
+   Set-SecureEnv "NETLIFY_AUTH_TOKEN" "Netlify personal access token"
+   Set-SecureEnv "DATABASE_URL" "Render external PostgreSQL connection string"
+   npm run migrate:netlify
+   Remove-Item Env:NETLIFY_AUTH_TOKEN, Env:DATABASE_URL, Env:NETLIFY_SITE_ID, Env:NETLIFY_SOURCE_URL, Env:CONFIRM_NETLIFY_READ_ONLY
+   ```
+
+   The script checks that the Site ID belongs to `flore3aaa.netlify.app`, copies
+   every configured data store, verifies each copied value, and leaves Netlify
+   data intact. If interrupted, keep both sites in maintenance mode and rerun it.
+4. After the migration reports success, verify the Render service and switch
+   `API_MAINTENANCE_MODE` to `false` in Render. Update customer links/QR codes to
+   the Render URL. Keep the Netlify site in maintenance mode until the cutover is
+   complete. Do not remove the old site or database backups until the data has
+   been checked.
+
+The Render service reads `PORT` from the platform and listens on all interfaces.
+Set strong, unique admin and cashier passwords and session secrets in Render.
+Optional push notifications need `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and
+`VAPID_SUBJECT`; optional SMS needs the Twilio variables documented below. Never
+put these secrets in Git or share them in chat.
 
 ## Publish and share orders across devices
 

@@ -1,5 +1,6 @@
 import { adjustInventoryItem } from '../../florea-inventory-shared.mjs';
 import { getInventoryStore, readInventory, updateInventory } from './lib/inventory-store.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/inventory' };
 
@@ -14,6 +15,8 @@ function jsonResponse(statusCode, body) {
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     if (request.method === 'GET') {
         return jsonResponse(200, { inventory: await readInventory(getInventoryStore()) });
     }

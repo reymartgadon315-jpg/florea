@@ -5,6 +5,7 @@ import {
     verifyCashierPassword,
     verifyCashierSession
 } from './lib/cashier-session.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/cashier-auth' };
 
@@ -20,6 +21,8 @@ function jsonResponse(statusCode, body, headers = {}) {
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     const { CASHIER_PASSWORD, CASHIER_SESSION_SECRET } = process.env;
 
     if (request.method === 'DELETE') {
@@ -38,7 +41,7 @@ export default async function handler(request) {
 
     if (!CASHIER_PASSWORD || !CASHIER_SESSION_SECRET || CASHIER_SESSION_SECRET.length < 32) {
         return jsonResponse(503, {
-            error: 'Cashier sign-in is not configured. Set CASHIER_PASSWORD and a 32-character CASHIER_SESSION_SECRET in Netlify.'
+            error: 'Cashier sign-in is not configured. Set CASHIER_PASSWORD and a 32-character CASHIER_SESSION_SECRET in the server environment.'
         });
     }
 

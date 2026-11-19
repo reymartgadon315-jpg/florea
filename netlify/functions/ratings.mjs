@@ -1,4 +1,5 @@
-import { getStore } from '@netlify/blobs';
+import { getStore } from './lib/get-store.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/ratings' };
 
@@ -55,6 +56,8 @@ async function collectRatings(store, visitorId) {
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     const store = getStore('florea-product-ratings', { consistency: 'strong' });
 
     if (request.method === 'GET') {

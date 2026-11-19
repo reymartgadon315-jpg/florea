@@ -1,5 +1,6 @@
-import { getStore } from '@netlify/blobs';
+import { getStore } from './lib/get-store.mjs';
 import { verifyCashierSession } from './lib/cashier-session.mjs';
+import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/feedback' };
 
@@ -73,6 +74,8 @@ export async function handleFeedbackRequest(request, store, sessionSecret) {
 }
 
 export default async function handler(request) {
+    const maintenance = maintenanceResponse();
+    if (maintenance) return maintenance;
     const store = getStore('florea-customer-feedback', { consistency: 'strong' });
     return handleFeedbackRequest(request, store, process.env.CASHIER_SESSION_SECRET);
 }
