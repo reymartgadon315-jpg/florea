@@ -106,10 +106,15 @@ INSERT INTO categories (name, sort_order) VALUES
 ('Flowers', 1),
 ('Bouquets', 2),
 ('Coffee', 3),
-('Matcha', 4),
-('Refreshers', 5),
-('Rice Meals', 6),
-('Cakes & Pastries', 7);
+('Flavored Coffee', 4),
+('Premium Latte', 5),
+('Matcha', 6),
+('Refreshers', 7),
+('Frappe', 8),
+('Rice Meals', 9),
+('Finger Foods', 10),
+('Pasta', 11),
+('Cakes & Pastries', 12);
 
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
 SELECT id, 'Ecuadorian Roses (6pc)', '', 390.00, '🌹', 'In Stock', 20 FROM categories WHERE name = 'Flowers';
@@ -124,23 +129,171 @@ SELECT id, 'Sweetheart Peony Bouquet', '12 peonies, eucalyptus, baby''s breath',
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
 SELECT id, 'Tulip Garden Box', 'Mixed Dutch tulips in a box', 450.00, '💐', 'In Stock', 10 FROM categories WHERE name = 'Bouquets';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Americano', 'Espresso + Water', 79.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+SELECT id, 'Americano', 'Medium 79 / Large 99', 79.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Spanish Latte', 'Espresso + Milk + Condensed Milk', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+SELECT id, 'Spanish Latte', 'Medium 129 / Large 139', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Dalgona Coffee', 'Whipped Foam Coffee + Milk + Sugar', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+SELECT id, 'Caramel Macchiato', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Matcha Latte', '', 129.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+SELECT id, 'Vietnamese Coffee', 'Medium 109 / Large 119', 109.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Mango Matcha', '', 149.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+SELECT id, 'Vanilla Cinnamon Latte', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Soda Refresher - Lemon', 'Medium 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+SELECT id, 'Mocha Latte', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
-SELECT id, 'Coke Float', '', 99.00, '🥤', 'In Stock', 25 FROM categories WHERE name = 'Refreshers';
+SELECT id, 'Dalgona Coffee', 'Medium 129 / Large 139', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Mojito Mint Cream Coffee', 'Medium 149 / Large 169', 149.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'White Choco Latte', 'Medium 149 / Large 169', 149.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'French Vanilla Latte', 'Medium 149 / Large 169', 149.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Strawberry Coffee', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Flavored Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Taro Coffee', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Flavored Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Orange Espresso', 'Medium 129 / Large 139', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Flavored Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Lemonade Coffee', 'Medium 129 / Large 139', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Flavored Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Dirty Matcha', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Flavored Coffee';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Nutella Latte', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Premium Latte';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Biscoff Latte', 'Medium 139 / Large 149', 139.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Premium Latte';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Salted Caramel Latte', 'Medium 89 / Large 99', 89.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Premium Latte';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Strawberry Nutella Latte', 'Medium 129 / Large 139', 129.00, '☕', 'In Stock', 50 FROM categories WHERE name = 'Premium Latte';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Matcha Latte', 'Medium 129 / Large 139', 129.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Mango Matcha', 'Medium 149 / Large 159', 149.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Caramel Matcha', 'Medium 139 / Large 149', 139.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Choco Matcha', 'Medium 139 / Large 149', 139.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Blueberry Matcha', 'Medium 149 / Large 159', 149.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Strawberry Matcha', 'Medium 149 / Large 159', 149.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Mint Matcha', 'Medium 139 / Large 149', 139.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'White Choco Matcha', 'Medium 139 / Large 149', 139.00, '🍵', 'In Stock', 35 FROM categories WHERE name = 'Matcha';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Lemon', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Strawberry', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Green Apple', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Lychee', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Blueberry', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Mixed Berries', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Mango', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Cola Soda', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Soda Refresher — Passion Fruit', 'Media 69 / Grande 79', 69.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chocolate Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Strawberry Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Green Apple Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Lychee Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Blueberry Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Mixed Berries Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Mango Latte', 'Media 79 / Grande 89', 79.00, '🧋', 'In Stock', 30 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Coke Float', 'Media 99', 99.00, '🥤', 'In Stock', 25 FROM categories WHERE name = 'Refreshers';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Matcha', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Salted Caramel', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Cheesecake', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Red Velvet', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Nutella Triple Choco', 'Media 149 / Grande 169', 149.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Biscoff', 'Media 149 / Grande 169', 149.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Mango', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Strawberry', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Blueberry', 'Media 129 / Grande 149', 129.00, '🥤', 'In Stock', 30 FROM categories WHERE name = 'Frappe';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
 SELECT id, 'Liempo Kare', 'Grilled pork liempo in kare sauce, rice', 179.00, '🍖', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
 SELECT id, 'Honey Butter Chicken', 'Honey butter glazed chicken bowl', 159.00, '🍗', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Sizzling Breaded Liempo', '', 169.00, '🍚', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Pancit Guisado', '', 129.00, '🍜', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken in White Onion Creme', '', 149.00, '🍛', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Shrimp Fritter and Veggies', '', 169.00, '🍤', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Tonkotsu', '', 129.00, '🍲', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Sizzling Bulalo Kare', '', 169.00, '🥩', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Sizzling Sweet n Sour Pusit', '', 139.00, '🦑', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Breaded Sizzling Pork Chop', '', 149.00, '🍖', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Breaded Chicken Wings', '', 129.00, '🍗', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Shrimp Fritters Rice', '', 139.00, '🍤', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Salmon Steak', '', 119.00, '🐟', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Pork Katsudon', '', 139.00, '🍱', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Shawarma Rice', '', 129.00, '🍗', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Crispy Chicken Kare', '', 149.00, '🍛', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Crispy Chicken Rice', '', 149.00, '🍗', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Ala King', '', 129.00, '🍗', 'In Stock', 20 FROM categories WHERE name = 'Rice Meals';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Shawarma Fries', '', 119.00, '🍟', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Burrito Wrap', '', 129.00, '🌯', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Shrimp Fritters', '', 129.00, '🍤', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Potato Wedges', '', 99.00, '🥔', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Clubhouse With Fries', '', 149.00, '🥪', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Double Patty Burger with Fries', '', 179.00, '🍔', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Veggies Salad', '', 129.00, '🥗', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Onion Rings', '', 129.00, '🧅', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Dumplings', '', 119.00, '🥟', 'In Stock', 20 FROM categories WHERE name = 'Finger Foods';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Chicken Alfredo Pasta', '', 129.00, '🍝', 'In Stock', 20 FROM categories WHERE name = 'Pasta';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Aglio e Olio', '', 129.00, '🍝', 'In Stock', 20 FROM categories WHERE name = 'Pasta';
+INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
+SELECT id, 'Binagoongan Pasta', '', 129.00, '🍝', 'In Stock', 20 FROM categories WHERE name = 'Pasta';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)
 SELECT id, 'Lavender Basque Cake', 'Burnt Basque cheesecake, slice', 195.00, '🍰', 'In Stock', 15 FROM categories WHERE name = 'Cakes & Pastries';
 INSERT INTO products (category_id, name, description, price, emoji, stock_status, stock_quantity)

@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <title>Floréa — Cashier Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" href="/florea-logo-192.png">
     <link rel="stylesheet" href="florea-prototype.css">
+    <script src="florea-orders.js"></script>
     <style>
         .cashier-container {
             display: grid;
@@ -40,6 +41,7 @@
         
         .order-list {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -65,6 +67,13 @@
             border-left-color: var(--danger);
             background: rgba(193, 89, 78, 0.08);
             animation: pulse 1s infinite;
+        }
+
+        .order-card.new.overdue {
+            border-left-width: 6px;
+            background: #FFF0ED;
+            box-shadow: inset 0 0 0 1px rgba(193, 89, 78, .22);
+            animation: none;
         }
         
         .order-card.new::before {
@@ -111,14 +120,27 @@
         }
         
         .order-time {
-            font-size: 11px;
-            color: var(--ink-soft);
+            font-size: 12px;
+            color: #554941;
             font-family: var(--font-mono);
+        }
+
+        .order-time.overdue {
+            color: #A33127;
+            font-weight: 700;
+        }
+
+        .overdue-label {
+            display: inline-block;
+            margin-top: 6px;
+            color: #A33127;
+            font-size: 11px;
+            font-weight: 700;
         }
         
         .order-details {
             font-size: 13px;
-            color: var(--ink-soft);
+            color: #554941;
             margin: 8px 0;
             line-height: 1.5;
         }
@@ -132,11 +154,6 @@
             color: var(--ink);
             max-height: 80px;
             overflow-y: auto;
-        }
-        
-        .order-items li {
-            margin: 3px 0;
-            margin-left: 16px;
         }
         
         .order-status {
@@ -155,18 +172,34 @@
         }
         
         .status-pending {
-            background: rgba(198, 161, 91, 0.2);
-            color: var(--gold);
+            background: #F6DEDA;
+            color: #A33127;
         }
         
         .status-preparing {
-            background: rgba(156, 192, 139, 0.2);
-            color: var(--forest-light);
+            background: #F3E7CC;
+            color: #765719;
         }
         
         .status-ready {
-            background: rgba(156, 192, 139, 0.3);
-            color: var(--sage-deep);
+            background: #DCE4D3;
+            color: #3F5732;
+        }
+
+        .stat-value.stat-pending { color: #A33127; }
+        .stat-value.stat-preparing { color: #765719; }
+        .stat-value.stat-ready { color: #3F5732; }
+
+        .stat-label { color: #554941; }
+
+        .empty-state {
+            min-height: 180px;
+            color: #554941;
+        }
+
+        .order-list > .empty-state {
+            height: auto;
+            flex: 1;
         }
         
         .order-actions {
@@ -280,6 +313,21 @@
             font-size: 13px;
             color: var(--ink-soft);
         }
+
+        .cashier-bell-toggle {
+            padding: 8px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--paper);
+            color: var(--ink);
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .cashier-bell-toggle:focus-visible {
+            outline: 2px solid var(--forest);
+            outline-offset: 2px;
+        }
         
         .status-indicator {
             width: 10px;
@@ -303,6 +351,9 @@
             .cashier-container {
                 grid-template-columns: 1fr;
             }
+            .cashier-section {
+                min-height: 320px;
+            }
         }
     </style>
 </head>
@@ -320,21 +371,22 @@
                 <span>Live Orders: <b id="live-count">0</b></span>
                 <span>•</span>
                 <span>Time: <span id="current-time">--:--</span></span>
+                <button type="button" class="cashier-bell-toggle" aria-pressed="false" onclick="toggleCashierBell(this)">🔔 Enable bell</button>
             </div>
         </div>
 
         <!-- STATS BAR -->
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value" id="pending-count">0</div>
+                <div class="stat-value stat-pending" id="pending-count">0</div>
                 <div class="stat-label">Pending</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="preparing-count">0</div>
+                <div class="stat-value stat-preparing" id="preparing-count">0</div>
                 <div class="stat-label">Preparing</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="ready-count">0</div>
+                <div class="stat-value stat-ready" id="ready-count">0</div>
                 <div class="stat-label">Ready</div>
             </div>
         </div>
@@ -359,7 +411,7 @@
                 <div class="order-list" id="active-orders-list">
                     <div class="empty-state">
                         <div class="empty-state-icon">✨</div>
-                        <p>All clear! No orders in progress</p>
+                        <p>Walang kasalukuyang inihahanda</p>
                     </div>
                 </div>
             </div>
@@ -367,34 +419,33 @@
         </div>
     </div>
 
-    <audio id="notification-audio" class="notification-sound">
-        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj==" type="audio/wav">
-    </audio>
-
+    <script src="florea-cashier-sound.js"></script>
     <script>
         // ============ ORDER DATA ============
         let orders = [];
         let orderIdCounter = 1001;
+        let hasServerOrders = false;
+        let hasSyncError = false;
 
         // Sample order data
         const sampleOrders = [{
             id: 'ORD-1001',
-            items: ['Ecuadorian Roses (6pc)', 'Iced Latte', 'Croissant'],
+            items: ['Ecuadorian Roses (6pc)', 'Iced Americano (Medium)', 'Croissant'],
             total: '₱ 890',
             table: '12',
             timestamp: new Date(Date.now() - 2 * 60000),
             status: 'new'
         }, {
             id: 'ORD-1002',
-            items: ['Sunflower Stem (3)', 'Cappuccino'],
+            items: ['Sunflower Stem (3)', 'Americano (Medium)'],
             total: '₱ 450',
             table: '08',
             timestamp: new Date(Date.now() - 5 * 60000),
             status: 'new'
         }, {
             id: 'ORD-1003',
-            items: ['Sweetheart Peony Bouquet', 'Espresso'],
-            total: '₱ 1,280',
+            items: ['Sweetheart Peony Bouquet', 'Spanish Latte (Medium)'],
+            total: '₱ 1,109',
             table: '05',
             timestamp: new Date(Date.now() - 8 * 60000),
             status: 'preparing'
@@ -408,15 +459,39 @@
         const readyCount = document.getElementById('ready-count');
         const liveCount = document.getElementById('live-count');
         const currentTimeEl = document.getElementById('current-time');
-        const notificationAudio = document.getElementById('notification-audio');
+        function handleOrderAction(event) {
+            const button = event.target.closest('[data-order-action]');
+            if (!button || button.disabled) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            button.disabled = true;
+            const action = button.dataset.orderAction === 'accept' ?
+                acceptOrder(button.dataset.orderId) :
+                completeOrder(button.dataset.orderId);
+            action.finally(() => {
+                if (button.isConnected) button.disabled = false;
+            });
+        }
+
+        newOrdersList.addEventListener('click', handleOrderAction, true);
+        activeOrdersList.addEventListener('click', handleOrderAction, true);
 
         // ============ INITIALIZATION ============
-        function init() {
+        async function init() {
             try {
-                const savedOrders = JSON.parse(localStorage.getItem('florea-cashier-orders') || '[]');
-                orders = savedOrders.length ? savedOrders : JSON.parse(JSON.stringify(sampleOrders));
+                if (FloreaOrderSync.isLocal()) {
+                    const savedOrders = JSON.parse(localStorage.getItem('florea-cashier-orders') || '[]');
+                    orders = savedOrders.length ? savedOrders : JSON.parse(JSON.stringify(sampleOrders));
+                } else {
+                    const result = await FloreaOrderSync.request('/api/orders');
+                    orders = result.orders;
+                    hasServerOrders = orders.length > 0;
+                }
             } catch (error) {
-                orders = JSON.parse(JSON.stringify(sampleOrders));
+                console.error('Unable to load shared cashier orders.', error);
+                alert(`The cashier could not connect to the shared order service. ${error.message}`);
+                orders = [];
             }
             orders.forEach(order => {
                 order.timestamp = new Date(order.timestamp);
@@ -425,8 +500,8 @@
             updateStats();
             updateTime();
             setInterval(updateTime, 1000);
-            setInterval(syncOrdersFromStorage, 1000);
-            setInterval(simulateNewOrder, 15000);
+            setInterval(syncOrdersFromStorage, 3000);
+            if (FloreaOrderSync.isLocal()) setInterval(simulateNewOrder, 15000);
         }
 
         // ============ RENDER ORDERS ============
@@ -452,7 +527,7 @@
                 activeOrdersList.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">✨</div>
-                        <p>All clear! No orders in progress</p>
+                        <p>Walang kasalukuyang inihahanda</p>
                     </div>
                 `;
             } else {
@@ -464,34 +539,31 @@
         // ============ CREATE ORDER CARD ============
         function createOrderCard(order) {
             const timeElapsed = Math.floor((Date.now() - order.timestamp) / 60000);
-            const statusClass = order.status === 'new' ? 'new' : '';
+            const overdue = order.status === 'new' && timeElapsed >= 15;
+            const statusClass = `${order.status === 'new' ? 'new' : ''}${overdue ? ' overdue' : ''}`;
 
             return `
                 <div class="order-card ${statusClass}" data-order-id="${order.id}">
                     <div class="order-header">
                         <div>
-                            <div class="order-id">${order.id} • Table ${order.table}</div>
-                            <div class="order-customer">Customer: <b>${order.customerName || 'Guest'}</b></div>
-                            <div class="order-time">${timeElapsed}m ago</div>
+                            <div class="order-customer">Customer: <b>${FloreaOrderSync.escapeText(order.customerName || 'Guest')}</b></div>
+                            <div class="order-time${overdue ? ' overdue' : ''}">${timeElapsed}m ago</div>
+                            ${overdue ? '<div class="overdue-label">Needs attention · waiting 15+ min</div>' : ''}
                         </div>
                     </div>
                     <div class="order-details">
                         Total: <b>${order.total}</b>
                     </div>
-                    <div class="order-items">
-                        <ul style="margin: 0; padding-left: 16px;">
-                            ${order.items.map(item => `<li>${item}</li>`).join('')}
-                        </ul>
-                    </div>
+                    <div class="order-items">${FloreaOrderSync.renderOrderItems(order)}</div>
                     <div class="order-status">
                         <span class="status-badge ${getStatusClass(order.status)}">${order.status}</span>
                     </div>
                     <div class="order-actions">
                         ${order.status === 'new' ? `
-                            <button class="order-actions button btn-accept" onclick="acceptOrder('${order.id}')">✓ Accept</button>
+                            <button type="button" class="btn-accept" data-order-action="accept" data-order-id="${FloreaOrderSync.escapeText(order.id)}">✓ Accept</button>
                         ` : ''}
                         ${order.status === 'preparing' ? `
-                            <button class="order-actions button btn-complete" onclick="completeOrder('${order.id}')">✓ Ready</button>
+                            <button type="button" class="btn-complete" data-order-action="ready" data-order-id="${FloreaOrderSync.escapeText(order.id)}">✓ Ready</button>
                         ` : ''}
                     </div>
                 </div>
@@ -514,32 +586,44 @@
         }
 
         // ============ ACCEPT ORDER ============
-        function acceptOrder(orderId) {
+        async function acceptOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (order) {
+                try {
+                    await saveOrderStatus(order.id, 'preparing');
+                } catch (error) {
+                    console.error('Unable to update order status.', error);
+                    alert(`The order status could not be updated. ${error.message}`);
+                    return;
+                }
                 order.status = 'preparing';
-                saveOrders();
                 renderOrders();
                 updateStats();
-                playNotification();
             }
         }
 
         // ============ COMPLETE ORDER ============
-        function completeOrder(orderId) {
+        async function completeOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (order) {
+                try {
+                    await saveOrderStatus(order.id, 'ready');
+                } catch (error) {
+                    console.error('Unable to update order status.', error);
+                    alert(`The order status could not be updated. ${error.message}`);
+                    return;
+                }
                 order.status = 'ready';
-                saveOrders();
                 renderOrders();
                 updateStats();
-                playNotification();
-                // Remove after 30 seconds
                 setTimeout(() => {
-                    orders = orders.filter(o => o.id !== orderId);
-                    saveOrders();
-                    renderOrders();
-                    updateStats();
+                    removeOrder(orderId).then(() => {
+                        orders = orders.filter(o => o.id !== orderId);
+                        renderOrders();
+                        updateStats();
+                    }).catch(error => {
+                        console.error('Unable to remove completed order.', error);
+                    });
                 }, 30000);
             }
         }
@@ -561,29 +645,99 @@
             localStorage.setItem('florea-cashier-orders', JSON.stringify(orders));
         }
 
-        function syncOrdersFromStorage() {
+        async function saveOrderStatus(orderId, status) {
+            if (FloreaOrderSync.isLocal()) {
+                const order = orders.find(item => item.id === orderId);
+                if (order) order.status = status;
+                saveOrders();
+                return;
+            }
+            await FloreaOrderSync.request(`/api/orders/${encodeURIComponent(orderId)}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status })
+            });
+        }
+
+        async function removeOrder(orderId) {
+            if (FloreaOrderSync.isLocal()) {
+                orders = orders.filter(order => order.id !== orderId);
+                saveOrders();
+                return;
+            }
+            await FloreaOrderSync.request(`/api/orders/${encodeURIComponent(orderId)}`, { method: 'DELETE' });
+        }
+
+        async function syncOrdersFromStorage() {
             try {
+                if (!FloreaOrderSync.isLocal()) {
+                    const result = await FloreaOrderSync.request('/api/orders');
+                    const nextOrders = result.orders.map(order => ({
+                        ...order,
+                        timestamp: new Date(order.timestamp)
+                    }));
+                    const receivedNewOrder = nextOrders.some(order =>
+                        order.status === 'new' && !orders.some(current => current.id === order.id)
+                    );
+                    const receivedOrder = nextOrders.find(order =>
+                        order.status === 'new' && !orders.some(current => current.id === order.id)
+                    );
+                    if (nextOrders.length) hasServerOrders = true;
+                    const currentSerialized = JSON.stringify(orders.map(order => ({
+                        ...order,
+                        timestamp: new Date(order.timestamp).toISOString()
+                    })));
+                    const nextSerialized = JSON.stringify(nextOrders.map(order => ({
+                        ...order,
+                        timestamp: order.timestamp.toISOString()
+                    })));
+                    hasSyncError = false;
+                    if (!hasServerOrders || currentSerialized === nextSerialized) return;
+                    orders = nextOrders;
+                    if (receivedNewOrder) {
+                        playNewOrderBell();
+                    }
+                    renderOrders();
+                    updateStats();
+                    return;
+                }
+
                 const savedOrders = JSON.parse(localStorage.getItem('florea-cashier-orders') || '[]');
                 if (!savedOrders.length || JSON.stringify(orders) === JSON.stringify(savedOrders)) return;
 
+                const receivedOrder = savedOrders.find(order =>
+                    order.status === 'new' && !orders.some(current => current.id === order.id)
+                );
                 orders = savedOrders;
                 orders.forEach(order => {
                     order.timestamp = new Date(order.timestamp);
                 });
+                if (receivedOrder) {
+                    playNewOrderBell();
+                }
                 renderOrders();
                 updateStats();
             } catch (error) {
-                console.warn('Unable to poll shared cashier orders.', error);
+                if (!hasSyncError) {
+                    console.error('Unable to sync shared cashier orders.', error);
+                    hasSyncError = true;
+                }
             }
         }
 
         window.addEventListener('storage', (event) => {
-            if (event.key !== 'florea-cashier-orders') return;
+            if (!FloreaOrderSync.isLocal() || event.key !== 'florea-cashier-orders') return;
             try {
-                orders = JSON.parse(event.newValue || '[]');
+                const nextOrders = JSON.parse(event.newValue || '[]');
+                const receivedOrder = nextOrders.find(order =>
+                    order.status === 'new' && !orders.some(current => current.id === order.id)
+                );
+                orders = nextOrders;
                 orders.forEach(order => {
                     order.timestamp = new Date(order.timestamp);
                 });
+                if (receivedOrder) {
+                    playNewOrderBell();
+                }
                 renderOrders();
                 updateStats();
             } catch (error) {
@@ -600,9 +754,8 @@
         }
 
         // ============ PLAY NOTIFICATION ============
-        function playNotification() {
-            notificationAudio.currentTime = 0;
-            notificationAudio.play().catch(() => {});
+        function playNewOrderBell() {
+            window.FloreaCashierSound.play();
         }
 
         // ============ SIMULATE NEW ORDER ============
@@ -610,12 +763,12 @@
             if (orders.length >= 8) return; // Limit to 8 orders
 
             const items = [
-                ['Ecuadorian Roses (6pc)', 'Iced Latte'],
-                ['Sunflower Stem', 'Cappuccino', 'Croissant'],
+                ['Ecuadorian Roses (6pc)', 'Iced Americano (Medium)'],
+                ['Sunflower Stem', 'Americano (Medium)', 'Croissant'],
                 ['Sweetheart Peony Bouquet'],
-                ['Tulip Bundle', 'Espresso'],
+                ['Tulip Bundle', 'Spanish Latte (Medium)'],
                 ['Mixed Flowers', 'Pastry Platter'],
-                ['Single Stem', 'Flat White']
+                ['Single Stem', 'Spanish Latte (Medium)']
             ];
 
             const tables = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'];
@@ -636,7 +789,7 @@
             orders.unshift(newOrder);
             renderOrders();
             updateStats();
-            playNotification();
+            playNewOrderBell();
         }
 
         // ============ ATTACH EVENT LISTENERS ============

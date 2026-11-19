@@ -1,5 +1,47 @@
 [build]
-  publish = "."
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/menu*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.mjs"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/site.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[redirects]]
+  from = "/"
+  to = "/florea-prototype.html?view=customer"
+  status = 200
 
 [[redirects]]
   from = "/menu"
@@ -9,4 +51,14 @@
 [[redirects]]
   from = "/menu/"
   to = "/florea-prototype.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/florea-prototype.html?view=admin"
+  status = 200
+
+[[redirects]]
+  from = "/cashier"
+  to = "/florea-prototype.html?view=cashier"
   status = 200

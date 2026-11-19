@@ -1,0 +1,22 @@
+{
+  "name": "Floréa",
+  "short_name": "Floréa",
+  "start_url": "/menu",
+  "display": "standalone",
+  "background_color": "#f8f6f0",
+  "theme_color": "#315c46",
+  "icons": [
+    {
+      "src": "/florea-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/florea-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

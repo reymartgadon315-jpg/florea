@@ -1,299 +1,746 @@
         // ============ REAL MENU DATA ============
+        const CATEGORY_IMAGES = {
+            'Coffee': 'assets/Pasted Image 5.jpe',
+            'Matcha': 'assets/Pasted Image 3.jpe',
+            'Refreshers': 'assets/Pasted Image 2.jpe',
+            'Cakes & Pastries': 'assets/Pasted Image 5.jpe'
+        };
+
+        function getProductImage(item, category) {
+            if (item && typeof item.image === 'string') {
+                const image = item.image.trim();
+                const isAsset = image.startsWith('assets/') && !image.split('/').includes('..');
+                const isStoredImage = /^\/api\/product-images\/[0-9a-f-]{36}$/i.test(image);
+                const isLocalImage = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/i.test(image);
+                if (isAsset || isStoredImage) return encodeURI(image);
+                if (isLocalImage) return image;
+            }
+            if (!item || !category) return '';
+            const categoryItems = PRODUCTS[category] || [];
+            const isFeaturedItem = categoryItems.length > 0 && categoryItems[0].n === item.n;
+            return isFeaturedItem ? encodeURI(CATEGORY_IMAGES[category] || '') : '';
+        }
+
         const PRODUCTS = {
             'Flowers': [{
                 e: '🌹',
                 n: 'Ecuadorian Roses (6pc)',
-                d: '',
+                d: 'A timeless bouquet of vibrant roses for heartfelt moments.',
                 p: '₱ 390',
                 stock: 'In Stock'
             }, {
                 e: '🌻',
                 n: 'Sunflower Stem',
-                d: '',
+                d: 'A bright sunflower stem that brings a little sunshine to any space.',
                 p: '₱ 120',
                 stock: 'In Stock'
             }, {
                 e: '🌷',
                 n: 'Dutch Tulip (single)',
-                d: '',
+                d: 'A graceful single tulip for a thoughtful, colorful touch.',
                 p: '₱ 85',
                 stock: 'Low Stock'
             }, {
                 e: '🌼',
                 n: 'Daisy Mix Stem',
-                d: '',
+                d: 'A cheerful daisy stem with a fresh, playful look.',
                 p: '₱ 95',
                 stock: 'In Stock'
             }, {
                 e: '🪻',
                 n: 'Lavender Bunch',
-                d: '',
+                d: 'A lovely lavender bunch with a soft, calming charm.',
                 p: '₱ 140',
                 stock: 'Sold Out'
             }, {
                 e: '🌸',
                 n: 'Cherry Blossom Stem',
-                d: '',
+                d: 'A delicate blossom stem for a gentle, elegant accent.',
                 p: '₱ 160',
                 stock: 'In Stock'
             }, ],
             'Bouquets': [{
                 e: '💐',
                 n: 'Sweetheart Peony Bouquet',
-                d: '12 peonies, eucalyptus, baby\'s breath',
+                d: 'A romantic blush bouquet made for anniversaries and heartfelt gifts.',
                 p: '₱ 980',
                 stock: 'In Stock'
             }, {
                 e: '💐',
                 n: 'Tulip Garden Box',
-                d: 'Mixed Dutch tulips in a box',
+                d: 'A colorful tulip arrangement presented in a charming garden box.',
                 p: '₱ 450',
                 stock: 'In Stock'
             }, {
                 e: '💐',
-                n: 'Rose &amp; Baby\'s Breath Bunch',
-                d: 'Classic hand-tied bunch',
+                n: 'Rose & Baby\'s Breath Bunch',
+                d: 'A timeless hand-tied bouquet for celebrations big and small.',
                 p: '₱ 620',
                 stock: 'In Stock'
             }, ],
-            'Coffee': [{
+            'Coffee': [
+                ['Americano', 'A bold, smooth coffee for a simple, satisfying pick-me-up.', 'M79 · L99 · Hot79', 'coffee-americano.png'],
+                ['Spanish Latte', 'Espresso with milk and condensed milk.', 'M129 · L139 · Hot129', 'coffee-spanish-latte.png'],
+                ['Caramel Macchiato', 'Espresso with caramel syrup, milk, and cold foam.', 'M139 · L149 · Hot129', 'coffee-caramel-macchiato.png'],
+                ['Vietnamese Coffee', 'Espresso with condensed milk and water.', 'M109 · L119 · Hot109', 'coffee-vietnamese-coffee.png'],
+                ['Vanilla Cinnamon Latte', 'Espresso with vanilla, cinnamon, and milk.', 'M139 · L149 · Hot129', 'coffee-vanilla-cinnamon-latte.png'],
+                ['Mocha Latte', 'Espresso with chocolate and milk.', 'M139 · L149 · Hot139', 'coffee-mocha-latte.png'],
+                ['Dalgona Coffee', 'Whipped coffee with milk and sugar.', 'M129 · L139 · Hot129', 'coffee-dalgona-coffee.png'],
+                ['Mojito Mint Cream Coffee', 'Espresso with mojito and mint (no alcohol).', 'M149 · L169 · Hot159', 'coffee-mojito-mint-cream-coffee.png'],
+                ['White Choco Latte', 'Espresso with white chocolate and milk.', 'M149 · L169 · Hot159', 'coffee-white-choco-latte.png'],
+                ['French Vanilla Latte', 'Espresso with French vanilla and milk.', 'M149 · L169 · Hot159', 'coffee-french-vanilla-latte.png']
+            ].map(([name, description, price, image]) => ({
                 e: '☕',
-                n: 'Americano',
-                d: 'Espresso + Water',
-                p: 'M79 · L99 · Hot79',
-                stock: 'In Stock'
-            }, {
+                n: name,
+                d: description,
+                p: price,
+                stock: 'In Stock',
+                image: `assets/products/${image}`
+            })),
+            'Flavored Coffee': [
+                ['Strawberry Coffee', 'Espresso with strawberry and milk.', 'M139 · L149 · Hot129', 'milk-strawberry-latte.png'],
+                ['Taro Coffee', 'Espresso with taro and milk.', 'M139 · L149 · Hot129', 'coffee-taro-coffee.png'],
+                ['Orange Espresso', 'Espresso with squeezed orange and water.', 'M129 · L139', 'coffee-orange-espresso.png'],
+                ['Lemonade Coffee', 'Espresso with squeezed lemon and water.', 'M129 · L139', 'coffee-mojito-mint-cream-coffee.png'],
+                ['Dirty Matcha', 'Espresso with matcha and milk.', 'M139 · L149 · Hot129', 'milk-dirty-matcha.png']
+            ].map(([name, description, price, image]) => ({
                 e: '☕',
-                n: 'Spanish Latte',
-                d: 'Espresso + Milk + Condensed Milk',
-                p: 'M129 · L139 · Hot129',
-                stock: 'In Stock'
-            }, {
+                n: name,
+                d: description,
+                p: price,
+                stock: 'In Stock',
+                ...(image ? { image: `assets/products/${image}` } : {})
+            })),
+            'Premium Latte': [
+                ['Nutella Latte', 'A creamy latte with rich Nutella chocolate.', 'M139 · L149 · Hot129', 'milk-chocolate-latte.png'],
+                ['Biscoff Latte', 'A creamy caramelized biscuit latte.', 'M139 · L149 · Hot129', 'coffee-cinnamon-roll-latte.png'],
+                ['Salted Caramel Latte', 'A smooth caramel latte with a lightly salted finish.', 'M89 · L99 · Hot99', 'coffee-salted-caramel-latte.png'],
+                ['Strawberry Nutella Latte', 'A creamy latte with strawberry and Nutella.', 'M129 · L139 · Hot99', 'milk-strawberry-choco-latte.png']
+            ].map(([name, description, price, image]) => ({
                 e: '☕',
-                n: 'Caramel Macchiato',
-                d: 'Espresso + Caramel Syrup + Milk + Cold Foam',
-                p: 'M139 · L149 · Hot129',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'Vietnamese Coffee',
-                d: 'Espresso + Condensed Milk + Water',
-                p: 'M109 · L119 · Hot109',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'Vanilla Cinnamon Latte',
-                d: 'Espresso + Vanilla + Cinnamon + Milk',
-                p: 'M139 · L149 · Hot129',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'Mocha Latte',
-                d: 'Espresso + Chocolate + Milk',
-                p: 'M139 · L149 · Hot139',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'Dalgona Coffee',
-                d: 'Whipped Foam Coffee + Milk + Sugar',
-                p: 'M129 · L139 · Hot129',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'Mojito Mint Cream Coffee',
-                d: 'Espresso + Mojito + Mint (No Alcohol)',
-                p: 'M149 · L169 · Hot159',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'White Choco Latte',
-                d: 'Espresso + White Choco + Milk',
-                p: 'M149 · L169 · Hot159',
-                stock: 'In Stock'
-            }, {
-                e: '☕',
-                n: 'French Vanilla Latte',
-                d: 'Espresso + French Vanilla + Milk',
-                p: 'M149 · L169 · Hot159',
-                stock: 'In Stock'
-            }, ],
+                n: name,
+                d: description,
+                p: price,
+                stock: 'In Stock',
+                image: `assets/products/${image}`
+            })),
             'Matcha': [{
                 e: '🍵',
                 n: 'Matcha Latte',
-                d: '',
+                d: 'A smooth matcha favorite with an earthy, mellow finish.',
                 p: 'M129 · L139 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-latte.png'
             }, {
                 e: '🍵',
                 n: 'Mango Matcha',
-                d: '',
+                d: 'A vibrant matcha favorite with a bright mango twist.',
                 p: 'M149 · L159 · Hot129',
-                stock: 'In Stock'
-            }, {
-                e: '🍵',
-                n: 'Caramel Matcha',
-                d: '',
-                p: 'M139 · L149 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-mango.png'
             }, {
                 e: '🍵',
                 n: 'Choco Matcha',
-                d: '',
+                d: 'A rich matcha favorite with a smooth, chocolatey finish.',
                 p: 'M139 · L149 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-choco.png'
+            }, {
+                e: '🍵',
+                n: 'Caramel Matcha',
+                d: 'Mellow matcha with buttery caramel notes and a sweet finish.',
+                p: 'M139 · L149 · Hot129',
+                stock: 'In Stock',
+                image: 'assets/products/matcha-caramel.png'
             }, {
                 e: '🍵',
                 n: 'Blueberry Matcha',
-                d: '',
+                d: 'A smooth matcha favorite with a sweet blueberry finish.',
                 p: 'M149 · L159 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-blueberry.png'
             }, {
                 e: '🍵',
                 n: 'Strawberry Matcha',
-                d: '',
+                d: 'A smooth matcha favorite with a sweet strawberry finish.',
                 p: 'M149 · L159 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-strawberry.png'
             }, {
                 e: '🍵',
                 n: 'Mint Matcha',
-                d: '',
+                d: 'A cool, refreshing matcha with a gentle minty finish.',
                 p: 'M139 · L149 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-mint.png'
             }, {
                 e: '🍵',
                 n: 'White Choco Matcha',
-                d: '',
+                d: 'A mellow matcha drink with a touch of sweet white chocolate.',
                 p: 'M139 · L149 · Hot129',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/matcha-white-choco.png'
             }, ],
-            'Refreshers': [{
-                e: '🥤',
-                n: 'Soda Refresher — Lemon',
-                d: 'Media 69 · Grande 79',
-                p: '₱ 69',
-                stock: 'In Stock'
-            }, {
-                e: '🥤',
-                n: 'Soda Refresher — Strawberry',
-                d: 'Media 69 · Grande 79',
-                p: '₱ 69',
-                stock: 'In Stock'
-            }, {
-                e: '🥤',
-                n: 'Soda Refresher — Green Apple',
-                d: 'Media 69 · Grande 79',
-                p: '₱ 69',
-                stock: 'In Stock'
-            }, {
-                e: '🥤',
-                n: 'Soda Refresher — Mango',
-                d: 'Media 69 · Grande 79',
-                p: '₱ 69',
-                stock: 'In Stock'
-            }, {
-                e: '🧋',
-                n: 'Milk Based Latte — Mango',
-                d: 'Media 79 · Grande 89',
-                p: '₱ 79',
-                stock: 'In Stock'
-            }, {
-                e: '🧋',
-                n: 'Milk Based Latte — Blueberry',
-                d: 'Media 79 · Grande 89',
-                p: '₱ 79',
-                stock: 'In Stock'
-            }, {
-                e: '🥤',
-                n: 'Coke Float',
-                d: '',
-                p: '₱ 99',
-                stock: 'In Stock'
-            }, ],
+            'Refreshers': [
+                ...['Lemon', 'Strawberry', 'Green Apple', 'Lychee', 'Mixed Berries', 'Blueberry', 'Mango', 'Cola Soda', 'Passion Fruit'].map(flavor => ({
+                    e: '🥤',
+                    n: `Soda Refresher — ${flavor}`,
+                    d: `A bright, bubbly refresher with a lively ${flavor.toLowerCase()} twist.`,
+                    p: '₱ 69',
+                    sizePrices: { Medium: 69, Large: 79 },
+                    stock: 'In Stock',
+                    image: `assets/products/refresher-${flavor.toLowerCase().replace(/ /g, '-')}.png`
+                })),
+                {
+                    e: '🥤',
+                    n: 'Coke Float',
+                    d: 'A chilled cola float.',
+                    p: '₱ 99',
+                    sizePrices: { Medium: 99 },
+                    stock: 'In Stock',
+                    image: 'assets/products/refresher-cola-soda.png'
+                },
+                ...[
+                    ['Chocolate Latte', 'Chocolate', 'milk-chocolate-latte.png'],
+                    ['Strawberry Latte', 'Strawberry', 'milk-strawberry-latte.png'],
+                    ['Green Apple Latte', 'Green apple', 'refresher-green-apple.png'],
+                    ['Lychee Latte', 'Lychee', 'refresher-lychee.png'],
+                    ['Blueberry Latte', 'Blueberry', 'milk-blueberry-latte.png'],
+                    ['Mixed Berries Latte', 'Mixed berries', 'refresher-mixed-berries.png'],
+                    ['Mango Latte', 'Mango', 'refresher-mango.png']
+                ].map(([name, flavor, image]) => ({
+                    e: '🧋',
+                    n: name,
+                    d: `A smooth milk-based latte with ${flavor.toLowerCase()}.`,
+                    p: 'Media ₱79 · Grande ₱89',
+                    sizePrices: { Medium: 79, Large: 89 },
+                    stock: 'In Stock',
+                    image: `assets/products/${image}`
+                }))
+            ],
+            'Frappe': [
+                ...[
+                    ['Matcha', 129, 149, 'assets/products/frappe-matcha.png'],
+                    ['Salted Caramel', 129, 149, 'assets/products/frappe-caramel.png'],
+                    ['Cheesecake', 129, 149, 'assets/products/frappe-vanilla.png'],
+                    ['Red Velvet', 129, 149, 'assets/products/frappe-strawberry.png'],
+                    ['Nutella Triple Choco', 149, 169, 'assets/products/frappe-nutella-triple-choco.png'],
+                    ['Biscoff', 149, 169, 'assets/products/frappe-biscoff.png'],
+                    ['Mango', 129, 149, 'assets/products/frappe-mango.png'],
+                    ['Strawberry', 129, 149, 'assets/products/frappe-strawberry.png'],
+                    ['Blueberry', 129, 149, 'assets/products/frappe-mixed-berry.png']
+                ].map(([name, medium, large, image]) => ({
+                    e: '🥤',
+                    n: name,
+                    d: `A creamy blended ${name.toLowerCase()} frappe.`,
+                    p: `Media ₱${medium} · Grande ₱${large}`,
+                    sizePrices: { Medium: medium, Large: large },
+                    stock: 'In Stock',
+                    image
+                }))
+            ],
             'Rice Meals': [{
                 e: '🍖',
                 n: 'Liempo Kare',
-                d: 'Grilled pork liempo in kare sauce, rice',
+                d: 'A hearty pork favorite with rich, comforting kare-inspired flavor.',
                 p: '₱ 179',
                 stock: 'In Stock',
-                badge: 'NEW'
+                badge: 'NEW',
+                image: 'assets/products/rice-liempo-kare.png'
             }, {
                 e: '🍗',
                 n: 'Honey Butter Chicken',
-                d: 'Honey butter glazed chicken bowl',
+                d: 'A golden chicken favorite with a sweet-and-savory finish.',
                 p: '₱ 159',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/rice-honey-butter-chicken.png'
             }, {
                 e: '🍚',
                 n: 'Sizzling Breaded Liempo',
-                d: 'Breaded liempo over sizzling rice',
+                d: 'A hearty sizzling favorite with a satisfying golden crunch.',
                 p: '₱ 169',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/products/rice-sizzling-breaded-liempo.png'
             }, {
                 e: '🍜',
                 n: 'Pancit Guisado',
-                d: 'Sautéed noodles, mixed vegetables',
+                d: 'A classic noodle favorite made for a comforting meal.',
                 p: '₱ 129',
                 stock: 'In Stock',
-                badge: 'NEW'
+                badge: 'NEW',
+                image: 'assets/products/rice-pancit-guisado.png'
             }, {
                 e: '🍛',
                 n: 'Chicken in White Onion Creme',
-                d: 'Served with rice and fresh veggies',
+                d: 'Tender chicken with a creamy, savory finish.',
                 p: '₱ 149',
                 stock: 'In Stock',
-                badge: 'NEW'
+                badge: 'NEW',
+                image: 'assets/products/rice-chicken-in-white-onion-creme.png'
             }, {
                 e: '🍤',
                 n: 'Shrimp Fritter and Veggies',
-                d: 'Crispy shrimp fritters with slaw',
+                d: 'Crispy shrimp fritters paired with a fresh, balanced side.',
                 p: '₱ 169',
                 stock: 'In Stock',
-                badge: 'NEW'
-            }, ],
+                badge: 'NEW',
+                image: 'assets/products/rice-shrimp-fritter-and-veggies.png'
+            }, {
+                e: '🍲',
+                n: 'Chicken Tonkotsu',
+                d: 'A comforting chicken favorite with rich, savory flavor.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/rice-chicken-tonkotsu.png'
+            }, {
+                e: '🥩',
+                n: 'Sizzling Bulalo Kare',
+                d: 'A hearty sizzling favorite with deep, savory kare-inspired flavor.',
+                p: '₱ 169',
+                stock: 'In Stock',
+                image: 'assets/products/rice-sizzling-bulalo-kare.png'
+            }, {
+                e: '🦑',
+                n: 'Sizzling Sweet n Sour Pusit',
+                d: 'Tender squid with a lively sweet-and-tangy finish.',
+                p: '₱ 139',
+                stock: 'In Stock',
+                image: 'assets/products/rice-sizzling-sweet-n-sour-pusit.png'
+            }, {
+                e: '🍖',
+                n: 'Breaded Sizzling Pork Chop',
+                d: 'A hearty pork chop with a golden crust, served sizzling.',
+                p: '₱ 149',
+                stock: 'In Stock',
+                image: 'assets/products/rice-breaded-sizzling-pork-chop.png'
+            }, {
+                e: '🍗',
+                n: 'Breaded Chicken Wings',
+                d: 'Crispy, savory chicken wings for a satisfying meal.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/rice-breaded-chicken-wings.png'
+            }, {
+                e: '🍤',
+                n: 'Shrimp Fritters Rice',
+                d: 'A crisp, savory shrimp favorite paired with rice.',
+                p: '₱ 139',
+                stock: 'In Stock',
+                image: 'assets/products/rice-shrimp-fritters-rice.png'
+            }, {
+                e: '🐟',
+                n: 'Salmon Steak',
+                d: 'A satisfying salmon favorite with a rich, savory finish.',
+                p: '₱ 119',
+                stock: 'In Stock',
+                image: 'assets/products/rice-salmon-steak.png'
+            }, {
+                e: '🍱',
+                n: 'Pork Katsudon',
+                d: 'A comforting Japanese-inspired pork favorite served over rice.',
+                p: '₱ 139',
+                stock: 'In Stock',
+                image: 'assets/products/rice-pork-katsudon.png'
+            }, {
+                e: '🍗',
+                n: 'Chicken Shawarma Rice',
+                d: 'A flavorful shawarma-inspired chicken meal served with rice.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/rice-chicken-shawarma-rice.png'
+            }, {
+                e: '🍛',
+                n: 'Crispy Chicken Kare',
+                d: 'A crunchy chicken favorite with comforting kare-inspired flavor.',
+                p: '₱ 149',
+                stock: 'In Stock',
+                image: 'assets/products/rice-crispy-chicken-kare.png'
+            }, {
+                e: '🍗',
+                n: 'Crispy Chicken Rice',
+                d: 'A golden, satisfying chicken meal served with rice.',
+                p: '₱ 149',
+                stock: 'In Stock',
+                image: 'assets/products/rice-crispy-chicken-rice.png'
+            }, {
+                e: '🍗',
+                n: 'Chicken Ala King',
+                d: 'A comforting chicken favorite with a rich, creamy finish.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/rice-chicken-ala-king.png'
+            }],
+            'Finger Foods': [{
+                e: '🍟',
+                n: 'Chicken Shawarma Fries',
+                d: 'Crispy fries with a bold, savory shawarma-inspired twist.',
+                p: '₱ 119',
+                stock: 'In Stock',
+                image: 'assets/products/finger-chicken-shawarma-fries.png'
+            }, {
+                e: '🌯',
+                n: 'Chicken Burrito Wrap',
+                d: 'A hearty, flavor-packed wrap for an easy, satisfying bite.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/finger-chicken-burrito-wrap.png'
+            }, {
+                e: '🍤',
+                n: 'Shrimp Fritters',
+                d: 'Golden, crispy shrimp bites with a savory finish.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/finger-shrimp-fritters.png'
+            }, {
+                e: '🥔',
+                n: 'Potato Wedges',
+                d: 'Golden potato wedges, crisp outside and fluffy inside.',
+                p: '₱ 99',
+                stock: 'In Stock',
+                image: 'assets/products/finger-potato-wedges.png'
+            }, {
+                e: '🥪',
+                n: 'Clubhouse With Fries',
+                d: 'A satisfying café classic served with golden fries.',
+                p: '₱ 149',
+                stock: 'In Stock',
+                image: 'assets/products/finger-clubhouse-with-fries.png'
+            }, {
+                e: '🍔',
+                n: 'Double Patty Burger with Fries',
+                d: 'A hearty double-patty favorite served with fries.',
+                p: '₱ 179',
+                stock: 'In Stock',
+                image: 'assets/products/finger-double-patty-burger-with-fries.png'
+            }, {
+                e: '🥗',
+                n: 'Veggies Salad',
+                d: 'A fresh, colorful choice for a lighter bite.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/finger-veggies-salad.png'
+            }, {
+                e: '🧅',
+                n: 'Chicken Onion Rings',
+                d: 'Crunchy, savory bites with a satisfying golden finish.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/finger-chicken-onion-rings.png'
+            }, {
+                e: '🥟',
+                n: 'Chicken Dumplings',
+                d: 'A comforting favorite with a tender, savory filling.',
+                p: '₱ 119',
+                stock: 'In Stock',
+                image: 'assets/products/finger-chicken-dumplings.png'
+            }],
+            'Pasta': [{
+                e: '🍝',
+                n: 'Chicken Alfredo Pasta',
+                d: 'A creamy, comforting pasta favorite with a savory finish.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/pasta-chicken-alfredo-pasta.png'
+            }, {
+                e: '🍝',
+                n: 'Aglio e Olio',
+                d: 'A simple, aromatic pasta with a light, savory finish.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/pasta-aglio-e-olio.png'
+            }, {
+                e: '🍝',
+                n: 'Binagoongan Pasta',
+                d: 'A bold, savory pasta favorite with a Filipino-inspired twist.',
+                p: '₱ 129',
+                stock: 'In Stock',
+                image: 'assets/products/pasta-binagoongan-pasta.png'
+            }],
             'Cakes & Pastries': [{
                 e: '🍰',
                 n: 'Lavender Basque Cake',
-                d: 'Burnt Basque cheesecake, slice',
+                d: 'A rich, creamy cake with a delicate lavender-inspired finish.',
                 p: '₱ 195',
-                stock: 'In Stock'
+                stock: 'In Stock',
+                image: 'assets/Pasted Image 5.jpe'
             }, {
                 e: '🧁',
                 n: 'Rose Vanilla Cupcake',
-                d: '',
+                d: 'A charming cupcake with a soft, sweet vanilla finish.',
                 p: '₱ 85',
                 stock: 'In Stock'
             }, ],
         };
-        const CATALOG_ORDER = ['Flowers', 'Bouquets', 'Coffee', 'Matcha', 'Refreshers', 'Rice Meals', 'Cakes & Pastries'];
+        const CATALOG_ORDER = ['Flowers', 'Bouquets', 'Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe', 'Rice Meals', 'Finger Foods', 'Pasta', 'Cakes & Pastries'];
+        const HIDDEN_CATALOG_CATEGORIES = new Set(['Flowers', 'Bouquets', 'Cakes & Pastries']);
+        const CUSTOMER_CATALOG_ORDER = CATALOG_ORDER.filter(category => !HIDDEN_CATALOG_CATEGORIES.has(category));
+        const DRINK_CATEGORIES = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe'];
+        const HOT_DRINK_CATEGORIES = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha'];
         let currentCategory = 'Coffee';
         window.selectedProduct = null;
 
-        function renderCatalogChips() {
-            const wrap = document.getElementById('catalog-chips');
-            wrap.innerHTML = CATALOG_ORDER.map(cat =>
-                `<span class="chip${cat===currentCategory?' active':''}" onclick="setCategory('${cat}')">${cat}</span>`
-            ).join('');
-        }
+function escapeCatalogText(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
 
-        function renderCatalogGrid() {
-            const items = PRODUCTS[currentCategory] || [];
-            document.getElementById('catalog-count').innerHTML = `${items.length} items in <b style="color:var(--ink);">${currentCategory}</b>`;
-            document.getElementById('catalog-grid').innerHTML = items.map((it, index) => {
-                        const soldOut = it.stock === 'Sold Out';
-                        const badgeClass = it.stock === 'In Stock' ? 'badge-sage' : (it.stock === 'Low Stock' ? 'badge-gold' : 'badge-danger');
-                        const newTag = it.badge ? `<span class="badge badge-blush" style="font-size:9px;padding:2px 7px;margin-left:6px;">${it.badge}</span>` : '';
-                        return `<div class="card" style="${soldOut?'opacity:.55;':''}" onclick="${soldOut?'':`selectProduct('${currentCategory}', ${index})`}">
-      <div class="thumb" style="height:96px;">${it.e}</div>
-      <p style="font-size:12.5px;font-weight:700;margin-top:9px;">${it.n}${newTag}</p>
-      ${it.d ? `<p style="font-size:10.5px;color:var(--ink-soft);margin-top:2px;">${it.d}</p>` : ''}
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-        <span style="font-weight:800;color:var(--blush-deep);font-size:12px;">${it.p}</span>
-        <span class="badge ${badgeClass}" style="font-size:9.5px;padding:3px 8px;">${it.stock}</span>
+function renderFeaturedToday() {
+    const container = document.querySelector('#qr-landing .customer-featured-items');
+    const fullMenu = document.getElementById('customer-full-menu-grid');
+    if (!container || !fullMenu) return;
+
+    const products = CUSTOMER_CATALOG_ORDER.flatMap(category =>
+        (PRODUCTS[category] || []).map(product => ({ category, product }))
+    );
+    const renderCards = items => items.map(({ category, product }) => {
+        const image = getProductImage(product, category);
+        const imageMarkup = image
+            ? `<img src="${escapeCatalogText(image)}" alt="${escapeCatalogText(product.n)}" loading="lazy" decoding="async">`
+            : `<span aria-hidden="true">${escapeCatalogText(product.e || '')}</span>`;
+        return `<article class="customer-featured-card">
+            <div class="customer-featured-card__image">${imageMarkup}</div>
+            <p class="customer-featured-card__name">${escapeCatalogText(product.n)}</p>
+            <p class="customer-featured-card__category">${escapeCatalogText(category)}</p>
+            <p class="customer-featured-card__price">${escapeCatalogText(product.p || '')}</p>
+        </article>`;
+    }).join('');
+    const featuredProducts = CUSTOMER_CATALOG_ORDER
+        .map(category => products.find(item => item.category === category))
+        .filter(Boolean);
+    container.innerHTML = renderCards(featuredProducts);
+    fullMenu.innerHTML = renderCards(products);
+}
+
+renderFeaturedToday();
+
+function openFeaturedMenu() {
+    const dialog = document.getElementById('customer-full-menu-dialog');
+    if (!dialog || typeof dialog.showModal !== 'function') {
+        console.error('The full menu dialog is unavailable in this browser.');
+        return;
+    }
+    if (!dialog.open) dialog.showModal();
+    window.FloreaCustomerSession.update({ fullMenuOpen: true });
+}
+
+function closeFeaturedMenu() {
+    const dialog = document.getElementById('customer-full-menu-dialog');
+    if (dialog?.open) dialog.close();
+    window.FloreaCustomerSession.update({ fullMenuOpen: false });
+}
+
+function renderCatalogChips() {
+    const wrap = document.getElementById('catalog-chips');
+    wrap.innerHTML = CUSTOMER_CATALOG_ORDER.map(cat =>
+        `<button type="button" class="chip${cat===currentCategory?' active':''}" data-category="${escapeCatalogText(cat)}">${escapeCatalogText(cat)}</button>`
+    ).join('');
+    if (!wrap.dataset.clickBound) {
+        wrap.addEventListener('click', event => {
+            const chip = event.target.closest('[data-category]');
+            if (!chip || !wrap.contains(chip)) return;
+            if (document.getElementById('catalog')?.classList.contains('active')) {
+                document.querySelectorAll('.customer-menu-search input').forEach(input => { input.value = ''; });
+                renderCatalogProducts(chip.dataset.category || null, '');
+                return;
+            }
+            if (chip.dataset.category) setCategory(chip.dataset.category);
+        });
+        wrap.dataset.clickBound = 'true';
+    }
+}
+
+function renderProductThumb(item, width = '100%', category = '') {
+    const activeCategory = category || currentCategory;
+    const src = getProductImage(item, activeCategory);
+    const imageHeight = '224px';
+    if (!src) return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};">${item ? escapeCatalogText(item.e) : ''}</div>`;
+    return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};overflow:hidden;">
+        <img src="${escapeCatalogText(src)}" alt="${escapeCatalogText(item ? item.n : category || 'Menu item')}" class="thumb-image" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;" />
+    </div>`;
+}
+
+const productRatings = new Map();
+const ratingVisitorStorageKey = 'florea-rating-visitor-id';
+let ratingsReady = false;
+
+function renderRating(productName) {
+    const rating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
+    const selectedRating = rating.myRating || Math.round(rating.average);
+    const stars = Array.from({ length: 5 }, (_, index) => {
+        const value = index + 1;
+        return `<button type="button" class="rating-star${value <= selectedRating ? ' is-selected' : ''}" data-rating-product="${escapeCatalogText(productName)}" data-rating-value="${value}" aria-label="Rate ${escapeCatalogText(productName)} ${value} out of 5 stars" aria-pressed="${rating.myRating === value}" ${ratingsReady ? '' : 'disabled'}>★</button>`;
+    }).join('');
+    const summary = rating.count
+        ? `${rating.average.toFixed(1)} (${rating.count} ${rating.count === 1 ? 'rating' : 'ratings'})`
+        : 'No ratings yet';
+    return `<div class="product-rating" data-product-name="${escapeCatalogText(productName)}"><div class="rating-stars" role="group" aria-label="Rate ${escapeCatalogText(productName)}">${stars}</div><span class="rating-summary">${summary}</span></div>`;
+}
+
+function renderFeaturedRatings() {
+    document.querySelectorAll('[data-featured-rating]').forEach(container => {
+        container.innerHTML = renderRating(container.dataset.featuredRating);
+    });
+}
+
+function refreshRatingWidgets(productName) {
+    document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
+        if (widget.dataset.productName === productName) {
+            widget.outerHTML = renderRating(productName);
+        }
+    });
+}
+
+function getRatingVisitorId() {
+    let visitorId = localStorage.getItem(ratingVisitorStorageKey);
+    if (!visitorId) {
+        visitorId = crypto.randomUUID();
+        localStorage.setItem(ratingVisitorStorageKey, visitorId);
+    }
+    return visitorId;
+}
+
+function showRatingNotice(message, isError = false) {
+    let notice = document.getElementById('rating-notice');
+    if (!notice) {
+        notice = document.createElement('div');
+        notice.id = 'rating-notice';
+        notice.className = 'rating-notice';
+        notice.setAttribute('role', 'status');
+        notice.setAttribute('aria-live', 'polite');
+        document.body.appendChild(notice);
+    }
+    notice.textContent = message;
+    notice.classList.toggle('is-error', isError);
+    notice.hidden = false;
+    clearTimeout(notice.timeoutId);
+    notice.timeoutId = setTimeout(() => { notice.hidden = true; }, 3500);
+}
+
+function readLocalRatings() {
+    const savedRatings = JSON.parse(localStorage.getItem('florea-product-ratings') || '{}');
+    if (!savedRatings || typeof savedRatings !== 'object' || Array.isArray(savedRatings)) {
+        throw new Error('Saved product ratings have an invalid format.');
+    }
+    Object.entries(savedRatings).forEach(([name, value]) => {
+        if (typeof name === 'string' && value && Number.isFinite(value.average) &&
+            Number.isInteger(value.count) && Number.isInteger(value.myRating)) {
+            productRatings.set(name, value);
+        }
+    });
+}
+
+async function loadProductRatings() {
+    try {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            readLocalRatings();
+        } else {
+            const response = await fetch(`/api/ratings?visitorId=${encodeURIComponent(getRatingVisitorId())}`);
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
+            if (!result.ratings || typeof result.ratings !== 'object' || Array.isArray(result.ratings)) {
+                throw new Error('The rating service returned invalid data.');
+            }
+            Object.entries(result.ratings).forEach(([name, value]) => productRatings.set(name, value));
+        }
+        ratingsReady = true;
+        document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
+            widget.outerHTML = renderRating(widget.dataset.productName);
+        });
+    } catch (error) {
+        console.error('Unable to load product ratings.', error);
+        ratingsReady = true;
+        document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
+            widget.outerHTML = renderRating(widget.dataset.productName);
+        });
+        showRatingNotice(`Ratings are unavailable: ${error.message}`, true);
+    }
+}
+
+async function submitProductRating(productName, value) {
+    if (!Number.isInteger(value) || value < 1 || value > 5) return;
+    const buttons = [...document.querySelectorAll('[data-rating-product]')]
+        .filter(button => button.dataset.ratingProduct === productName);
+    buttons.forEach(button => { button.disabled = true; });
+    try {
+        let updatedRating;
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const previousRating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
+            const previousTotal = previousRating.average * previousRating.count;
+            const count = previousRating.count + (previousRating.myRating ? 0 : 1);
+            const total = previousTotal - previousRating.myRating + value;
+            updatedRating = { average: total / count, count, myRating: value };
+            productRatings.set(productName, updatedRating);
+            localStorage.setItem('florea-product-ratings', JSON.stringify(Object.fromEntries(productRatings)));
+        } else {
+            const response = await fetch('/api/ratings', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ productName, rating: value, visitorId: getRatingVisitorId() })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
+            updatedRating = result.rating;
+            if (!updatedRating || !Number.isFinite(updatedRating.average) ||
+                !Number.isInteger(updatedRating.count) || updatedRating.myRating !== value) {
+                throw new Error('The rating service returned invalid data.');
+            }
+            productRatings.set(productName, updatedRating);
+        }
+        refreshRatingWidgets(productName);
+        showRatingNotice(`Thanks for rating ${productName}!`);
+    } catch (error) {
+        console.error('Unable to save product rating.', error);
+        buttons.forEach(button => { button.disabled = false; });
+        showRatingNotice(`Your rating could not be saved: ${error.message}`, true);
+    }
+}
+
+document.addEventListener('click', event => {
+    const ratingButton = event.target.closest('[data-rating-value]');
+    if (!ratingButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    submitProductRating(ratingButton.dataset.ratingProduct, Number(ratingButton.dataset.ratingValue));
+});
+
+function renderCatalogGrid() {
+    const items = HIDDEN_CATALOG_CATEGORIES.has(currentCategory) ? [] : PRODUCTS[currentCategory] || [];
+    document.getElementById('catalog-count').innerHTML = `${items.length} items in <b style="color:var(--ink);">${escapeCatalogText(currentCategory)}</b>`;
+    document.getElementById('catalog-grid').innerHTML = items.map((it, index) => {
+                const soldOut = it.stock === 'Sold Out';
+                const badgeClass = it.stock === 'In Stock' ? 'badge-sage' : (it.stock === 'Low Stock' ? 'badge-gold' : 'badge-danger');
+                const newTag = it.badge ? `<span class="badge badge-blush" style="font-size:9px;padding:2px 7px;margin-left:6px;">${escapeCatalogText(it.badge)}</span>` : '';
+                return `<div class="card customer-catalog-card" data-product-index="${index}" data-product-category="${escapeCatalogText(currentCategory)}" style="${soldOut?'opacity:.55;':''}">
+      ${renderProductThumb(it, '100%', currentCategory)}
+      <p class="customer-catalog-card__name">${escapeCatalogText(it.n)}${newTag}</p>
+      ${it.d ? `<p class="customer-catalog-card__description">${escapeCatalogText(it.d)}</p>` : '<p class="customer-catalog-card__description"></p>'}
+      <div class="customer-catalog-card__rating">${renderRating(it.n)}</div>
+      <div class="customer-catalog-card__footer">
+<span class="customer-catalog-card__price">${escapeCatalogText(it.p)}</span>
+<span class="badge ${badgeClass}" style="padding:4px 9px;">${escapeCatalogText(it.stock)}</span>
+${renderCatalogQuickAddButton(it, currentCategory)}
       </div>
     </div>`;
   }).join('');
+    revealScrollElements(document.getElementById('catalog-grid'));
+    const grid = document.getElementById('catalog-grid');
+    if (!grid.dataset.clickBound) {
+        grid.addEventListener('click', event => {
+            if (event.target.closest('[data-rating-value]')) return;
+            const card = event.target.closest('[data-product-index]');
+            if (!card || !grid.contains(card)) return;
+            selectProduct(card.dataset.productCategory, Number(card.dataset.productIndex));
+        });
+        grid.dataset.clickBound = 'true';
+    }
 }
 function setCategory(cat){
+  if (!CUSTOMER_CATALOG_ORDER.includes(cat)) return;
   currentCategory = cat;
   renderCatalogChips();
   renderCatalogGrid();
@@ -311,16 +758,136 @@ const customerScreens = [
   {id:'catalog', label:'Product Catalog'},
   {id:'product-details', label:'Product Details'},
 ];
+const customerJourneyScreenIds = new Set([
+  ...customerScreens.map(screen => screen.id),
+  'selection',
+  'sent-confirmation'
+]);
 const adminScreens = [
-  {id:'admin-login', label:'Admin Login'},
   {id:'admin-dashboard', label:'Dashboard'},
   {id:'order-management', label:'Order Management'},
   {id:'sales-automation', label:'Sales Automation'},
   {id:'inventory-control', label:'Inventory Control'},
   {id:'product-management', label:'Product Management'},
-  {id:'analytics', label:'Business Analytics'},
+  {id:'customer-management', label:'Customer Management'},
+  {id:'analytics', label:'Sales Analytics'},
   {id:'reports', label:'Reports'},
+  {id:'notifications', label:'Notifications'},
 ];
+const adminProtectedScreenIds = new Set(adminScreens.map(screen => screen.id));
+const adminNavigationGroups = [
+  {
+    label: 'Main Menu',
+    items: [
+      ['admin-dashboard', 'Dashboard', 'dashboard'],
+      ['order-management', 'Order Management', 'orders'],
+      ['product-management', 'Product Management', 'products'],
+      ['inventory-control', 'Inventory Control', 'inventory'],
+      ['customer-management', 'Customer Management', 'customers'],
+    ]
+  },
+  {
+    label: 'Business Management',
+    items: [
+      ['analytics', 'Sales Analytics', 'analytics'],
+      ['reports', 'Reports', 'reports'],
+    ]
+  },
+  {
+    label: 'System Management',
+    items: [
+      ['notifications', 'Notifications', 'notifications'],
+      ['settings', 'Settings', 'settings'],
+    ]
+  },
+];
+const adminIconPaths = {
+  dashboard: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+  orders: '<path d="M7 3h10l2 3v15H5V6l2-3Z"/><path d="M9 10h6M9 14h6M9 18h4"/>',
+  products: '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.5 7.8 7.5 4.3 7.5-4.3M12 12v9"/>',
+  inventory: '<path d="M4 7h16v13H4zM3 4h18v3H3z"/><path d="M9 11h6"/>',
+  customers: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 5.5a3.5 3.5 0 0 1 0 6.8M18 14a5 5 0 0 1 3.5 6"/>',
+  analytics: '<path d="M3 20h18"/><path d="M6 16v-5M12 16V4M18 16V8"/>',
+  reports: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
+  notifications: '<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.6.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.6-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.9l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.6-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.6.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8Z"/>',
+  logout: '<path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/>',
+};
+
+function renderAdminNavigation(activeScreen) {
+  const activeItem = activeScreen === 'sales-automation' ? 'analytics' : activeScreen;
+  document.querySelectorAll('.admin-sidenav').forEach(nav => {
+    nav.setAttribute('aria-label', 'Admin navigation');
+    const groups = adminNavigationGroups.map(group => `
+      <div class="admin-sidebar-group">
+        <p class="admin-sidebar-label">${group.label}</p>
+        ${group.items.map(([id, label, icon]) => `
+          <a href="#" class="admin-nav-link${activeItem === id ? ' active' : ''}" ${id === 'settings' ? 'data-ui-action="settings"' : `data-admin-screen="${id}"`}${activeItem === id ? ' aria-current="page"' : ''}>
+            <svg class="admin-nav-icon" viewBox="0 0 24 24" aria-hidden="true">${adminIconPaths[icon]}</svg>
+            <span>${label}</span>
+            ${id === 'notifications' ? '<span class="admin-notification-count" hidden></span>' : ''}
+          </a>`).join('')}
+      </div>`).join('');
+    nav.innerHTML = `
+      <div class="admin-sidebar-brand">
+        <img src="/florea-logo-192.png" alt="">
+        <span><strong>FLORÉA</strong><small>ADMIN PANEL</small></span>
+      </div>
+      <div class="admin-sidebar-scroll">${groups}</div>
+      <div class="admin-sidebar-profile">
+        <span class="admin-profile-avatar" aria-hidden="true">A</span>
+        <span><strong>Admin account</strong><small>Administrator</small></span>
+        <button type="button" class="admin-logout" data-admin-logout aria-label="Log out" title="Log out">
+          <svg class="admin-nav-icon" viewBox="0 0 24 24" aria-hidden="true">${adminIconPaths.logout}</svg>
+        </button>
+      </div>`;
+  });
+
+  document.querySelectorAll('.screen[id] .admin-topbar').forEach(topbar => {
+    const screen = topbar.closest('.screen');
+    if (!screen || !adminProtectedScreenIds.has(screen.id)) return;
+    if (topbar.querySelector('[data-admin-menu-toggle]')) return;
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'admin-sidebar-toggle';
+    toggle.dataset.adminMenuToggle = '';
+    toggle.setAttribute('aria-label', 'Open admin navigation');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+    topbar.insertBefore(toggle, topbar.firstChild);
+  });
+  document.querySelectorAll('.admin-body.admin-nav-open').forEach(adminBody => adminBody.classList.remove('admin-nav-open'));
+  document.querySelectorAll('[data-admin-menu-toggle][aria-expanded="true"]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+}
+
+document.addEventListener('click', event => {
+  const toggle = event.target.closest('[data-admin-menu-toggle]');
+  if (toggle) {
+    const adminBody = toggle.closest('.screen')?.querySelector('.admin-body');
+    if (adminBody) {
+      const isOpen = adminBody.classList.toggle('admin-nav-open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    }
+    return;
+  }
+  const adminLink = event.target.closest('[data-admin-screen]');
+  if (adminLink) {
+    event.preventDefault();
+    go(adminLink.dataset.adminScreen);
+    return;
+  }
+  const logoutButton = event.target.closest('[data-admin-logout]');
+  if (logoutButton) {
+    logoutAdmin();
+    go('admin-login');
+    return;
+  }
+  if (!event.target.closest('.admin-sidenav, [data-admin-menu-toggle]')) {
+    document.querySelectorAll('.admin-body.admin-nav-open').forEach(adminBody => adminBody.classList.remove('admin-nav-open'));
+    document.querySelectorAll('[data-admin-menu-toggle][aria-expanded="true"]').forEach(button => button.setAttribute('aria-expanded', 'false'));
+  }
+});
+
 const cashierScreens = [
   {id:'cashier-dashboard', label:'Orders Dashboard'},
 ];
@@ -354,24 +921,24 @@ const AUTH_KEYS = {
   admin: 'florea-admin-auth',
   cashier: 'florea-cashier-auth'
 };
+let adminSessionVerified = false;
 
 function isAuthenticated(role){
+  if (role === 'admin' && !FloreaOrderSync.isLocal()) return adminSessionVerified;
   try {
-    return localStorage.getItem(AUTH_KEYS[role]) === 'true';
+    const storage = role === 'cashier' && !FloreaOrderSync.isLocal() ? sessionStorage : localStorage;
+    return storage.getItem(AUTH_KEYS[role]) === 'true';
   } catch (e) {
     return false;
   }
 }
 
 function setAuthenticated(role, value){
+  if (role === 'admin' && !FloreaOrderSync.isLocal()) adminSessionVerified = Boolean(value);
   try {
-    localStorage.setItem(AUTH_KEYS[role], value ? 'true' : 'false');
+    const storage = role === 'cashier' && !FloreaOrderSync.isLocal() ? sessionStorage : localStorage;
+    storage.setItem(AUTH_KEYS[role], value ? 'true' : 'false');
   } catch (e) {}
-}
-
-function updateCustomerGreeting(name) {
-  const greeting = document.getElementById('customer-greeting');
-  if (greeting) greeting.textContent = `Hi, ${name} 👋`;
 }
 
 function getExistingMenuUrl() {
@@ -437,56 +1004,369 @@ function startCustomerJourney() {
     return;
   }
 
+  customerNameForSession = name;
   try {
     localStorage.setItem('florea-customer-name', name);
   } catch (error) {
     console.warn('Unable to save customer name.', error);
   }
+  try {
+    sessionStorage.setItem(customerSessionNameStorageKey, name);
+  } catch (error) {
+    console.warn('Unable to retain the customer name for this session.', error);
+  }
   updateCustomerGreeting(name);
   go('menu-home');
 }
 
-function loginAdmin() {
+function updateCustomerGreeting(name) {
+  const greeting = document.getElementById('customer-greeting');
+  if (greeting) greeting.textContent = `Hi, ${name} 👋`;
+}
+
+const customerFeedbackStorageKey = 'florea-customer-feedback';
+
+function openCustomerFeedback() {
+  const dialog = document.getElementById('customer-feedback-dialog');
+  const form = document.getElementById('customer-feedback-form');
+  const nameInput = document.getElementById('customer-feedback-name');
+  const status = document.getElementById('customer-feedback-status');
+  if (!dialog || !form || !nameInput || !status) {
+    console.error('Customer feedback form is unavailable.');
+    return;
+  }
+
+  form.reset();
+  status.hidden = true;
+  status.classList.remove('is-error');
+  try {
+    nameInput.value = localStorage.getItem('florea-customer-name') || '';
+  } catch (error) {
+    console.warn('Unable to load the saved customer name for feedback.', error);
+  }
+  dialog.showModal();
+  window.FloreaCustomerSession.update({
+    feedbackOpen: true,
+    feedbackDraft: { name: nameInput.value, message: '' }
+  });
+}
+
+function closeCustomerFeedback() {
+  document.getElementById('customer-feedback-dialog')?.close();
+  window.FloreaCustomerSession.update({ feedbackOpen: false });
+}
+
+async function submitCustomerFeedback(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const nameInput = document.getElementById('customer-feedback-name');
+  const messageInput = document.getElementById('customer-feedback-message');
+  const status = document.getElementById('customer-feedback-status');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const customerName = nameInput.value.trim();
+  const message = messageInput.value.trim();
+
+  if (!customerName || !message) {
+    status.textContent = 'Enter your name and feedback before sending.';
+    status.classList.add('is-error');
+    status.hidden = false;
+    return;
+  }
+
+  submitButton.disabled = true;
+  status.hidden = true;
+  status.classList.remove('is-error');
+  try {
+    if (FloreaOrderSync.isLocal()) {
+      const savedFeedback = JSON.parse(localStorage.getItem(customerFeedbackStorageKey) || '[]');
+      if (!Array.isArray(savedFeedback)) {
+        throw new Error('Saved feedback has an invalid format.');
+      }
+      savedFeedback.unshift({
+        id: crypto.randomUUID(),
+        customerName,
+        message,
+        createdAt: new Date().toISOString()
+      });
+      localStorage.setItem(customerFeedbackStorageKey, JSON.stringify(savedFeedback));
+    } else {
+      const result = await FloreaOrderSync.request('/api/feedback', {
+        method: 'POST',
+        body: JSON.stringify({ customerName, message })
+      });
+      if (!result.feedback || typeof result.feedback.id !== 'string') {
+        throw new Error('The feedback service returned an invalid response.');
+      }
+    }
+
+    form.reset();
+    status.textContent = 'Thank you! Your feedback was sent to the café.';
+    status.hidden = false;
+    window.FloreaCustomerSession.update({
+      feedbackOpen: false,
+      feedbackDraft: { name: '', message: '' }
+    });
+  } catch (error) {
+    console.error('Unable to send customer feedback.', error);
+    status.textContent = `Your feedback could not be sent. ${error.message}`;
+    status.classList.add('is-error');
+    status.hidden = false;
+  } finally {
+    submitButton.disabled = false;
+  }
+}
+
+document.getElementById('customer-feedback-form').addEventListener('submit', submitCustomerFeedback);
+
+async function loginAdmin() {
   const field = document.getElementById('admin-password-input');
   const password = field ? field.value.trim() : '';
-  if (password === 'admin123') {
+  if (FloreaOrderSync.isLocal() && password === 'admin123') {
     setAuthenticated('admin', true);
     go('admin-dashboard');
     return;
   }
-  alert('Incorrect password. Please use admin123.');
+  try {
+    await FloreaOrderSync.request('/api/admin-auth', {
+      method: 'POST',
+      body: JSON.stringify({ password })
+    });
+    setAuthenticated('admin', true);
+    go('admin-dashboard');
+  } catch (requestError) {
+    alert(requestError.message);
+    if (field) field.focus();
+  }
 }
 
-function loginCashier() {
+async function loginCashier() {
   const field = document.getElementById('cashier-password-input');
   const password = field ? field.value.trim() : '';
-  if (password === 'cashier123') {
+  const error = document.getElementById('cashier-login-error');
+  if (error) error.hidden = true;
+  if (FloreaOrderSync.isLocal() && password === 'cashier123') {
     setAuthenticated('cashier', true);
     go('cashier-dashboard');
     return;
   }
-  alert('Incorrect password. Please use cashier123.');
+  try {
+    await FloreaOrderSync.request('/api/cashier-auth', {
+      method: 'POST',
+      body: JSON.stringify({ password })
+    });
+    setAuthenticated('cashier', true);
+    go('cashier-dashboard');
+  } catch (requestError) {
+    if (error) {
+      error.textContent = requestError.message;
+      error.hidden = false;
+    } else {
+      alert(requestError.message);
+    }
+    if (field) field.focus();
+  }
 }
 
 function logoutAdmin() {
   setAuthenticated('admin', false);
+  if (!FloreaOrderSync.isLocal()) {
+    FloreaOrderSync.request('/api/admin-auth', { method: 'DELETE' }).catch(error => {
+      console.error('Unable to end the admin server session.', error);
+    });
+  }
 }
 
-function logoutCashier() {
+async function logoutCashier() {
+  let logoutError = null;
+  if (!FloreaOrderSync.isLocal()) {
+    try {
+      await FloreaOrderSync.request('/api/cashier-auth', { method: 'DELETE' });
+    } catch (error) {
+      logoutError = error;
+      console.error('Unable to close the cashier server session.', error);
+    }
+  }
   setAuthenticated('cashier', false);
+  window.cashierInitialized = false;
+  window.resetCashierDashboard?.();
+  go('cashier-login');
+  if (logoutError) alert(`The browser session was cleared, but the server logout request failed. ${logoutError.message}`);
+}
+
+const isPublicCustomerView = window.location.pathname === '/' ||
+  /^\/menu\/?$/.test(window.location.pathname) ||
+  new URLSearchParams(window.location.search).get('view') === 'customer';
+const customerSessionStateStorageKey = 'florea-customer-session-v1';
+window.FloreaCustomerSession = {
+  read() {
+    try {
+      const savedState = sessionStorage.getItem(customerSessionStateStorageKey);
+      if (!savedState) return {};
+      const state = JSON.parse(savedState);
+      if (!state || typeof state !== 'object' || Array.isArray(state)) {
+        throw new Error('Saved customer session has an invalid format.');
+      }
+      return state;
+    } catch (error) {
+      console.warn('Unable to restore the customer session.', error);
+      return {};
+    }
+  },
+  update(updates) {
+    try {
+      sessionStorage.setItem(customerSessionStateStorageKey, JSON.stringify({
+        ...this.read(),
+        ...updates
+      }));
+    } catch (error) {
+      console.warn('Unable to save the customer session.', error);
+    }
+  }
+};
+const customerSessionNameStorageKey = 'florea-customer-name-session';
+let customerNameForSession = '';
+try {
+  customerNameForSession = sessionStorage.getItem(customerSessionNameStorageKey) || '';
+  const nameInput = document.getElementById('customer-name-input');
+  if (nameInput && customerNameForSession) nameInput.value = customerNameForSession;
+} catch (error) {
+  console.warn('Unable to restore the customer name for this session.', error);
+}
+const customerNameInput = document.getElementById('customer-name-input');
+customerNameInput?.addEventListener('input', () => {
+  customerNameForSession = customerNameInput.value.trim();
+  try {
+    if (customerNameForSession) {
+      sessionStorage.setItem(customerSessionNameStorageKey, customerNameForSession);
+    } else {
+      sessionStorage.removeItem(customerSessionNameStorageKey);
+    }
+  } catch (error) {
+    console.warn('Unable to retain the customer name for this session.', error);
+  }
+});
+const requestedView = new URLSearchParams(window.location.search).get('view') ||
+  (window.location.pathname === '/admin' ? 'admin' : window.location.pathname === '/cashier' ? 'cashier' : null);
+const requestedScreen = new URLSearchParams(window.location.search).get('screen');
+
+function hasCustomerNameForSession() {
+  return Boolean(customerNameForSession.trim());
+}
+
+function blockUnnamedCustomerClick(event) {
+  if (!isPublicCustomerView || hasCustomerNameForSession()) return;
+  const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+  if (!target || target.closest('#customer-name-input, #customer-name-continue, #customer-full-menu-open, #customer-full-menu-close')) return;
+  const interactive = target.closest(
+    'button, a[href], input, select, textarea, [onclick], [data-ui-action], [role="button"], [tabindex]:not([tabindex="-1"])'
+  );
+  if (!interactive) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  document.getElementById('customer-name-input')?.focus();
+  alert('Please enter your name first.');
+}
+
+document.addEventListener('click', blockUnnamedCustomerClick, true);
+document.addEventListener('submit', event => {
+  if (!isPublicCustomerView || hasCustomerNameForSession()) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  document.getElementById('customer-name-input')?.focus();
+  alert('Please enter your name first.');
+}, true);
+
+let initialNavigationPending = true;
+let scrollRevealObserver;
+let activeScreenMutationObserver;
+let catalogScrollTop = 0;
+const scrollRevealSelector = '.card, .card-soft, .hero-banner, .section-title, .grid > *, .admin-topbar, .mobile-nav, .login-shell, tbody tr, .customer-featured-card';
+
+function revealScrollElements(root) {
+  if (!root || !root.closest('.screen.active')) return;
+  if (root.matches?.('#catalog-grid, #catalog-grid .customer-catalog-card') ||
+      root.closest?.('#catalog-grid')) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    scrollRevealObserver ||= new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        scrollRevealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
+  }
+
+  const targets = new Set();
+  if (root.nodeType === Node.ELEMENT_NODE && root.matches(scrollRevealSelector)) targets.add(root);
+  root.querySelectorAll(scrollRevealSelector).forEach(element => targets.add(element));
+  targets.forEach((element, index) => {
+    if (element.classList.contains('system-reveal')) return;
+    element.classList.add('system-reveal');
+    element.style.setProperty('--system-reveal-delay', `${Math.min(index, 5) * 45}ms`);
+    if (reduceMotion || !scrollRevealObserver) {
+      element.classList.add('is-visible');
+    } else {
+      scrollRevealObserver.observe(element);
+    }
+  });
+}
+
+function observeScreenReveals(screen) {
+  activeScreenMutationObserver?.disconnect();
+  revealScrollElements(screen);
+  if (!('MutationObserver' in window) || !screen) return;
+  activeScreenMutationObserver = new MutationObserver(records => {
+    records.forEach(record => {
+      if (screen.id === 'selection' && record.target.closest('#selection-content')) return;
+      record.addedNodes.forEach(node => {
+        if (node.nodeType === Node.ELEMENT_NODE) revealScrollElements(node);
+      });
+    });
+  });
+  activeScreenMutationObserver.observe(screen, { childList: true, subtree: true });
 }
 
 function go(id){
-  if (id === 'admin-dashboard' && !isAuthenticated('admin')) {
+  if (adminProtectedScreenIds.has(id) && !isAuthenticated('admin')) {
     id = 'admin-login';
   }
   if (id === 'cashier-dashboard' && !isAuthenticated('cashier')) {
     id = 'cashier-login';
   }
+  if (isPublicCustomerView && id !== 'qr-landing' && !hasCustomerNameForSession()) {
+    id = 'qr-landing';
+  }
+
+  const activeScreen = document.querySelector('.screen.active');
+  if (activeScreen?.id === 'catalog' && id === 'product-details') {
+    catalogScrollTop = window.scrollY;
+    window.FloreaCustomerSession.update({ catalogScrollTop });
+  }
+  const restoreCatalogScroll = id === 'catalog' && activeScreen?.id === 'product-details';
 
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const target = document.getElementById(id);
   if (!target) return;
+  if (isPublicCustomerView && customerJourneyScreenIds.has(id)) {
+    window.FloreaCustomerSession.update({ screen: id });
+  }
+  const isAdminPage = adminProtectedScreenIds.has(id) || id === 'admin-login';
+  document.body.classList.toggle('admin-view', isAdminPage);
+  document.documentElement.classList.toggle('admin-view', isAdminPage);
+  if (isAdminPage) renderAdminNavigation(id);
+  if (id === 'catalog') renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
+  const isInitialNavigation = initialNavigationPending;
+  initialNavigationPending = false;
+  if (id === 'menu-home') {
+    try {
+      const customerName = localStorage.getItem('florea-customer-name');
+      if (customerName) updateCustomerGreeting(customerName);
+    } catch (error) {
+      console.warn('Unable to restore customer name.', error);
+    }
+  }
   target.classList.add('active');
   document.querySelectorAll('.rail-item, .rail-admin-item').forEach(s=>s.classList.remove('active'));
   const navEl = document.getElementById('nav-'+id);
@@ -495,6 +1375,21 @@ function go(id){
   const cust = customerScreens.find(s=>s.id===id);
   const adm = adminScreens.find(s=>s.id===id);
   const cashier = cashierScreens.find(s=>s.id===id);
+  const isCustomerFlowPage = Boolean(cust) || id === 'selection' || id === 'sent-confirmation';
+  const isCustomerPage = isCustomerFlowPage && isPublicCustomerView;
+  document.body.classList.toggle('customer-view', isCustomerPage);
+  document.documentElement.classList.toggle('customer-view', isCustomerPage);
+  window.updateCustomerCartButton?.();
+  if (isInitialNavigation && isCustomerPage && id === 'qr-landing' &&
+      window.matchMedia('(max-width: 600px)').matches) {
+    const clearMobileEntry = event => {
+      if (event.animationName !== 'mobile-entry-fade') return;
+      target.classList.remove('mobile-entry');
+      target.removeEventListener('animationend', clearMobileEntry);
+    };
+    target.classList.add('mobile-entry');
+    target.addEventListener('animationend', clearMobileEntry);
+  }
   document.getElementById('crumb-group').textContent = cust ? 'Customer Journey' : (cashier ? 'Cashier Dashboard' : 'Admin Console');
   document.getElementById('crumb-screen').textContent = cust ? cust.label : (adm ? adm.label : (cashier ? cashier.label : id));
 
@@ -514,19 +1409,83 @@ function go(id){
       console.warn('Unable to refresh Order Management.', error);
     }
   }
-  document.getElementById('stage').scrollIntoView({behavior:'smooth', block:'start'});
-}
-try {
-  const savedCustomerName = localStorage.getItem('florea-customer-name');
-  const nameField = document.getElementById('customer-name-input');
-  if (savedCustomerName) {
-    if (nameField) nameField.value = savedCustomerName;
-    updateCustomerGreeting(savedCustomerName);
+  observeScreenReveals(target);
+  if (restoreCatalogScroll) {
+    window.scrollTo({ top: catalogScrollTop, behavior: 'auto' });
+  } else {
+    document.getElementById('stage').scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start'
+    });
   }
-} catch (error) {
-  console.warn('Unable to load customer name.', error);
 }
-go('qr-landing');
+function restoreInitialScreen() {
+  const savedState = window.FloreaCustomerSession.read();
+  if (requestedView === 'admin') {
+    go('admin-login');
+    return;
+  }
+  if (requestedView === 'cashier') {
+    go('cashier-login');
+    return;
+  }
+
+  const savedScreen = customerJourneyScreenIds.has(savedState.screen) ? savedState.screen : null;
+  const requestedCustomerScreen = requestedView === 'customer' &&
+    customerJourneyScreenIds.has(requestedScreen) ? requestedScreen : null;
+  const trackedOrder = localStorage.getItem('florea-watched-order-id');
+  const initialScreen = isPublicCustomerView
+    ? savedScreen || requestedCustomerScreen || (trackedOrder ? 'sent-confirmation' : 'qr-landing')
+    : 'qr-landing';
+
+  if (CUSTOMER_CATALOG_ORDER.includes(savedState.homeCategory)) {
+    setCategory(savedState.homeCategory);
+  }
+  if (initialScreen === 'catalog') {
+    activeCatalogCategory = CUSTOMER_CATALOG_ORDER.includes(savedState.catalogCategory)
+      ? savedState.catalogCategory
+      : null;
+    activeCatalogSearch = typeof savedState.catalogSearch === 'string' ? savedState.catalogSearch : '';
+    const sortModes = ['Popular', 'Price: Low to High', 'Price: High to Low', 'Name: A to Z'];
+    activeCatalogSortMode = sortModes.includes(savedState.catalogSortMode) ? savedState.catalogSortMode : 'Popular';
+  }
+  if (Number.isFinite(savedState.catalogScrollTop)) {
+    catalogScrollTop = savedState.catalogScrollTop;
+  }
+
+  if (initialScreen === 'product-details' && savedState.selectedProduct) {
+    const savedProduct = savedState.selectedProduct;
+    const product = (PRODUCTS[savedProduct.category] || []).find(item => item.n === savedProduct.name);
+    if (product && product.stock !== 'Sold Out') {
+      window.selectedProduct = product;
+      selectedProduct = {
+        name: product.n,
+        price: savedProduct.price ?? product.p,
+        category: savedState.selectedProduct.category,
+        ...(savedProduct.drinkCategory ? { drinkCategory: savedProduct.drinkCategory } : {})
+      };
+      selectedDrinkSize = ['Medium', 'Large'].includes(savedState.selectedDrinkSize)
+        ? savedState.selectedDrinkSize
+        : 'Medium';
+      selectedDrinkTemperature = ['Hot', 'Iced'].includes(savedState.selectedDrinkTemperature)
+        ? savedState.selectedDrinkTemperature
+        : 'Iced';
+      updateProductDetailsDisplay();
+    } else {
+      console.warn('Unable to restore the saved customer product selection.');
+    }
+  }
+
+  go(initialScreen);
+  if (savedState.fullMenuOpen && document.getElementById('customer-full-menu-dialog')) {
+    openFeaturedMenu();
+    const grid = document.getElementById('customer-full-menu-grid');
+    if (grid && Number.isFinite(savedState.fullMenuScrollTop)) {
+      grid.scrollTop = savedState.fullMenuScrollTop;
+    }
+  }
+}
+window.addEventListener('DOMContentLoaded', restoreInitialScreen, { once: true });
 initAdminQrCode();
 
 document.querySelectorAll('.device-toggle button').forEach(btn=>{
@@ -543,6 +1502,125 @@ document.querySelectorAll('.device-toggle button').forEach(btn=>{
 
 // ============ PRODUCT SELECTION SYSTEM ============
 let selectedProduct = null;
+let selectedDrinkSize = 'Medium';
+let selectedDrinkTemperature = 'Iced';
+
+function persistSelectedCustomerProduct() {
+    window.FloreaCustomerSession.update({
+        selectedProduct: selectedProduct ? { ...selectedProduct } : null,
+        selectedDrinkSize,
+        selectedDrinkTemperature
+    });
+}
+
+function getDrinkSizePrices(product, category) {
+    const text = `${product.d || ''} ${product.p || ''}`;
+    const usesLocalSizeNames = ['Refreshers', 'Frappe'].includes(category);
+    const mediumPattern = usesLocalSizeNames ? /\bMedia\s*₱?\s*(\d+(?:\.\d+)?)/i : /\bM\s*₱?\s*(\d+(?:\.\d+)?)/i;
+    const largePattern = usesLocalSizeNames ? /\bGrande\s*₱?\s*(\d+(?:\.\d+)?)/i : /\bL\s*₱?\s*(\d+(?:\.\d+)?)/i;
+    const mediumMatch = text.match(mediumPattern);
+    const largeMatch = text.match(largePattern);
+    const hotMatch = text.match(/\bHot\s*₱?\s*(\d+(?:\.\d+)?)/i);
+    const fallbackMatch = String(product.p || '').match(/₱?\s*(\d+(?:\.\d+)?)/);
+    const mediumPrice = product.sizePrices?.Medium ??
+        (mediumMatch ? Number(mediumMatch[1]) : (fallbackMatch ? Number(fallbackMatch[1]) : null));
+    return {
+        Medium: mediumPrice,
+        Large: product.sizePrices?.Large ?? (largeMatch ? Number(largeMatch[1]) : null),
+        Hot: hotMatch ? Number(hotMatch[1]) : null
+    };
+}
+
+function addCatalogProductToCart(productName, category) {
+    const product = (PRODUCTS[category] || []).find(item => item.n === productName);
+    if (!product || product.stock === 'Sold Out' || typeof window.addToCart !== 'function') return;
+
+    if (!DRINK_CATEGORIES.includes(category)) {
+        window.addToCart(product.n, product.p, 1, {}, false);
+        return;
+    }
+
+    const prices = getDrinkSizePrices(product, category);
+    const drinkSize = Number.isFinite(prices.Medium) ? 'Medium' : 'Large';
+    const price = prices[drinkSize];
+    if (!Number.isFinite(price)) {
+        console.error(`Unable to quick-add ${productName}: no valid medium or large price is configured.`);
+        return;
+    }
+    window.addToCart(product.n, price, 1, {
+        drinkCategory: category,
+        drinkSize,
+        ...(HOT_DRINK_CATEGORIES.includes(category) ? { drinkTemperature: 'Iced' } : {})
+    }, false);
+}
+
+function renderCatalogQuickAddButton(product, category) {
+    const supportsTemperature = HOT_DRINK_CATEGORIES.includes(category) &&
+        getDrinkSizePrices(product, category).Hot !== null;
+    const quickAddOptions = DRINK_CATEGORIES.includes(category)
+        ? ` (${supportsTemperature ? 'Medium, Iced' : 'Medium'})`
+        : '';
+    const quickAddTitle = quickAddOptions ? `Quick add${quickAddOptions}` : 'Add to cart';
+    return `<button class="customer-quick-add" type="button" data-quick-add data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(category)}" aria-label="Add ${escapeCatalogText(product.n)}${escapeCatalogText(quickAddOptions)} to cart" title="${escapeCatalogText(quickAddTitle)}"${product.stock === 'Sold Out' ? ' disabled' : ''}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 9H7"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+    </button>`;
+}
+
+document.addEventListener('click', event => {
+    const quickAddButton = event.target.closest('[data-quick-add]');
+    if (!quickAddButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (quickAddButton.disabled) return;
+    addCatalogProductToCart(quickAddButton.dataset.productName, quickAddButton.dataset.productCategory);
+}, true);
+
+function formatProductPrice(price) {
+    return `₱${Number(price).toLocaleString('en-PH')}`;
+}
+
+function renderDrinkOptions(product, category) {
+    const container = document.getElementById('product-drink-options');
+    const sizeOptions = document.getElementById('product-size-options');
+    const temperatureGroup = document.getElementById('product-temperature-group');
+    const temperatureOptions = document.getElementById('product-temperature-options');
+    const isDrink = DRINK_CATEGORIES.includes(category);
+    if (!container || !sizeOptions || !temperatureGroup || !temperatureOptions) return;
+
+    container.hidden = !isDrink;
+    if (!isDrink) {
+        sizeOptions.innerHTML = '';
+        temperatureOptions.innerHTML = '';
+        sizeOptions.hidden = false;
+        temperatureGroup.hidden = true;
+        return;
+    }
+
+    const prices = getDrinkSizePrices(product, category);
+    const supportsTemperature = HOT_DRINK_CATEGORIES.includes(category) && prices.Hot !== null;
+    temperatureGroup.hidden = !supportsTemperature;
+    temperatureOptions.innerHTML = supportsTemperature ? ['Hot', 'Iced'].map(temperature =>
+        `<button type="button" class="chip${selectedDrinkTemperature === temperature ? ' active' : ''}" data-drink-temperature="${temperature}" aria-pressed="${selectedDrinkTemperature === temperature}">${temperature}</button>`
+    ).join('') : '';
+
+    if (supportsTemperature && selectedDrinkTemperature === 'Hot') selectedDrinkSize = 'Medium';
+    const sizes = ['Medium', 'Large'].filter(size => prices[size] !== null);
+    if (!sizes.includes(selectedDrinkSize)) selectedDrinkSize = sizes[0] || 'Medium';
+    sizeOptions.hidden = supportsTemperature && selectedDrinkTemperature === 'Hot';
+    const sizeLabels = ['Refreshers', 'Frappe'].includes(category)
+        ? { Medium: 'Media', Large: 'Grande' }
+        : { Medium: 'Medium', Large: 'Large' };
+    sizeOptions.innerHTML = sizes.map(size =>
+        `<button type="button" class="chip${selectedDrinkSize === size ? ' active' : ''}" data-drink-size="${size}" aria-pressed="${selectedDrinkSize === size}">${sizeLabels[size]} · ${formatProductPrice(prices[size])}</button>`
+    ).join('');
+
+    selectedProduct.price = supportsTemperature && selectedDrinkTemperature === 'Hot' && prices.Hot !== null
+        ? prices.Hot
+        : (prices[selectedDrinkSize] ?? prices.Medium);
+    selectedProduct.drinkCategory = category;
+    const priceEl = document.getElementById('product-price');
+    if (priceEl) priceEl.textContent = formatProductPrice(selectedProduct.price);
+}
 
 function selectProduct(productOrCategory, priceOrIndex, category) {
   let product;
@@ -564,7 +1642,10 @@ function selectProduct(productOrCategory, priceOrIndex, category) {
     price: product.p,
     category: productCategory
   };
+    selectedDrinkSize = 'Medium';
+    selectedDrinkTemperature = 'Iced';
     updateProductDetailsDisplay();
+    persistSelectedCustomerProduct();
     go('product-details');
 }
 
@@ -586,52 +1667,192 @@ function updateProductDetailsDisplay() {
             break;
         }
     }
-    
+
     if(nameEl) nameEl.textContent = selectedProduct.name;
     if(categoryEl) categoryEl.textContent = selectedProduct.category;
     if(priceEl) priceEl.textContent = selectedProduct.price;
-    if(thumbEl && actualProduct) thumbEl.textContent = actualProduct.e;
+    if(actualProduct) renderDrinkOptions(actualProduct, selectedProduct.category);
+    const ratingEl = document.getElementById('product-rating');
+    if (ratingEl) ratingEl.innerHTML = renderRating(selectedProduct.name);
+    if(thumbEl) {
+        if(actualProduct) {
+            const imageSrc = getProductImage(actualProduct, selectedProduct.category);
+            if(imageSrc) {
+                thumbEl.style.background = 'transparent';
+                thumbEl.innerHTML = `<img src="${imageSrc}" alt="${escapeCatalogText(actualProduct.n)}" class="thumb-image" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;" />`;
+            } else {
+                thumbEl.textContent = actualProduct.e;
+            }
+        }
+    }
     if(descriptionEl && actualProduct) descriptionEl.textContent = actualProduct.d || 'Product description';
 }
 
-function renderCatalogProducts(category = null) {
+function getProductCustomizations() {
+    if (selectedProduct && selectedProduct.drinkCategory) {
+        return {
+            drinkCategory: selectedProduct.drinkCategory,
+            ...(HOT_DRINK_CATEGORIES.includes(selectedProduct.drinkCategory) && selectedDrinkTemperature === 'Hot'
+                ? { drinkSize: 'Medium', drinkTemperature: 'Hot' }
+                : { drinkSize: selectedDrinkSize, ...(HOT_DRINK_CATEGORIES.includes(selectedProduct.drinkCategory) ? { drinkTemperature: 'Iced' } : {}) })
+        };
+    }
+    return {};
+}
+
+function getSelectedProductPrice() {
+    return selectedProduct ? selectedProduct.price : 0;
+}
+
+document.getElementById('product-drink-options')?.addEventListener('click', event => {
+    const sizeOption = event.target.closest('[data-drink-size]');
+    const temperatureOption = event.target.closest('[data-drink-temperature]');
+    if (!sizeOption && !temperatureOption) return;
+
+    if (sizeOption) selectedDrinkSize = sizeOption.dataset.drinkSize;
+    if (temperatureOption) selectedDrinkTemperature = temperatureOption.dataset.drinkTemperature;
+    const product = (PRODUCTS[selectedProduct.category] || []).find(item => item.n === selectedProduct.name);
+    if (product) {
+        renderDrinkOptions(product, selectedProduct.category);
+        persistSelectedCustomerProduct();
+    }
+});
+
+document.getElementById('product-wrap-options')?.addEventListener('click', event => {
+    const option = event.target.closest('[data-wrap-style]');
+    if (!option) return;
+    document.querySelectorAll('[data-wrap-style]').forEach(button => {
+        const selected = button === option;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+    });
+});
+
+let activeCatalogSearch = '';
+let activeCatalogCategory = null;
+let activeCatalogSortMode = 'Popular';
+
+function renderCatalogProducts(category = null, searchQuery = activeCatalogSearch) {
     const grid = document.getElementById('catalog-grid');
     const chips = document.getElementById('catalog-chips');
     if(!grid || !chips) return;
     
-    const   categories = Object.keys(PRODUCTS);
+    const categories = CUSTOMER_CATALOG_ORDER;
+    const selectedCategory = categories.includes(category) ? category : null;
+    activeCatalogCategory = selectedCategory;
+    activeCatalogSearch = searchQuery.trim();
     
     // Render category chips
-    chips.innerHTML = categories.map((cat, idx) => 
-        `<span class="chip ${!category || category === cat ? 'active' : ''}" onclick="renderCatalogProducts('${cat}')">${cat}</span>`
-    ).join('');
+    chips.innerHTML = `<button type="button" class="chip${selectedCategory ? '' : ' active'}" data-category="">All</button>` +
+        categories.map(cat =>
+            `<button type="button" class="chip${selectedCategory === cat ? ' active' : ''}" data-category="${escapeCatalogText(cat)}">${escapeCatalogText(cat)}</button>`
+        ).join('');
+    document.querySelectorAll('.customer-menu-search input').forEach(input => { input.value = activeCatalogSearch; });
     
-    // Get products for selected category
-    const productsToShow = category ? PRODUCTS[category] : Object.values(PRODUCTS).flat();
+    const query = activeCatalogSearch.toLocaleLowerCase();
+    const searchTerms = query.split(/\s+/).filter(Boolean);
+    let productsToShow = categories
+        .filter(cat => !selectedCategory || cat === selectedCategory)
+        .flatMap(cat => (PRODUCTS[cat] || []).map(product => ({ product, category: cat })))
+        .filter(({ product, category: productCategory }) => {
+            const searchableText = `${product.n} ${product.d || ''} ${productCategory}`.toLocaleLowerCase();
+            return searchTerms.every(term => searchableText.includes(term));
+        });
+    const priceOf = product => Number((String(product.p).match(/\d+(?:\.\d+)?/) || ['0'])[0]);
+    if (activeCatalogSortMode === 'Price: Low to High') {
+        productsToShow.sort((a, b) => priceOf(a.product) - priceOf(b.product));
+    } else if (activeCatalogSortMode === 'Price: High to Low') {
+        productsToShow.sort((a, b) => priceOf(b.product) - priceOf(a.product));
+    } else if (activeCatalogSortMode === 'Name: A to Z') {
+        productsToShow.sort((a, b) => a.product.n.localeCompare(b.product.n));
+    }
+
+    const sortSelect = document.getElementById('catalog-sort');
+    if (sortSelect) {
+        sortSelect.value = activeCatalogSortMode;
+        if (!sortSelect.dataset.changeBound) {
+            sortSelect.addEventListener('change', () => setCatalogSortMode(sortSelect.value));
+            sortSelect.dataset.changeBound = 'true';
+        }
+    }
     
     // Update count
     const countEl = document.getElementById('catalog-count');
-    if(countEl) countEl.textContent = `${productsToShow.length} Items`;
+    if(countEl) {
+        countEl.textContent = query
+            ? `${productsToShow.length} results for "${activeCatalogSearch}"`
+            : `${productsToShow.length} Items`;
+    }
     
     // Render products
-    grid.innerHTML = productsToShow.map((product, idx) => `
-        <div class="card" onclick="selectProduct('${product.n}', '${product.p}', '${category || 'All'}')">
-            <div class="thumb" style="height:88px;">${product.e}</div>
-            <p style="font-size:13px;font-weight:700;margin-top:9px;">${product.n}</p>
-            <p style="font-size:11px;color:var(--ink-soft);margin-top:2px;">${product.d || ''}</p>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-                <span style="font-weight:800;color:var(--blush-deep);font-size:13px;">${product.p}</span>
-                <span class="star" style="font-size:11px;">★ 4.8</span>
+    grid.innerHTML = productsToShow.length ? productsToShow.map(({ product, category: productCategory }) => {
+        return `
+            <div class="card customer-catalog-card" data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(productCategory)}">
+                ${renderProductThumb(product, '100%', productCategory)}
+                <p class="customer-catalog-card__name">${escapeCatalogText(product.n)}</p>
+                <p class="customer-catalog-card__description">${escapeCatalogText(product.d || '')}</p>
+                <div class="customer-catalog-card__footer">
+                    <span class="customer-catalog-card__price">${escapeCatalogText(product.p)}</span>
+                    ${renderCatalogQuickAddButton(product, productCategory)}
+                </div>
+                ${renderRating(product.n)}
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('') : `<div class="customer-menu-search-empty" role="status">
+        <strong>${query ? `Walang nahanap para sa “${escapeCatalogText(activeCatalogSearch)}”` : 'Walang menu items sa category na ito'}</strong>
+        <span>${query ? 'Subukan ang ibang pangalan o kategorya.' : 'Pumili ng ibang category para makita ang menu.'}</span>
+    </div>`;
+    grid.querySelectorAll('img').forEach(image => {
+        image.loading = 'lazy';
+        image.decoding = 'async';
+    });
+    if (!grid.dataset.productClickBound) {
+        grid.addEventListener('click', event => {
+            if (event.target.closest('[data-rating-value]')) return;
+            const card = event.target.closest('[data-product-name]');
+            if (card && grid.contains(card)) selectProduct(card.dataset.productName, card.dataset.productCategory === 'All' ? selectedCategory : card.dataset.productCategory);
+        });
+        grid.dataset.productClickBound = 'true';
+    }
+    window.FloreaCustomerSession.update({
+        catalogCategory: activeCatalogCategory,
+        catalogSearch: activeCatalogSearch,
+        catalogSortMode: activeCatalogSortMode
+    });
 }
 
 function openCatalog(category = null) {
-    if(category) {
-        renderCatalogProducts(category);
-    } else {
-        renderCatalogProducts();
+    activeCatalogCategory = CUSTOMER_CATALOG_ORDER.includes(category) ? category : null;
+    activeCatalogSearch = '';
+    go('catalog');
+}
+
+function searchCustomerMenu(form) {
+    const searchInput = form instanceof HTMLElement
+        ? form.querySelector('input[type="search"]')
+        : document.getElementById('customer-menu-search');
+    const query = searchInput ? searchInput.value.trim() : '';
+    activeCatalogCategory = null;
+    activeCatalogSearch = query;
+    if (document.getElementById('catalog')?.classList.contains('active')) {
+        renderCatalogProducts(null, query);
+        return;
     }
     go('catalog');
 }
+
+function setCatalogSortMode(mode) {
+    const modes = ['Popular', 'Price: Low to High', 'Price: High to Low', 'Name: A to Z'];
+    if (!modes.includes(mode)) return;
+    activeCatalogSortMode = mode;
+    renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
+}
+
+window.FloreaProducts = PRODUCTS;
+window.FloreaCategories = CATALOG_ORDER;
+window.setCatalogSortMode = setCatalogSortMode;
+window.refreshFloreaCatalog = () => {
+    renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
+};
+renderFeaturedRatings();
+loadProductRatings();
