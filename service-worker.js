@@ -33,7 +33,7 @@ async function showOrderNotification(message) {
                 icon: '/florea-logo-512.png',
                 image: '/florea-logo.png',
                 badge: '/florea-logo-192.png',
-                data: { url: message.url || '/menu', orderId, status },
+                data: { url: message.url || '/', orderId, status },
                 tag,
                 renotify: true
             }
@@ -76,7 +76,7 @@ self.addEventListener('message', event => {
 
 self.addEventListener('notificationclick', event => {
     event.notification.close();
-    const targetUrl = new URL(event.notification.data?.url || '/menu', self.location.origin).href;
+    const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
     event.waitUntil((async () => {
         const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
         for (const client of clients) {

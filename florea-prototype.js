@@ -901,9 +901,9 @@ function getExistingMenuUrl() {
   const localPorts = ['3000', '8000'];
   const isLocalDevelopment = localHosts.includes(window.location.hostname) || localPorts.includes(window.location.port);
   if (isLocalDevelopment) {
-    return new URL('florea-prototype.html', window.location.href).href;
+    return new URL('florea-prototype.html?view=customer', window.location.href).href;
   }
-  return new URL('/menu', window.location.origin).href;
+  return new URL('/', window.location.origin).href;
 }
 
 function initAdminQrCode() {
