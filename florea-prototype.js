@@ -417,7 +417,7 @@
             }, ],
         };
         const CATALOG_ORDER = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe', 'Rice Meals', 'Finger Foods', 'Pasta', 'Cakes & Pastries'];
-        const HIDDEN_CATALOG_CATEGORIES = new Set(['Cakes & Pastries']);
+        const HIDDEN_CATALOG_CATEGORIES = new Set(['Cakes & Pastries', 'Flowers', 'Bouquets']);
         const CUSTOMER_CATALOG_ORDER = CATALOG_ORDER.filter(category => !HIDDEN_CATALOG_CATEGORIES.has(category));
         const DRINK_CATEGORIES = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe'];
         const HOT_DRINK_CATEGORIES = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha'];
@@ -447,11 +447,12 @@ function renderFeaturedToday() {
         const imageMarkup = image
             ? `<img src="${escapeCatalogText(image)}" alt="${escapeCatalogText(product.n)}" loading="lazy" decoding="async">`
             : `<span aria-hidden="true">${escapeCatalogText(product.e || '')}</span>`;
-        return `<article class="customer-featured-card">
+        return `<article class="customer-featured-card" data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(category)}">
             <div class="customer-featured-card__image">${imageMarkup}</div>
             <p class="customer-featured-card__name">${escapeCatalogText(product.n)}</p>
             <p class="customer-featured-card__category">${escapeCatalogText(category)}</p>
             <p class="customer-featured-card__price">${escapeCatalogText(product.p || '')}</p>
+            ${renderCustomerStockBadge(product)}
         </article>`;
     }).join('');
     const featuredProducts = CUSTOMER_CATALOG_ORDER
@@ -668,17 +669,15 @@ function renderCatalogGrid() {
     const items = HIDDEN_CATALOG_CATEGORIES.has(currentCategory) ? [] : PRODUCTS[currentCategory] || [];
     document.getElementById('catalog-count').innerHTML = `${items.length} items in <b style="color:var(--ink);">${escapeCatalogText(currentCategory)}</b>`;
     document.getElementById('catalog-grid').innerHTML = items.map((it, index) => {
-                const soldOut = it.stock === 'Sold Out';
-                const badgeClass = it.stock === 'In Stock' ? 'badge-sage' : (it.stock === 'Low Stock' ? 'badge-gold' : 'badge-danger');
                 const newTag = it.badge ? `<span class="badge badge-blush" style="font-size:9px;padding:2px 7px;margin-left:6px;">${escapeCatalogText(it.badge)}</span>` : '';
-                return `<div class="card customer-catalog-card" data-product-index="${index}" data-product-category="${escapeCatalogText(currentCategory)}" style="${soldOut?'opacity:.55;':''}">
+                return `<div class="card customer-catalog-card" data-product-index="${index}" data-product-category="${escapeCatalogText(currentCategory)}">
       ${renderProductThumb(it, '100%', currentCategory)}
       <p class="customer-catalog-card__name">${escapeCatalogText(it.n)}${newTag}</p>
       ${it.d ? `<p class="customer-catalog-card__description">${escapeCatalogText(it.d)}</p>` : '<p class="customer-catalog-card__description"></p>'}
       <div class="customer-catalog-card__rating">${renderRating(it.n)}</div>
       <div class="customer-catalog-card__footer">
 <span class="customer-catalog-card__price">${escapeCatalogText(it.p)}</span>
-<span class="badge ${badgeClass}" style="padding:4px 9px;">${escapeCatalogText(it.stock)}</span>
+${renderCustomerStockBadge(it)}
 ${renderCatalogQuickAddButton(it, currentCategory)}
       </div>
     </div>`;
@@ -695,6 +694,63 @@ ${renderCatalogQuickAddButton(it, currentCategory)}
         grid.dataset.clickBound = 'true';
     }
 }
+
+function getCustomerProductStock(product) {
+    const quantity = Number.isFinite(product?.quantity) ? product.quantity : null;
+    const outOfStock = product?.stock === 'Sold Out' || (quantity !== null && quantity <= 0);
+    if (outOfStock) return { label: 'Out of Stock', badgeClass: 'badge-danger', outOfStock: true, quantity };
+    const lowStock = product?.stock === 'Low Stock' ||
+        (quantity !== null && Number.isFinite(product?.reorderLevel) && quantity <= product.reorderLevel);
+    return {
+        label: lowStock ? 'Low Stock' : 'In Stock',
+        badgeClass: lowStock ? 'badge-gold' : 'badge-sage',
+        outOfStock: false,
+        quantity
+    };
+}
+
+function renderCustomerStockBadge(product) {
+    const stock = getCustomerProductStock(product);
+    return `<span class="badge ${stock.badgeClass} customer-stock-badge" aria-label="Availability: ${stock.label}">${stock.label}</span>`;
+}
+
+function refreshCustomerStockIndicators() {
+    document.querySelectorAll('.customer-catalog-card, .customer-featured-card').forEach(card => {
+        const quickAddButton = card.querySelector('.customer-quick-add');
+        const productName = card.dataset.productName ||
+            quickAddButton?.dataset.productName ||
+            card.querySelector('.customer-catalog-card__name, .customer-featured-card__name')?.textContent.trim();
+        const category = card.dataset.productCategory || quickAddButton?.dataset.productCategory;
+        const product = (PRODUCTS[category] || []).find(item => item.n === productName);
+        if (!product) return;
+
+        const stock = getCustomerProductStock(product);
+        let badge = card.querySelector('.customer-stock-badge');
+        if (!badge && quickAddButton) {
+            quickAddButton.insertAdjacentHTML('beforebegin', renderCustomerStockBadge(product));
+            badge = card.querySelector('.customer-stock-badge');
+        }
+        if (badge) {
+            badge.className = `badge ${stock.badgeClass} customer-stock-badge`;
+            badge.textContent = stock.label;
+            badge.setAttribute('aria-label', `Availability: ${stock.label}`);
+        }
+        if (quickAddButton) {
+            if (!quickAddButton.dataset.availableAriaLabel) {
+                quickAddButton.dataset.availableAriaLabel = quickAddButton.getAttribute('aria-label') || `Add ${product.n} to cart`;
+                quickAddButton.dataset.availableTitle = quickAddButton.title;
+            }
+            quickAddButton.disabled = stock.outOfStock;
+            quickAddButton.setAttribute('aria-label', stock.outOfStock
+                ? `${product.n} is out of stock`
+                : quickAddButton.dataset.availableAriaLabel);
+            quickAddButton.title = stock.outOfStock ? 'Out of stock' : quickAddButton.dataset.availableTitle;
+        }
+    });
+}
+
+window.getCustomerProductStock = getCustomerProductStock;
+
 function setCategory(cat){
   if (!CUSTOMER_CATALOG_ORDER.includes(cat)) return;
   currentCategory = cat;
@@ -1094,6 +1150,23 @@ async function loginAdmin() {
     alert(requestError.message);
     if (field) field.focus();
   }
+}
+
+function togglePasswordVisibility(inputId, button) {
+  const input = document.getElementById(inputId);
+  if (!(input instanceof HTMLInputElement)) {
+    console.error(`Password visibility control could not find "${inputId}".`);
+    return;
+  }
+  const isVisible = input.type === 'password';
+  input.type = isVisible ? 'text' : 'password';
+  button.setAttribute('aria-pressed', String(isVisible));
+  button.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
+  button.querySelectorAll('[data-password-icon]').forEach(icon => {
+    const shouldHide = icon.dataset.passwordIcon !== (isVisible ? 'visible' : 'hidden');
+    if (shouldHide) icon.setAttribute('hidden', '');
+    else icon.removeAttribute('hidden');
+  });
 }
 
 async function loginCashier() {
@@ -1650,7 +1723,7 @@ function getDrinkSizePrices(product, category) {
 
 function addCatalogProductToCart(productName, category) {
     const product = (PRODUCTS[category] || []).find(item => item.n === productName);
-    if (!product || product.stock === 'Sold Out' || typeof window.addToCart !== 'function') return;
+    if (!product || getCustomerProductStock(product).outOfStock || typeof window.addToCart !== 'function') return;
 
     if (!DRINK_CATEGORIES.includes(category)) {
         window.addToCart(product.n, product.p, 1, {}, false);
@@ -1677,8 +1750,12 @@ function renderCatalogQuickAddButton(product, category) {
     const quickAddOptions = DRINK_CATEGORIES.includes(category)
         ? ` (${supportsTemperature ? 'Medium, Iced' : 'Medium'})`
         : '';
-    const quickAddTitle = quickAddOptions ? `Quick add${quickAddOptions}` : 'Add to cart';
-    return `<button class="customer-quick-add" type="button" data-quick-add data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(category)}" aria-label="Add ${escapeCatalogText(product.n)}${escapeCatalogText(quickAddOptions)} to cart" title="${escapeCatalogText(quickAddTitle)}"${product.stock === 'Sold Out' ? ' disabled' : ''}>
+    const stock = getCustomerProductStock(product);
+    const quickAddTitle = stock.outOfStock ? 'Out of stock' : (quickAddOptions ? `Quick add${quickAddOptions}` : 'Add to cart');
+    const ariaLabel = stock.outOfStock
+        ? `${product.n} is out of stock`
+        : `Add ${product.n}${quickAddOptions} to cart`;
+    return `<button class="customer-quick-add" type="button" data-quick-add data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(category)}" aria-label="${escapeCatalogText(ariaLabel)}" title="${escapeCatalogText(quickAddTitle)}"${stock.outOfStock ? ' disabled' : ''}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 9H7"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
     </button>`;
 }
@@ -1763,7 +1840,7 @@ function selectProduct(productOrCategory, priceOrIndex, category) {
     }
   }
 
-  if (!product || product.stock === 'Sold Out') return;
+  if (!product || getCustomerProductStock(product).outOfStock) return;
 
   window.selectedProduct = product;
   selectedProduct = {
@@ -1786,6 +1863,8 @@ function updateProductDetailsDisplay() {
     const priceEl = document.getElementById('product-price');
     const thumbEl = document.getElementById('product-thumb');
     const descriptionEl = document.getElementById('product-description');
+    const stockEl = document.getElementById('product-stock-status');
+    const addButton = document.getElementById('add-to-selection-btn');
     
     // Find the actual product data from PRODUCTS
     let actualProduct = null;
@@ -1800,6 +1879,16 @@ function updateProductDetailsDisplay() {
     if(nameEl) nameEl.textContent = selectedProduct.name;
     if(categoryEl) categoryEl.textContent = selectedProduct.category;
     if(priceEl) priceEl.textContent = selectedProduct.price;
+    if (stockEl && actualProduct) {
+        const stock = getCustomerProductStock(actualProduct);
+        stockEl.textContent = stock.label;
+        stockEl.className = `badge ${stock.badgeClass} customer-product-stock-status`;
+        stockEl.hidden = false;
+        if (addButton) {
+            addButton.disabled = stock.outOfStock;
+            addButton.textContent = stock.outOfStock ? 'Out of Stock' : 'Add to Selection';
+        }
+    }
     if(actualProduct) renderDrinkOptions(actualProduct, selectedProduct.category);
     const ratingEl = document.getElementById('product-rating');
     if (ratingEl) ratingEl.innerHTML = renderRating(selectedProduct.name);
@@ -1958,6 +2047,7 @@ function renderCatalogProducts(category = null, searchQuery = activeCatalogSearc
                 <p class="customer-catalog-card__description">${escapeCatalogText(product.d || '')}</p>
                 <div class="customer-catalog-card__footer">
                     <span class="customer-catalog-card__price">${escapeCatalogText(product.p)}</span>
+                    ${renderCustomerStockBadge(product)}
                     ${renderCatalogQuickAddButton(product, productCategory)}
                 </div>
                 ${renderRating(product.n)}
@@ -2054,6 +2144,7 @@ function renderBestSellerCards() {
             <div class="customer-catalog-card__rating" data-featured-rating="${escapeCatalogText(product.n)}"></div>
             <div class="customer-catalog-card__footer">
                 <span class="customer-catalog-card__price">${escapeCatalogText(product.p || '')}</span>
+                ${renderCustomerStockBadge(product)}
                 ${renderCatalogQuickAddButton(product, category)}
             </div>
         </div>`
@@ -2075,6 +2166,9 @@ window.FloreaCategories = CATALOG_ORDER;
 window.setCatalogSortMode = setCatalogSortMode;
 window.refreshFloreaCatalog = () => {
     renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
+    renderBestSellerCards();
+    refreshCustomerStockIndicators();
+    if (selectedProduct) updateProductDetailsDisplay();
 };
 renderBestSellerCards();
 renderFeaturedRatings();

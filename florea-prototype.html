@@ -326,7 +326,7 @@
                             <h2 id="product-name">Americano</h2>
                             <div id="product-rating" style="margin-top:8px;"></div>
                             <p id="product-price">₱ 980.00</p>
-                            <p style="font-size:12px;color:var(--sage-deep);font-weight:700;margin-top:2px;"> 18 in stock — ready today</p>
+                            <span id="product-stock-status" class="badge badge-sage customer-product-stock-status" aria-live="polite">In Stock</span>
 
                             <div id="product-drink-options" hidden style="margin-top:18px;">
                                 <p style="font-size:12.5px;font-weight:700;">Drink Size</p>
@@ -484,11 +484,16 @@
                                 </div>
                                 <div style="margin-top:22px; display:flex; flex-direction:column; gap:12px;">
                                     <div class="input-wrap"><label>Email</label><input id="admin-email-input" class="input" value="owner@bloom.ph" readonly></div>
-                                    <div class="input-wrap"><label>Password</label><input id="admin-password-input" class="input" type="password" placeholder="Enter admin password"></div>
-                                </div>
-                                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
-                                    <label style="font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;"><input type="checkbox" checked> Remember me</label>
-                                    <a href="#" data-ui-action="forgot-password" style="font-size:11.5px;color:var(--blush-deep);font-weight:700;">Forgot password</a>
+                                    <div class="input-wrap">
+                                        <label for="admin-password-input">Password</label>
+                                        <div class="password-field">
+                                            <input id="admin-password-input" class="input" type="password" placeholder="Enter admin password" autocomplete="current-password">
+                                            <button type="button" class="password-visibility-toggle" aria-label="Show password" aria-controls="admin-password-input" aria-pressed="false" onclick="togglePasswordVisibility('admin-password-input', this)">
+                                                <svg data-password-icon="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c5.1 0 8.6 4.1 9.5 6.4a1.8 1.8 0 0 1 0 1.2 11.6 11.6 0 0 1-3.1 4.2"/><path d="M6.6 6.6a11.7 11.7 0 0 0-4.1 4.8 1.8 1.8 0 0 0 0 1.2A10.9 10.9 0 0 0 12 19a10.7 10.7 0 0 0 3.2-.5"/></svg>
+                                                <svg data-password-icon="visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="login-card-actions" style="margin-top:18px;">
                                     <button class="btn btn-primary btn-block" onclick="loginAdmin()">Log In to Dashboard</button>
@@ -1519,6 +1524,23 @@
                 }
 
                 function addToCart(itemName, price, quantity = 1, customizations = {}, navigateToSelection = true) {
+                    const menuProduct = Object.values(window.FloreaProducts || {}).flat().find(product => product.n === itemName);
+                    const stock = menuProduct && window.getCustomerProductStock
+                        ? window.getCustomerProductStock(menuProduct)
+                        : null;
+                    if (stock && stock.outOfStock) {
+                        const status = document.getElementById('product-stock-status');
+                        if (status) {
+                            status.textContent = stock.label;
+                            status.className = `badge ${stock.badgeClass} customer-product-stock-status`;
+                        }
+                        const addButton = document.getElementById('add-to-selection-btn');
+                        if (addButton) {
+                            addButton.disabled = true;
+                            addButton.textContent = stock.label;
+                        }
+                        return false;
+                    }
                     const wrapStyle = customizations.wrapStyle || '';
                     const messageCard = customizations.messageCard || '';
                     const drinkCategory = customizations.drinkCategory || '';
@@ -1779,6 +1801,17 @@
                             });
 
                     try {
+                        const unavailableItems = submittedItems
+                            .filter(item => {
+                                const product = Object.values(window.FloreaProducts || {}).flat()
+                                    .find(candidate => candidate.n === item.name);
+                                return product && typeof window.getCustomerProductStock === 'function' &&
+                                    window.getCustomerProductStock(product).outOfStock;
+                            })
+                            .map(item => item.name);
+                        if (unavailableItems.length) {
+                            throw new Error(`${[...new Set(unavailableItems)].join(', ')} is out of stock. Remove it from your selection before ordering.`);
+                        }
                         const customerName = (localStorage.getItem('florea-customer-name') || '').trim();
                         if (!customerName) {
                             throw new Error('Please enter your name before placing an order.');
@@ -2015,6 +2048,7 @@
                 window.renderCart = renderCart;
                 window.submitSelectionToCashier = submitSelectionToCashier;
                 window.loginAdmin = loginAdmin;
+                window.togglePasswordVisibility = togglePasswordVisibility;
                 window.loginCashier = loginCashier;
                 window.logoutAdmin = logoutAdmin;
                 window.logoutCashier = logoutCashier;

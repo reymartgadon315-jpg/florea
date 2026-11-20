@@ -510,7 +510,53 @@
         .login-shell .input {
             margin: 0 auto;
         }
+
+        .password-field {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-field .input {
+            box-sizing: border-box;
+            width: 100%;
+            padding-right: 48px;
+        }
+
+        .password-visibility-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--ink-soft);
+            cursor: pointer;
+        }
+
+        .password-visibility-toggle:hover {
+            background: var(--blush-soft);
+            color: var(--ink);
+        }
+
+        .password-visibility-toggle:focus-visible {
+            outline: 2px solid var(--blush-deep);
+            outline-offset: 1px;
+        }
+
+        .password-visibility-toggle svg {
+            width: 19px;
+            height: 19px;
+        }
         
+        .password-visibility-toggle svg[hidden] {
+            display: none !important;
+        }
+
         .login-shell .input-wrap label {
             text-align: left;
         }
@@ -793,6 +839,11 @@
         body.customer-view #customer-cart-button:active,
         body.customer-view .install-app-dialog__close:active {
             transform: scale(.97);
+        }
+
+        .screen .password-visibility-toggle:hover,
+        .screen .password-visibility-toggle:active {
+            transform: translateY(-50%);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -3279,6 +3330,38 @@ body.admin-view .admin-dashboard-panels {
 body.admin-view #admin-login > div:first-child,
 #cashier-login > div:first-child {
     background: linear-gradient(160deg, #6B3E1E, #3E230E) !important;
+}
+
+#admin-login .login-shell {
+    box-sizing: border-box;
+    width: min(100%, 420px) !important;
+    max-width: 420px !important;
+    padding: 38px 34px !important;
+    border: 1px solid var(--line);
+    background: var(--paper) !important;
+    color: var(--ink);
+    box-shadow: var(--shadow);
+}
+
+#admin-login .login-shell h2 {
+    font-size: 21px !important;
+    color: var(--ink);
+}
+
+#admin-login .login-shell h2 + p {
+    color: var(--ink-soft) !important;
+    font-size: 13px !important;
+}
+
+#admin-login .login-shell > div[style*="margin-top:22px"] {
+    width: 100%;
+    max-width: 350px;
+}
+
+#admin-login .login-shell .input-wrap label {
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 700;
 }
 
 #cashier-login .login-shell {
@@ -5768,6 +5851,20 @@ body.customer-view #catalog .customer-catalog-card__footer > .badge {
     line-height: 1.2;
 }
 
+body.customer-view #catalog .customer-catalog-card__footer > .customer-stock-badge.badge-danger,
+body.customer-view #menu-home .customer-catalog-card__footer > .customer-stock-badge.badge-danger {
+    border-color: #D7A7A0;
+    background: #F4D6D1;
+    color: #8A382E;
+}
+
+body.customer-view #catalog .customer-catalog-card__footer > .customer-stock-badge.badge-gold,
+body.customer-view #menu-home .customer-catalog-card__footer > .customer-stock-badge.badge-gold {
+    border-color: #D6BE88;
+    background: #F3E4BF;
+    color: #755415;
+}
+
 body.customer-view #catalog .customer-catalog-card__footer > .customer-quick-add {
     grid-area: add;
     align-self: center;
@@ -5985,24 +6082,40 @@ body.customer-view #menu-home .customer-catalog-card__rating .rating-summary {
 }
 
 body.customer-view #menu-home .customer-catalog-card__footer {
-    display: flex;
-    min-height: 32px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    grid-template-areas: "price add" "stock add";
+    gap: 4px 6px;
+    min-height: 44px;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
     margin-top: auto;
     padding-top: 8px;
     border-top: 1px solid rgba(140, 122, 104, .35);
 }
 
 body.customer-view #menu-home .customer-catalog-card__price {
+    grid-area: price;
     min-width: 0;
     color: #3B220F;
     font-size: 13px;
     font-weight: 800;
 }
 
+body.customer-view #menu-home .customer-catalog-card__footer > .customer-stock-badge {
+    grid-area: stock;
+    justify-self: start;
+    padding: 2px 6px !important;
+    border: 1px solid #C5B5A1;
+    border-radius: 999px;
+    background: #DCE4D3;
+    color: #4A5E3F;
+    font-size: 9px !important;
+    line-height: 1.2;
+}
+
 body.customer-view #menu-home .customer-catalog-card__footer > .customer-quick-add {
+    grid-area: add;
+    align-self: center;
     flex: 0 0 32px;
     width: 32px;
     min-height: 32px;
@@ -6941,6 +7054,27 @@ body.staff-portal-view #cashier-login > div:first-child {
     font-size: 15px;
 }
 
+#admin-login .login-shell .input {
+    box-sizing: border-box;
+    min-height: 54px;
+    padding: 0 16px;
+    border-color: var(--line);
+    border-radius: 14px;
+    background: var(--blush-soft);
+    color: var(--ink);
+    font-size: 15px;
+}
+
+#admin-login .login-shell .password-field .input {
+    padding-right: 48px;
+}
+
+#admin-login .btn-primary {
+    min-height: 54px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+
 #cashier-login .login-shell p {
     color: #715946 !important;
     font-size: 13px !important;
@@ -6956,6 +7090,14 @@ body.staff-portal-view #cashier-login > div:first-child {
 }
 
 @media (max-width: 420px) {
+    #admin-login > div:first-child {
+        padding: 20px !important;
+    }
+
+    #admin-login .login-shell {
+        padding: 30px 24px !important;
+    }
+
     #cashier-login > div:first-child {
         padding: 20px !important;
     }

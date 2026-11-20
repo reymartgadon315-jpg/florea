@@ -3,6 +3,7 @@
         const stockStorageKey = 'florea-inventory-stock';
         const sharedInventoryStorageKey = 'florea-inventory-state';
         const profileStorageKey = 'florea-store-profile';
+        const hiddenInventoryCategories = new Set(['flowers', 'bouquets']);
         const products = window.FloreaProducts;
         const categories = window.FloreaCategories;
         const defaultCategoryOrder = [...categories];
@@ -141,15 +142,18 @@
             const body = document.getElementById('inventory-items');
             if (!section || !body) return;
             const items = Array.isArray(inventory.items) ? inventory.items : [];
-            const statuses = items.map(item =>
+            const visibleItems = items.filter(item =>
+                !hiddenInventoryCategories.has(String(item.category || '').trim().toLowerCase())
+            );
+            const statuses = visibleItems.map(item =>
                 item.quantity <= 0 ? 'out' : item.quantity <= item.reorderLevel ? 'low' : 'in'
             );
-            document.getElementById('inventory-total-skus').textContent = String(items.length);
+            document.getElementById('inventory-total-skus').textContent = String(visibleItems.length);
             document.getElementById('inventory-in-stock').textContent = String(statuses.filter(status => status === 'in').length);
             document.getElementById('inventory-low-stock').textContent = String(statuses.filter(status => status === 'low').length);
             document.getElementById('inventory-out-of-stock').textContent = String(statuses.filter(status => status === 'out').length);
 
-            body.innerHTML = items.map(item => {
+            body.innerHTML = visibleItems.map(item => {
                 const status = item.quantity <= 0 ?
                     { label: 'Out of Stock', className: 'badge-danger' } :
                     item.quantity <= item.reorderLevel ?
@@ -172,7 +176,7 @@
             const filterContainer = document.getElementById('inventory-category-filters');
             if (filterContainer) {
                 const activeFilter = filterContainer.querySelector('[data-ui-action="inventory-filter"].active')?.dataset.filter || 'all';
-                const inventoryCategories = [...new Set(items.map(item => item.category))];
+                const inventoryCategories = [...new Set(visibleItems.map(item => item.category))];
                 filterContainer.innerHTML = ['all', ...inventoryCategories].map(category =>
                     `<button type="button" class="chip${category === activeFilter ? ' active' : ''}" data-ui-action="inventory-filter" data-filter="${escapeHtml(category)}">${category === 'all' ? 'All' : escapeHtml(category)}</button>`
                 ).join('');
@@ -191,6 +195,7 @@
                 const product = (products[item.category] || []).find(entry => entry.n === item.name);
                 if (!product) continue;
                 product.quantity = item.quantity;
+                product.reorderLevel = item.reorderLevel;
                 product.stock = item.quantity <= 0 ? 'Sold Out' : (item.quantity <= item.reorderLevel ? 'Low Stock' : 'In Stock');
             }
             const stockField = document.querySelector('#product-management [data-product-field="stock"]');
@@ -1584,9 +1589,6 @@
                 break;
             case 'open-catalog':
                 window.openCatalog();
-                break;
-            case 'forgot-password':
-                window.alert('Password resets are handled by your site administrator. Update ADMIN_PASSWORD in the server environment.');
                 break;
             case 'settings':
                 openSettings();

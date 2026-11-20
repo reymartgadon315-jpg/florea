@@ -94,7 +94,7 @@ async function serveStatic(response, pathname, method) {
         response.writeHead(200, {
             'content-type': contentTypes.get(path.extname(filePath).toLowerCase()) || 'application/octet-stream',
             'content-length': fileInfo.size,
-            'cache-control': ['.html', '.js', '.mjs'].includes(path.extname(filePath).toLowerCase())
+            'cache-control': ['.html', '.js', '.mjs', '.css'].includes(path.extname(filePath).toLowerCase())
                 ? 'no-cache'
                 : 'public, max-age=3600',
             'x-content-type-options': 'nosniff'
