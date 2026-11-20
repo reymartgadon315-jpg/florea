@@ -45,7 +45,7 @@ test('hosted admin authentication issues a server-verified session', async () =>
         const login = await adminAuthHandler(new Request('https://example.test/api/admin-auth', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ password: env.ADMIN_PASSWORD })
+            body: JSON.stringify({ username: 'admin', password: env.ADMIN_PASSWORD })
         }));
         assert.equal(login.status, 200);
         const cookie = login.headers.get('set-cookie');
@@ -59,9 +59,16 @@ test('hosted admin authentication issues a server-verified session', async () =>
         const rejected = await adminAuthHandler(new Request('https://example.test/api/admin-auth', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ password: 'wrong-password' })
+            body: JSON.stringify({ username: 'admin', password: 'wrong-password' })
         }));
         assert.equal(rejected.status, 401);
+
+        const rejectedUsername = await adminAuthHandler(new Request('https://example.test/api/admin-auth', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ username: 'owner@bloom.ph', password: env.ADMIN_PASSWORD })
+        }));
+        assert.equal(rejectedUsername.status, 401);
     } finally {
         if (previousPassword === undefined) delete process.env.ADMIN_PASSWORD;
         else process.env.ADMIN_PASSWORD = previousPassword;

@@ -4224,11 +4224,25 @@ body.admin-view #admin-login > div:first-child,
     }
 
     .cashier-order-workboard {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .cashier-order-group {
         padding: 12px;
+    }
+
+    .cashier-order-group:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+
+    .cashier-navigation button,
+    .cashier-filter-list button,
+    .cashier-action-button,
+    .cashier-order-card__payment select,
+    .cashier-icon-button,
+    .cashier-logout-button,
+    .cashier-bell-toggle {
+        min-height: 44px;
     }
 }
 
@@ -4270,6 +4284,14 @@ body.admin-view #admin-login > div:first-child,
 
     .cashier-summary-grid {
         gap: 9px;
+    }
+
+    .cashier-order-workboard {
+        grid-template-columns: 1fr;
+    }
+
+    .cashier-order-group:nth-child(3) {
+        grid-column: auto;
     }
 
     .cashier-summary-card {

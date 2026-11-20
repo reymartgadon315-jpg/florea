@@ -483,7 +483,7 @@
                                     <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Owner &amp; Staff Access</p>
                                 </div>
                                 <div style="margin-top:22px; display:flex; flex-direction:column; gap:12px;">
-                                    <div class="input-wrap"><label>Email</label><input id="admin-email-input" class="input" value="owner@bloom.ph" readonly></div>
+                                    <div class="input-wrap"><label for="admin-username-input">Username</label><input id="admin-username-input" class="input" name="username" value="admin" autocomplete="username"></div>
                                     <div class="input-wrap">
                                         <label for="admin-password-input">Password</label>
                                         <div class="password-field">
@@ -1151,7 +1151,7 @@
                                     <span class="cashier-live-indicator"><i></i> Live Orders <b id="live-count-dash">0</b></span>
                                     <span class="cashier-clock"><span>Current time</span><b id="current-time-dash">--:--</b></span>
                                     <button type="button" class="cashier-icon-button cashier-notification-button" aria-label="Show notifications" title="Notifications" onclick="toggleCashierNotifications()">🔔<span id="cashier-notification-count" hidden>0</span></button>
-                                    <button type="button" class="cashier-bell-toggle" aria-pressed="false" onclick="toggleCashierBell(this)">🔔 Enable sound</button>
+                                    <button type="button" class="cashier-bell-toggle" aria-pressed="true" onclick="toggleCashierBell(this)">🔔 Bell on</button>
                                     <button type="button" class="cashier-logout-button" onclick="logoutCashier().then(() => go('cashier-login'))">Log out</button>
                                 </div>
                             </header>

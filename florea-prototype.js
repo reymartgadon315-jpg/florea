@@ -1132,8 +1132,15 @@ async function submitCustomerFeedback(event) {
 document.getElementById('customer-feedback-form').addEventListener('submit', submitCustomerFeedback);
 
 async function loginAdmin() {
+  const usernameField = document.getElementById('admin-username-input');
+  const username = usernameField ? usernameField.value.trim().toLowerCase() : '';
   const field = document.getElementById('admin-password-input');
   const password = field ? field.value.trim() : '';
+  if (username !== 'admin') {
+    alert('The admin username must be admin.');
+    if (usernameField) usernameField.focus();
+    return;
+  }
   if (FloreaOrderSync.isLocal() && password === 'admin123') {
     setAuthenticated('admin', true);
     go('admin-dashboard');
@@ -1142,7 +1149,7 @@ async function loginAdmin() {
   try {
     await FloreaOrderSync.request('/api/admin-auth', {
       method: 'POST',
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ username, password })
     });
     setAuthenticated('admin', true);
     go('admin-dashboard');

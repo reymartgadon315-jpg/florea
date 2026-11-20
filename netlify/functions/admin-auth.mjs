@@ -58,8 +58,9 @@ export default async function handler(request) {
         return jsonResponse(400, { error: 'Request body must be valid JSON.' });
     }
 
-    if (!verifyAdminPassword(payload?.password, ADMIN_PASSWORD)) {
-        return jsonResponse(401, { error: 'Incorrect admin password.' });
+    const username = typeof payload?.username === 'string' ? payload.username.trim().toLowerCase() : '';
+    if (username !== 'admin' || !verifyAdminPassword(payload?.password, ADMIN_PASSWORD)) {
+        return jsonResponse(401, { error: 'Incorrect admin username or password.' });
     }
 
     const token = createAdminSession(ADMIN_SESSION_SECRET);

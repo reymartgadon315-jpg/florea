@@ -1,10 +1,42 @@
 (function() {
     let audioContext = null;
-    let enabled = false;
+    let outputGain = null;
+    const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+    let enabled = Boolean(AudioContextConstructor);
 
     function updateButton(button, label, isEnabled) {
+        if (!button) return;
         button.textContent = label;
         button.setAttribute('aria-pressed', String(isEnabled));
+    }
+
+    function getAudioContext() {
+        if (!AudioContextConstructor) return null;
+        if (!audioContext) {
+            audioContext = new AudioContextConstructor();
+            outputGain = audioContext.createGain();
+            outputGain.gain.setValueAtTime(1, audioContext.currentTime);
+            outputGain.connect(audioContext.destination);
+        }
+        return audioContext;
+    }
+
+    function setSoundUnavailable(error) {
+        console.error('Unable to enable the cashier order bell.', error);
+        enabled = false;
+        updateButton(document.querySelector('.cashier-bell-toggle'), '🔔 Enable bell', false);
+    }
+
+    function resumeAudioFromGesture() {
+        if (!enabled || !AudioContextConstructor) return;
+        try {
+            const context = getAudioContext();
+            if (context.state !== 'running') {
+                context.resume().catch(setSoundUnavailable);
+            }
+        } catch (error) {
+            setSoundUnavailable(error);
+        }
     }
 
     function playBellNote(frequency, startTime, volume) {
@@ -23,7 +55,7 @@
             gain.gain.exponentialRampToValueAtTime(partial.gain, startTime + 0.01);
             gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.85);
             oscillator.connect(gain);
-            gain.connect(audioContext.destination);
+            gain.connect(outputGain);
             oscillator.start(startTime);
             oscillator.stop(startTime + 0.9);
         });
@@ -32,9 +64,15 @@
     function play() {
         if (!enabled || !audioContext || audioContext.state !== 'running') return;
         const now = audioContext.currentTime;
-        playBellNote(1046.5, now, 0.13);
-        playBellNote(1318.5, now + 0.16, 0.1);
+        playBellNote(1046.5, now, 0.65);
+        playBellNote(1318.5, now + 0.16, 0.55);
     }
+
+    document.querySelectorAll('.cashier-bell-toggle').forEach(button => {
+        updateButton(button, enabled ? '🔔 Bell on' : 'Sound unavailable', enabled);
+    });
+    document.addEventListener('pointerdown', resumeAudioFromGesture, true);
+    document.addEventListener('keydown', resumeAudioFromGesture, true);
 
     window.toggleCashierBell = async function(button) {
         if (enabled) {
@@ -43,21 +81,19 @@
             return;
         }
 
-        const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextConstructor) {
             updateButton(button, 'Sound unavailable', false);
             return;
         }
 
         try {
-            audioContext = audioContext || new AudioContextConstructor();
-            await audioContext.resume();
-            enabled = audioContext.state === 'running';
+            const context = getAudioContext();
+            await context.resume();
+            enabled = context.state === 'running';
             updateButton(button, enabled ? '🔔 Bell on' : '🔔 Enable bell', enabled);
             if (enabled) play();
         } catch (error) {
-            console.error('Unable to enable the cashier order bell.', error);
-            updateButton(button, '🔔 Enable bell', false);
+            setSoundUnavailable(error);
         }
     };
 
