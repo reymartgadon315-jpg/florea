@@ -7132,3 +7132,30 @@ body.staff-portal-view #cashier-login > div:first-child {
 #cashier-login .btn-primary:hover {
     background: #5A331B;
 }
+
+body.customer-view #catalog .customer-catalog-card__name,
+body.customer-view #menu-home .customer-catalog-card__name,
+body.customer-view #qr-landing .customer-featured-card__name {
+    min-height: 2.4em;
+    color: #3E230E;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+}
+
+body.customer-view #catalog .customer-catalog-card__description,
+body.customer-view #menu-home .customer-catalog-card__description {
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+body.customer-view #qr-landing .customer-featured-card__category {
+    font-size: 10px;
+    text-align: center;
+}
+
+body.customer-view #qr-landing .customer-featured-card__price {
+    font-size: 13px;
+    text-align: center;
+}
