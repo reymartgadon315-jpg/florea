@@ -1143,7 +1143,7 @@
             <div class="product-image-upload">
                 <label for="new-product-image-input">Product image</label>
                 <input id="new-product-image-input" class="input" name="productImage" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
-                <p class="product-image-upload__hint">JPG, PNG, or WEBP. The original image is preserved. Maximum 5 MB on Netlify.</p>
+                <p class="product-image-upload__hint">JPG, PNG, or WEBP. The original image is preserved. Maximum 5 MB per image.</p>
                 <p data-product-image-status class="product-image-upload__status" role="status" aria-live="polite"></p>
                 <div data-product-image-preview-wrap class="product-image-preview" hidden>
                     <img data-product-image-preview alt="New product image preview">
@@ -1586,7 +1586,7 @@
                 window.openCatalog();
                 break;
             case 'forgot-password':
-                window.alert('Password resets are handled by your site administrator. Update ADMIN_PASSWORD in the Netlify site environment.');
+                window.alert('Password resets are handled by your site administrator. Update ADMIN_PASSWORD in the server environment.');
                 break;
             case 'settings':
                 openSettings();

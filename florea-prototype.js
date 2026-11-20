@@ -23,62 +23,6 @@
         }
 
         const PRODUCTS = {
-            'Flowers': [{
-                e: '🌹',
-                n: 'Ecuadorian Roses (6pc)',
-                d: 'A timeless bouquet of vibrant roses for heartfelt moments.',
-                p: '₱ 390',
-                stock: 'In Stock'
-            }, {
-                e: '🌻',
-                n: 'Sunflower Stem',
-                d: 'A bright sunflower stem that brings a little sunshine to any space.',
-                p: '₱ 120',
-                stock: 'In Stock'
-            }, {
-                e: '🌷',
-                n: 'Dutch Tulip (single)',
-                d: 'A graceful single tulip for a thoughtful, colorful touch.',
-                p: '₱ 85',
-                stock: 'Low Stock'
-            }, {
-                e: '🌼',
-                n: 'Daisy Mix Stem',
-                d: 'A cheerful daisy stem with a fresh, playful look.',
-                p: '₱ 95',
-                stock: 'In Stock'
-            }, {
-                e: '🪻',
-                n: 'Lavender Bunch',
-                d: 'A lovely lavender bunch with a soft, calming charm.',
-                p: '₱ 140',
-                stock: 'Sold Out'
-            }, {
-                e: '🌸',
-                n: 'Cherry Blossom Stem',
-                d: 'A delicate blossom stem for a gentle, elegant accent.',
-                p: '₱ 160',
-                stock: 'In Stock'
-            }, ],
-            'Bouquets': [{
-                e: '💐',
-                n: 'Sweetheart Peony Bouquet',
-                d: 'A romantic blush bouquet made for anniversaries and heartfelt gifts.',
-                p: '₱ 980',
-                stock: 'In Stock'
-            }, {
-                e: '💐',
-                n: 'Tulip Garden Box',
-                d: 'A colorful tulip arrangement presented in a charming garden box.',
-                p: '₱ 450',
-                stock: 'In Stock'
-            }, {
-                e: '💐',
-                n: 'Rose & Baby\'s Breath Bunch',
-                d: 'A timeless hand-tied bouquet for celebrations big and small.',
-                p: '₱ 620',
-                stock: 'In Stock'
-            }, ],
             'Coffee': [
                 ['Americano', 'A bold, smooth coffee for a simple, satisfying pick-me-up.', 'M79 · L99 · Hot79', 'coffee-americano.png'],
                 ['Spanish Latte', 'Espresso with milk and condensed milk.', 'M129 · L139 · Hot129', 'coffee-spanish-latte.png'],
@@ -221,15 +165,15 @@
             ],
             'Frappe': [
                 ...[
-                    ['Matcha', 129, 149, 'assets/products/frappe-matcha.png'],
-                    ['Salted Caramel', 129, 149, 'assets/products/frappe-caramel.png'],
-                    ['Cheesecake', 129, 149, 'assets/products/frappe-vanilla.png'],
-                    ['Red Velvet', 129, 149, 'assets/products/frappe-strawberry.png'],
-                    ['Nutella Triple Choco', 149, 169, 'assets/products/frappe-nutella-triple-choco.png'],
-                    ['Biscoff', 149, 169, 'assets/products/frappe-biscoff.png'],
-                    ['Mango', 129, 149, 'assets/products/frappe-mango.png'],
-                    ['Strawberry', 129, 149, 'assets/products/frappe-strawberry.png'],
-                    ['Blueberry', 129, 149, 'assets/products/frappe-mixed-berry.png']
+                    ['Matcha', 129, 149, 'assets/products/frappe-matcha-cutout.png'],
+                    ['Salted Caramel', 129, 149, 'assets/products/frappe-salted-caramel-cutout.png'],
+                    ['Cheesecake', 129, 149, 'assets/products/frappe-cheesecake-cutout.png'],
+                    ['Red Velvet', 129, 149, 'assets/products/frappe-red-velvet-cutout.png'],
+                    ['Nutella Triple Choco', 149, 169, 'assets/products/frappe-nutella-triple-choco-cutout.png'],
+                    ['Biscoff', 149, 169, 'assets/products/frappe-biscoff-cutout.png'],
+                    ['Mango', 129, 149, 'assets/products/frappe-mango-cutout.png'],
+                    ['Strawberry', 129, 149, 'assets/products/frappe-strawberry-cutout.png'],
+                    ['Blueberry', 129, 149, 'assets/products/frappe-blueberry-cutout.png']
                 ].map(([name, medium, large, image]) => ({
                     e: '🥤',
                     n: name,
@@ -472,8 +416,8 @@
                 stock: 'In Stock'
             }, ],
         };
-        const CATALOG_ORDER = ['Flowers', 'Bouquets', 'Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe', 'Rice Meals', 'Finger Foods', 'Pasta', 'Cakes & Pastries'];
-        const HIDDEN_CATALOG_CATEGORIES = new Set(['Flowers', 'Bouquets', 'Cakes & Pastries']);
+        const CATALOG_ORDER = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe', 'Rice Meals', 'Finger Foods', 'Pasta', 'Cakes & Pastries'];
+        const HIDDEN_CATALOG_CATEGORIES = new Set(['Cakes & Pastries']);
         const CUSTOMER_CATALOG_ORDER = CATALOG_ORDER.filter(category => !HIDDEN_CATALOG_CATEGORIES.has(category));
         const DRINK_CATEGORIES = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha', 'Refreshers', 'Frappe'];
         const HOT_DRINK_CATEGORIES = ['Coffee', 'Flavored Coffee', 'Premium Latte', 'Matcha'];
@@ -511,7 +455,9 @@ function renderFeaturedToday() {
         </article>`;
     }).join('');
     const featuredProducts = CUSTOMER_CATALOG_ORDER
-        .map(category => products.find(item => item.category === category))
+        .map(category => products.find(item =>
+            item.category === category && item.product.n !== 'Strawberry Coffee'
+        ))
         .filter(Boolean);
     container.innerHTML = renderCards(featuredProducts);
     fullMenu.innerHTML = renderCards(products);
@@ -555,23 +501,24 @@ function renderCatalogChips() {
     }
 }
 
-function renderProductThumb(item, width = '100%', category = '') {
+function renderProductThumb(item, width = '100%', category = '', loading = 'lazy') {
     const activeCategory = category || currentCategory;
     const src = getProductImage(item, activeCategory);
     const imageHeight = '224px';
     if (!src) return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};">${item ? escapeCatalogText(item.e) : ''}</div>`;
     return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};overflow:hidden;">
-        <img src="${escapeCatalogText(src)}" alt="${escapeCatalogText(item ? item.n : category || 'Menu item')}" class="thumb-image" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;" />
+        <img src="${escapeCatalogText(src)}" alt="${escapeCatalogText(item ? item.n : category || 'Menu item')}" class="thumb-image" loading="${loading}" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;" />
     </div>`;
 }
 
 const productRatings = new Map();
 const ratingVisitorStorageKey = 'florea-rating-visitor-id';
 let ratingsReady = false;
+let ratingsLoadInProgress = false;
 
 function renderRating(productName) {
     const rating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
-    const selectedRating = rating.myRating || Math.round(rating.average);
+    const selectedRating = rating.myRating;
     const stars = Array.from({ length: 5 }, (_, index) => {
         const value = index + 1;
         return `<button type="button" class="rating-star${value <= selectedRating ? ' is-selected' : ''}" data-rating-product="${escapeCatalogText(productName)}" data-rating-value="${value}" aria-label="Rate ${escapeCatalogText(productName)} ${value} out of 5 stars" aria-pressed="${rating.myRating === value}" ${ratingsReady ? '' : 'disabled'}>★</button>`;
@@ -588,12 +535,15 @@ function renderFeaturedRatings() {
     });
 }
 
-function refreshRatingWidgets(productName) {
+function refreshRatingWidgets(productName = null) {
     document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
-        if (widget.dataset.productName === productName) {
-            widget.outerHTML = renderRating(productName);
+        const name = widget.dataset.productName;
+        if (!productName || name === productName) {
+            widget.outerHTML = renderRating(name);
         }
     });
+    renderBestSellerCards();
+    renderFeaturedRatings();
 }
 
 function getRatingVisitorId() {
@@ -627,6 +577,7 @@ function readLocalRatings() {
     if (!savedRatings || typeof savedRatings !== 'object' || Array.isArray(savedRatings)) {
         throw new Error('Saved product ratings have an invalid format.');
     }
+    productRatings.clear();
     Object.entries(savedRatings).forEach(([name, value]) => {
         if (typeof name === 'string' && value && Number.isFinite(value.average) &&
             Number.isInteger(value.count) && Number.isInteger(value.myRating)) {
@@ -635,7 +586,9 @@ function readLocalRatings() {
     });
 }
 
-async function loadProductRatings() {
+async function loadProductRatings(showErrors = true) {
+    if (ratingsLoadInProgress) return;
+    ratingsLoadInProgress = true;
     try {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             readLocalRatings();
@@ -648,19 +601,18 @@ async function loadProductRatings() {
             if (!result.ratings || typeof result.ratings !== 'object' || Array.isArray(result.ratings)) {
                 throw new Error('The rating service returned invalid data.');
             }
+            productRatings.clear();
             Object.entries(result.ratings).forEach(([name, value]) => productRatings.set(name, value));
         }
         ratingsReady = true;
-        document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
-            widget.outerHTML = renderRating(widget.dataset.productName);
-        });
+        refreshRatingWidgets();
     } catch (error) {
         console.error('Unable to load product ratings.', error);
         ratingsReady = true;
-        document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
-            widget.outerHTML = renderRating(widget.dataset.productName);
-        });
-        showRatingNotice(`Ratings are unavailable: ${error.message}`, true);
+        refreshRatingWidgets();
+        if (showErrors) showRatingNotice(`Ratings are unavailable: ${error.message}`, true);
+    } finally {
+        ratingsLoadInProgress = false;
     }
 }
 
@@ -1018,6 +970,7 @@ function startCustomerJourney() {
   } catch (error) {
     console.warn('Unable to retain the customer name for this session.', error);
   }
+  loadCustomerFavorites(true);
   updateCustomerGreeting(name);
   go('menu-home');
 }
@@ -1235,6 +1188,152 @@ try {
 } catch (error) {
   console.warn('Unable to restore the customer name for this session.', error);
 }
+const customerFavoritesStoragePrefix = 'florea-customer-favorites:';
+const favoritesCatalogCategory = 'Favorites';
+let customerFavorites = new Set();
+let customerFavoritesStorageKey = null;
+let customerFavoritesLoaded = false;
+
+function getCustomerFavoritesStorageKey() {
+  let customerName = customerNameForSession.trim();
+  if (!customerName) {
+    try {
+      customerName = localStorage.getItem('florea-customer-name') || '';
+    } catch (error) {
+      console.error('Unable to identify the customer for favorites.', error);
+      return null;
+    }
+  }
+  const owner = customerName.trim().normalize('NFKC').toLocaleLowerCase();
+  return owner ? `${customerFavoritesStoragePrefix}${encodeURIComponent(owner)}` : null;
+}
+
+function showCustomerFavoriteNotice(message, isError = false) {
+  let notice = document.getElementById('customer-favorite-notice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'customer-favorite-notice';
+    notice.className = 'rating-notice';
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+    document.body.appendChild(notice);
+  }
+  notice.textContent = message;
+  notice.classList.toggle('is-error', isError);
+  notice.hidden = false;
+  clearTimeout(notice.timeoutId);
+  notice.timeoutId = setTimeout(() => { notice.hidden = true; }, 3500);
+}
+
+function loadCustomerFavorites(force = false) {
+  const storageKey = getCustomerFavoritesStorageKey();
+  if (!storageKey) {
+    customerFavorites = new Set();
+    customerFavoritesStorageKey = null;
+    customerFavoritesLoaded = false;
+    updateFavoriteNavigationLabels();
+    return false;
+  }
+  if (!force && customerFavoritesLoaded && storageKey === customerFavoritesStorageKey) return true;
+
+  customerFavorites = new Set();
+  customerFavoritesStorageKey = storageKey;
+  customerFavoritesLoaded = false;
+  try {
+    const savedFavorites = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    if (!Array.isArray(savedFavorites) || savedFavorites.some(item => typeof item !== 'string')) {
+      throw new Error('Saved favorites have an invalid format.');
+    }
+    customerFavorites = new Set(savedFavorites);
+    customerFavoritesLoaded = true;
+    updateFavoriteNavigationLabels();
+    return true;
+  } catch (error) {
+    console.error('Unable to load customer favorites.', error);
+    showCustomerFavoriteNotice(`Favorites could not be loaded: ${error.message}`, true);
+    return false;
+  }
+}
+
+function getFavoriteProductId(category, productName) {
+  return JSON.stringify([category, productName]);
+}
+
+function updateFavoriteNavigationLabels() {
+  const count = customerFavorites.size;
+  document.querySelectorAll('[data-favorites-link]').forEach(link => {
+    link.textContent = `♡ Favorites${count ? ` (${count})` : ''}`;
+  });
+}
+
+function updateProductFavoriteButton() {
+  const button = document.getElementById('product-favorite-toggle');
+  if (!button || !selectedProduct) return;
+  loadCustomerFavorites();
+  const isFavorite = customerFavorites.has(getFavoriteProductId(selectedProduct.category, selectedProduct.name));
+  button.textContent = isFavorite ? '♥' : '♡';
+  button.classList.toggle('is-favorite', isFavorite);
+  button.setAttribute('aria-label', isFavorite
+    ? `Remove ${selectedProduct.name} from favorites`
+    : `Add ${selectedProduct.name} to favorites`);
+  button.setAttribute('aria-pressed', String(isFavorite));
+}
+
+function toggleSelectedProductFavorite() {
+  if (!selectedProduct) return;
+  const storageKey = getCustomerFavoritesStorageKey();
+  if (!storageKey) {
+    showCustomerFavoriteNotice('Enter your name to save customer favorites.', true);
+    return;
+  }
+  if (!loadCustomerFavorites()) return;
+
+  const productId = getFavoriteProductId(selectedProduct.category, selectedProduct.name);
+  const nextFavorites = new Set(customerFavorites);
+  const isFavorite = nextFavorites.has(productId);
+  if (isFavorite) nextFavorites.delete(productId);
+  else nextFavorites.add(productId);
+
+  try {
+    localStorage.setItem(storageKey, JSON.stringify([...nextFavorites]));
+  } catch (error) {
+    console.error('Unable to save customer favorites.', error);
+    showCustomerFavoriteNotice(`Favorite could not be saved: ${error.message}`, true);
+    return;
+  }
+
+  customerFavorites = nextFavorites;
+  customerFavoritesStorageKey = storageKey;
+  customerFavoritesLoaded = true;
+  updateFavoriteNavigationLabels();
+  updateProductFavoriteButton();
+  showCustomerFavoriteNotice(isFavorite
+    ? `${selectedProduct.name} removed from Favorites.`
+    : `${selectedProduct.name} saved to Favorites.`);
+  if (activeCatalogCategory === favoritesCatalogCategory) {
+    renderCatalogProducts(favoritesCatalogCategory, activeCatalogSearch);
+  }
+}
+
+function openCustomerFavorites() {
+  loadCustomerFavorites(true);
+  activeCatalogCategory = favoritesCatalogCategory;
+  activeCatalogSearch = '';
+  go('catalog');
+}
+
+window.addEventListener('storage', event => {
+  if (event.key !== getCustomerFavoritesStorageKey()) return;
+  loadCustomerFavorites(true);
+  updateProductFavoriteButton();
+  if (activeCatalogCategory === favoritesCatalogCategory) {
+    renderCatalogProducts(favoritesCatalogCategory, activeCatalogSearch);
+  }
+});
+
+loadCustomerFavorites();
+updateFavoriteNavigationLabels();
+
 const customerNameInput = document.getElementById('customer-name-input');
 customerNameInput?.addEventListener('input', () => {
   customerNameForSession = customerNameInput.value.trim();
@@ -1259,7 +1358,7 @@ function hasCustomerNameForSession() {
 function blockUnnamedCustomerClick(event) {
   if (!isPublicCustomerView || hasCustomerNameForSession()) return;
   const target = event.target instanceof Element ? event.target : event.target?.parentElement;
-  if (!target || target.closest('#customer-name-input, #customer-name-continue, #customer-full-menu-open, #customer-full-menu-close')) return;
+  if (!target || target.closest('#customer-name-input, #customer-name-continue, #customer-full-menu-open, #customer-full-menu-close, a[data-customer-contact], a.customer-facebook-link, a.customer-instagram-link')) return;
   const interactive = target.closest(
     'button, a[href], input, select, textarea, [onclick], [data-ui-action], [role="button"], [tabindex]:not([tabindex="-1"])'
   );
@@ -1445,7 +1544,8 @@ function restoreInitialScreen() {
     setCategory(savedState.homeCategory);
   }
   if (initialScreen === 'catalog') {
-    activeCatalogCategory = CUSTOMER_CATALOG_ORDER.includes(savedState.catalogCategory)
+    activeCatalogCategory = savedState.catalogCategory === favoritesCatalogCategory ||
+      CUSTOMER_CATALOG_ORDER.includes(savedState.catalogCategory)
       ? savedState.catalogCategory
       : null;
     activeCatalogSearch = typeof savedState.catalogSearch === 'string' ? savedState.catalogSearch : '';
@@ -1633,8 +1733,20 @@ function selectProduct(productOrCategory, priceOrIndex, category) {
     productCategory = productOrCategory;
     product = (PRODUCTS[productCategory] || [])[priceOrIndex];
   } else {
-    product = Object.values(PRODUCTS).flat().find(item => item.n === productOrCategory);
-    productCategory = Object.keys(PRODUCTS).find(key => PRODUCTS[key].some(item => item.n === productOrCategory)) || category;
+    const preferredCategory = (typeof category === 'string' && PRODUCTS[category])
+      ? category
+      : (typeof priceOrIndex === 'string' && PRODUCTS[priceOrIndex] ? priceOrIndex : null);
+    product = preferredCategory
+      ? (PRODUCTS[preferredCategory] || []).find(item => item.n === productOrCategory)
+      : null;
+    if (product) {
+      productCategory = preferredCategory;
+    } else {
+      product = Object.values(PRODUCTS).flat().find(item => item.n === productOrCategory);
+      productCategory = Object.keys(PRODUCTS).find(key =>
+        PRODUCTS[key].some(item => item.n === productOrCategory)
+      ) || category;
+    }
   }
 
   if (!product || product.stock === 'Sold Out') return;
@@ -1677,6 +1789,7 @@ function updateProductDetailsDisplay() {
     if(actualProduct) renderDrinkOptions(actualProduct, selectedProduct.category);
     const ratingEl = document.getElementById('product-rating');
     if (ratingEl) ratingEl.innerHTML = renderRating(selectedProduct.name);
+    updateProductFavoriteButton();
     if(thumbEl) {
         if(actualProduct) {
             const imageSrc = getProductImage(actualProduct, selectedProduct.category);
@@ -1741,22 +1854,36 @@ function renderCatalogProducts(category = null, searchQuery = activeCatalogSearc
     if(!grid || !chips) return;
     
     const categories = CUSTOMER_CATALOG_ORDER;
-    const selectedCategory = categories.includes(category) ? category : null;
+    const selectedCategory = category === favoritesCatalogCategory
+        ? favoritesCatalogCategory
+        : (categories.includes(category) ? category : null);
     activeCatalogCategory = selectedCategory;
     activeCatalogSearch = searchQuery.trim();
+    if (selectedCategory === favoritesCatalogCategory) loadCustomerFavorites();
     
     // Render category chips
     chips.innerHTML = `<button type="button" class="chip${selectedCategory ? '' : ' active'}" data-category="">All</button>` +
+        `<button type="button" class="chip${selectedCategory === favoritesCatalogCategory ? ' active' : ''}" data-category="${favoritesCatalogCategory}" data-favorites-link>♡ Favorites</button>` +
         categories.map(cat =>
             `<button type="button" class="chip${selectedCategory === cat ? ' active' : ''}" data-category="${escapeCatalogText(cat)}">${escapeCatalogText(cat)}</button>`
         ).join('');
+    updateFavoriteNavigationLabels();
+    const catalogTitle = document.getElementById('catalog-title');
+    if (catalogTitle) catalogTitle.textContent = selectedCategory === favoritesCatalogCategory ? 'My Favorites' : 'Product Catalog';
     document.querySelectorAll('.customer-menu-search input').forEach(input => { input.value = activeCatalogSearch; });
     
     const query = activeCatalogSearch.toLocaleLowerCase();
     const searchTerms = query.split(/\s+/).filter(Boolean);
-    let productsToShow = categories
-        .filter(cat => !selectedCategory || cat === selectedCategory)
-        .flatMap(cat => (PRODUCTS[cat] || []).map(product => ({ product, category: cat })))
+    const catalogProducts = categories.flatMap(cat =>
+        (PRODUCTS[cat] || []).map(product => ({ product, category: cat }))
+    );
+    let productsToShow = catalogProducts
+        .filter(({ product, category: productCategory }) => {
+            if (selectedCategory === favoritesCatalogCategory) {
+                return customerFavorites.has(getFavoriteProductId(productCategory, product.n));
+            }
+            return !selectedCategory || productCategory === selectedCategory;
+        })
         .filter(({ product, category: productCategory }) => {
             const searchableText = `${product.n} ${product.d || ''} ${productCategory}`.toLocaleLowerCase();
             return searchTerms.every(term => searchableText.includes(term));
@@ -1784,14 +1911,16 @@ function renderCatalogProducts(category = null, searchQuery = activeCatalogSearc
     if(countEl) {
         countEl.textContent = query
             ? `${productsToShow.length} results for "${activeCatalogSearch}"`
-            : `${productsToShow.length} Items`;
+            : selectedCategory === favoritesCatalogCategory
+                ? `${productsToShow.length} saved favorite${productsToShow.length === 1 ? '' : 's'}`
+                : `${productsToShow.length} Items`;
     }
     
     // Render products
     grid.innerHTML = productsToShow.length ? productsToShow.map(({ product, category: productCategory }) => {
         return `
             <div class="card customer-catalog-card" data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(productCategory)}">
-                ${renderProductThumb(product, '100%', productCategory)}
+                ${renderProductThumb(product, '100%', productCategory, 'eager')}
                 <p class="customer-catalog-card__name">${escapeCatalogText(product.n)}</p>
                 <p class="customer-catalog-card__description">${escapeCatalogText(product.d || '')}</p>
                 <div class="customer-catalog-card__footer">
@@ -1802,13 +1931,13 @@ function renderCatalogProducts(category = null, searchQuery = activeCatalogSearc
             </div>
         `;
     }).join('') : `<div class="customer-menu-search-empty" role="status">
-        <strong>${query ? `Walang nahanap para sa “${escapeCatalogText(activeCatalogSearch)}”` : 'Walang menu items sa category na ito'}</strong>
-        <span>${query ? 'Subukan ang ibang pangalan o kategorya.' : 'Pumili ng ibang category para makita ang menu.'}</span>
+        <strong>${query
+            ? `Walang nahanap para sa “${escapeCatalogText(activeCatalogSearch)}”`
+            : selectedCategory === favoritesCatalogCategory ? 'No favorites yet' : 'Walang menu items sa category na ito'}</strong>
+        <span>${query
+            ? 'Subukan ang ibang pangalan o kategorya.'
+            : selectedCategory === favoritesCatalogCategory ? 'Tap the heart on a product to save it here for your next order.' : 'Pumili ng ibang category para makita ang menu.'}</span>
     </div>`;
-    grid.querySelectorAll('img').forEach(image => {
-        image.loading = 'lazy';
-        image.decoding = 'async';
-    });
     if (!grid.dataset.productClickBound) {
         grid.addEventListener('click', event => {
             if (event.target.closest('[data-rating-value]')) return;
@@ -1825,7 +1954,9 @@ function renderCatalogProducts(category = null, searchQuery = activeCatalogSearc
 }
 
 function openCatalog(category = null) {
-    activeCatalogCategory = CUSTOMER_CATALOG_ORDER.includes(category) ? category : null;
+    activeCatalogCategory = category === favoritesCatalogCategory || CUSTOMER_CATALOG_ORDER.includes(category)
+        ? category
+        : null;
     activeCatalogSearch = '';
     go('catalog');
 }
@@ -1851,11 +1982,79 @@ function setCatalogSortMode(mode) {
     renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
 }
 
+function renderBestSellerCards() {
+    const grid = document.getElementById('customer-best-seller-grid');
+    if (!grid) return;
+
+    const catalogProducts = CUSTOMER_CATALOG_ORDER
+        .flatMap(category => (PRODUCTS[category] || []).map((product, index) => ({ category, product, index })));
+    const ratedProducts = catalogProducts
+        .filter(({ product }) => (productRatings.get(product.n)?.count || 0) > 0)
+        .sort((a, b) => {
+            const ratingDifference = productRatings.get(b.product.n).average - productRatings.get(a.product.n).average;
+            if (ratingDifference !== 0) return ratingDifference;
+            const countDifference = productRatings.get(b.product.n).count - productRatings.get(a.product.n).count;
+            return countDifference || CUSTOMER_CATALOG_ORDER.indexOf(a.category) - CUSTOMER_CATALOG_ORDER.indexOf(b.category) || a.index - b.index;
+        });
+    const defaultProducts = [
+        ...catalogProducts.filter(({ category, product }) => category === 'Coffee' && product.n === 'Dalgona Coffee'),
+        ...CUSTOMER_CATALOG_ORDER
+        .filter(category => category !== 'Coffee')
+        .flatMap(category => catalogProducts.filter(item =>
+            item.category === category && item.product.n !== 'Strawberry Coffee'
+        ).slice(0, 1))
+    ];
+    const selectedNames = new Set(ratedProducts.map(({ product }) => product.n));
+    const bestSellers = [
+        ...ratedProducts,
+        ...defaultProducts.filter(({ product }) => !selectedNames.has(product.n)),
+        ...catalogProducts.filter(({ product }) =>
+            !selectedNames.has(product.n) && !defaultProducts.some(item => item.product.n === product.n)
+        )
+    ].slice(0, 9);
+
+    grid.innerHTML = bestSellers.map(({ category, product, index }) =>
+        `<div class="card customer-catalog-card" data-product-index="${index}" data-product-category="${escapeCatalogText(category)}">
+            ${renderProductThumb(product, '100%', category)}
+            <p class="customer-catalog-card__name">${escapeCatalogText(product.n)}</p>
+            <p class="customer-catalog-card__description">${escapeCatalogText(product.d || '')}</p>
+            <div class="customer-catalog-card__rating" data-featured-rating="${escapeCatalogText(product.n)}"></div>
+            <div class="customer-catalog-card__footer">
+                <span class="customer-catalog-card__price">${escapeCatalogText(product.p || '')}</span>
+                ${renderCatalogQuickAddButton(product, category)}
+            </div>
+        </div>`
+    ).join('');
+
+    if (!grid.dataset.bestSellerClickBound) {
+        grid.addEventListener('click', event => {
+            if (event.target.closest('button')) return;
+            const card = event.target.closest('.customer-catalog-card[data-product-index][data-product-category]');
+            if (!card || !grid.contains(card)) return;
+            selectProduct(card.dataset.productCategory, Number(card.dataset.productIndex));
+        });
+        grid.dataset.bestSellerClickBound = 'true';
+    }
+}
+
 window.FloreaProducts = PRODUCTS;
 window.FloreaCategories = CATALOG_ORDER;
 window.setCatalogSortMode = setCatalogSortMode;
 window.refreshFloreaCatalog = () => {
     renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
 };
+renderBestSellerCards();
 renderFeaturedRatings();
 loadProductRatings();
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    window.addEventListener('storage', event => {
+        if (event.key === 'florea-product-ratings') loadProductRatings(false);
+    });
+} else {
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') loadProductRatings(false);
+    });
+    window.setInterval(() => {
+        if (document.visibilityState === 'visible') loadProductRatings(false);
+    }, 30000);
+}

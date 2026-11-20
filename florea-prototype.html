@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="icon" href="/florea-logo-192.png" type="image/png">
     <link rel="apple-touch-icon" href="/florea-logo-192.png">
@@ -127,9 +127,13 @@
 
                                     <p style="font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--forest-light); font-weight:700;">Dine With Us!</p>
                                     <h1 style="font-size:25px; color:#FBF7F1; margin-top:6px;">We are <span style="color:var(--forest-light);">OPEN</span>.</h1>
-                                    <p style="font-size:11.5px; color:#D7D0C3; margin-top:12px; max-width:250px; margin-left:auto; margin-right:auto; line-height:1.6;">Your favorite café is open! Order flowers, coffee &amp; pastries straight from your table.</p>
-                                    <p style="font-size:11px; color:var(--forest-light); margin-top:10px; font-weight:600;">📞 0907 189 9720 · 0995 501 4725</p>
-                                    <button id="install-app-button" class="install-app-button" type="button" aria-haspopup="dialog">How to Add to Home Screen</button>
+                                    <p style="font-size:11.5px; color:#D7D0C3; margin-top:12px; max-width:250px; margin-left:auto; margin-right:auto; line-height:1.6;">Your favorite café is open! Enjoy freshly brewed coffee, favorite pastries, and comforting meals at your table.</p>
+                                    <div class="customer-contact-actions">
+                                        <a href="tel:+639071899720" data-customer-contact aria-label="Call Floréa at 0907 189 9720">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.4 15.4 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1.02-.24 11.4 11.4 0 0 0 3.57.57 1 1 0 0 1 1 1v3.5a1 1 0 0 1-1 1C10.7 21 3 13.3 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.2 2.44.57 3.57a1 1 0 0 1-.24 1.02z"/></svg>
+                                            <span>0907 189 9720</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -137,8 +141,8 @@
                             <div class="hero-banner">
                                 <div class="blob"></div>
                                 <p class="eyebrow">Welcome</p>
-                                <h2 style="font-size:20px;margin-top:6px;">Fresh blooms, <br>brewed just for you.</h2>
-                                <p style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;max-width:220px;">Order flowers, coffee &amp; pastries straight from your table — no app download needed.</p>
+                                <h2 style="font-size:20px;margin-top:6px;">“Good coffee and cozy moments make the best memories.”</h2>
+                                <p style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;max-width:320px;">Choose handcrafted coffee, favorite pastries, and comforting meals. Enjoy it all right at your table.</p>
                                 <div class="input-wrap" style="margin-top:16px; text-align:left;">
                                     <label for="customer-name-input" style="color:var(--ink-soft);">Your name</label>
                                     <input id="customer-name-input" class="input" type="text" placeholder="Enter your name" autocomplete="name" maxlength="40">
@@ -152,7 +156,20 @@
                             </div>
                             <div class="customer-featured-items" aria-label="Full menu, for viewing only"></div>
 
-                            <p style="text-align:center;font-size:11px;color:var(--ink-soft);margin-top:14px;">Scanned via QR · Powered by POS</p>
+                            <footer class="customer-menu-footer customer-landing-footer">
+                                <div>
+                                    <a class="customer-facebook-link" href="https://www.facebook.com/share/18ufHnkp6B/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Visit Floréa on Facebook">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8h3.4z"/></svg>
+                                        <span>Facebook</span>
+                                    </a>
+                                    <span aria-hidden="true">·</span>
+                                    <a class="customer-instagram-link" href="https://www.instagram.com/floristcafeandflowershop" target="_blank" rel="noopener noreferrer" aria-label="Visit Florist Cafe and Flowershop on Instagram">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="instagram-icon-dot" cx="18" cy="6" r="1"/></svg>
+                                        <span>Instagram</span>
+                                    </a>
+                                </div>
+                                <span class="customer-menu-footer__hours"><span aria-hidden="true"></span>Open Daily · 8:00 AM – 9:00 PM</span>
+                            </footer>
                         </div>
                     </section>
 
@@ -162,17 +179,21 @@
                     <section class="screen" id="menu-home">
                         <div class="mobile-nav">
                             <div>
-                                <p id="customer-greeting" style="font-size:15px;font-weight:700;">Welcome 👋</p>
-                                <p style="font-size:11px;color:var(--ink-soft);">Delivering that café-garden feeling</p>
+                                <p id="customer-greeting" style="font-size:15px;font-weight:700;">Hi, there 👋</p>
+                                <p style="font-size:11px;color:var(--ink-soft);">Your café favorites, made with care</p>
                             </div>
                         </div>
-                        <div style="padding:16px 18px 90px;">
+                        <div class="customer-menu-content" style="padding:16px 18px 90px;">
                             <form class="customer-menu-search" onsubmit="event.preventDefault(); searchCustomerMenu();">
-                                <input id="customer-menu-search" class="input" type="search" placeholder="Search menu items…" aria-label="Search menu items" autocomplete="off">
+                                <div class="customer-menu-search-field">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                                    <input id="customer-menu-search" class="input" type="search" placeholder="Search roasts, refreshers &amp; meals…" aria-label="Search menu items" autocomplete="off">
+                                </div>
                                 <button class="btn btn-primary" type="submit">Search</button>
                             </form>
 
-                            <div style="display:flex; gap:10px; overflow-x:auto; margin-top:16px; padding-bottom:4px;">
+                            <div class="customer-category-rail" style="display:flex; gap:10px; overflow-x:auto; margin-top:16px; padding-bottom:4px;">
+                                <button type="button" class="chip" data-favorites-link onclick="openCustomerFavorites()">♡ Favorites</button>
                                 <span class="chip active" onclick="openCatalog(null)">All</span>
                                 <span class="chip" onclick="openCatalog('Coffee')">Coffee</span>
                                 <span class="chip" onclick="openCatalog('Flavored Coffee')">Flavored Coffee</span>
@@ -185,15 +206,17 @@
                                 <span class="chip" onclick="openCatalog('Pasta')">Pasta</span>
                             </div>
 
-                            <div class="hero-banner" style="margin-top:18px; padding:18px;">
-                                <span class="badge badge-gold">🆕 New</span>
-                                <h3 style="font-size:16px;margin-top:8px;">Liempo Kare &amp; Honey Butter Chicken now on the menu</h3>
-                                <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Rice Meals · Available Dine-in &amp; Pickup</p>
+                            <div class="hero-banner" style="margin-top:18px;padding:18px;">
+                                <div class="customer-rice-promo-heading">
+                                    <h3>Liempo Kare &amp; Honey Butter Chicken now on the menu</h3>
+                                    <img class="customer-new-sticker" src="assets/new-sticker.png" alt="New" />
+                                </div>
+                                <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Rice Meals · Enjoy a hearty meal right here at Floréa</p>
                             </div>
 
                             <div class="section-title" style="margin-top:22px;">
                                 <h3>Best Sellers</h3><a href="#" data-ui-action="open-catalog">See all</a></div>
-                            <div class="grid grid-2">
+                            <div class="grid grid-2" id="customer-best-seller-grid">
                                 <div class="card customer-catalog-card" onclick="selectProduct('Coffee', 6)">
                                     <div class="thumb customer-catalog-card__image"><img src="assets/products/coffee-dalgona-coffee.png" alt="Dalgona Coffee" class="thumb-image" style="object-fit:contain;" /></div>
                                     <p class="customer-catalog-card__name">Dalgona Coffee</p>
@@ -210,7 +233,7 @@
 
                             <div class="section-title" style="margin-top:22px;">
                                 <h3>Featured Products</h3><a href="#" data-ui-action="open-catalog">See all</a></div>
-                            <div class="grid grid-2">
+                            <div class="grid grid-2" id="customer-featured-grid">
                                 <div class="card customer-catalog-card" onclick="selectProduct('Matcha', 1)">
                                     <div class="thumb customer-catalog-card__image"><img src="assets/products/matcha-mango.png" alt="Mango Matcha" class="thumb-image" style="object-fit:contain;" loading="lazy" decoding="async" /></div>
                                     <p class="customer-catalog-card__name">Mango Matcha</p>
@@ -236,6 +259,21 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <footer class="customer-menu-footer">
+                                <div>
+                                    <a class="customer-facebook-link" href="https://www.facebook.com/share/18ufHnkp6B/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Visit Floréa on Facebook">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8h3.4z"/></svg>
+                                        <span>Facebook</span>
+                                    </a>
+                                    <span aria-hidden="true">·</span>
+                                    <a class="customer-instagram-link" href="https://www.instagram.com/floristcafeandflowershop" target="_blank" rel="noopener noreferrer" aria-label="Visit Florist Cafe and Flowershop on Instagram">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="instagram-icon-dot" cx="18" cy="6" r="1"/></svg>
+                                        <span>Instagram</span>
+                                    </a>
+                                </div>
+                                <span class="customer-menu-footer__hours"><span aria-hidden="true"></span>Open Daily · 8:00 AM – 9:00 PM</span>
+                            </footer>
                         </div>
                     </section>
 
@@ -245,16 +283,19 @@
                     <section class="screen" id="catalog">
                         <div class="mobile-nav">
                             <button type="button" class="back" aria-label="Back to menu" onclick="go('menu-home')"><span aria-hidden="true">←</span></button>
-                            <p style="font-weight:700;font-size:14px;">Product Catalog</p>
+                            <p id="catalog-title" style="font-weight:700;font-size:14px;">Product Catalog</p>
                             <div style="width:34px;"></div>
                         </div>
-                        <div style="padding:16px 18px 90px;">
-                            <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:4px;" id="catalog-chips"></div>
+                        <div class="customer-catalog-content" style="padding:16px 18px 90px;">
+                            <div class="customer-category-rail" id="catalog-chips"></div>
                             <form class="customer-menu-search customer-catalog-search" onsubmit="event.preventDefault(); searchCustomerMenu(this);">
-                                <input class="input" type="search" placeholder="Search menu items…" aria-label="Search menu items" autocomplete="off">
+                                <div class="customer-menu-search-field">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.5 4.5"></path></svg>
+                                    <input class="input" type="search" placeholder="Search menu items…" aria-label="Search menu items" autocomplete="off">
+                                </div>
                                 <button class="btn btn-primary" type="submit">Search</button>
                             </form>
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+                            <div class="customer-catalog-toolbar" style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
                                 <p style="font-size:12px;color:var(--ink-soft);" id="catalog-count">Items</p>
                                 <label for="catalog-sort" style="font-size:12px;color:var(--ink-soft);">Sort:
                                     <select id="catalog-sort" class="input" aria-label="Sort catalog items" style="display:inline-block;width:auto;min-width:150px;height:40px;margin-left:4px;padding:8px 12px;font-size:12px;">
@@ -277,7 +318,7 @@
                         <div class="mobile-nav">
                             <button type="button" class="back" aria-label="Back to catalog" onclick="go('catalog')"><span aria-hidden="true">←</span></button>
                             <p style="font-weight:700;font-size:14px;">Product Details</p>
-                            <div class="back">♡</div>
+                            <button id="product-favorite-toggle" type="button" class="back product-favorite-toggle" aria-label="Add to favorites" aria-pressed="false" onclick="toggleSelectedProductFavorite()">♡</button>
                         </div>
                         <div id="product-thumb" class="thumb product-hero-image" style="height:210px; border-radius:0; font-size:56px;"></div>
                         <div class="product-details-content">
@@ -300,10 +341,7 @@
                                 A thoughtful Floréa favorite, made to brighten your day.
                             </p>
 
-                            <button id="add-to-selection-btn" class="btn btn-primary btn-block" style="margin-top:18px;" onclick="const selected = window.selectedProduct || { n: 'Sweetheart Peony Bouquet', p: '₱ 980.00' }; addToCart(selected.n || selected.name || 'Sweetheart Peony Bouquet', getSelectedProductPrice(), 1, getProductCustomizations());">Add to Selection</button>
-                        </div>
-                        <div style="position:sticky; bottom:0; background:var(--paper); border-top:1px solid var(--line); padding:14px 18px; display:flex; gap:10px; align-items:center;">
-                            <span style="font-size:11.5px;color:var(--ink-soft);">See our staff to order this item — dine-in &amp; walk-in only.</span>
+                            <button id="add-to-selection-btn" class="btn btn-primary btn-block" style="margin-top:18px;" onclick="const selected = window.selectedProduct || { n: 'Americano', p: '₱ 79.00' }; addToCart(selected.n || selected.name || 'Americano', getSelectedProductPrice(), 1, getProductCustomizations());">Add to Selection</button>
                         </div>
                     </section>
 
@@ -326,15 +364,15 @@
                         <div class="mobile-nav">
                             <button type="button" class="back" aria-label="Back to selection" onclick="go('selection')"><span aria-hidden="true">←</span></button>
                             <p style="font-weight:700;font-size:14px;">Order Sent</p>
-                            <button type="button" class="back" aria-label="Go to customer dashboard" title="Go to customer dashboard" onclick="go('menu-home')"><span aria-hidden="true">✔</span></button>
+                            <button type="button" class="back" aria-label="Return to welcome screen" title="Return to welcome screen" onclick="go('qr-landing')"><span aria-hidden="true">✔</span></button>
                         </div>
-                        <div style="padding:22px; text-align:center;">
+                        <div class="customer-sent-confirmation-content" style="padding:22px; text-align:center;">
                             <div class="thumb" style="width:96px;height:96px;margin:0 auto;font-size:40px;">✅</div>
                             <h2 style="font-size:22px;margin-top:18px;">Order Sent Successfully</h2>
                             <p style="font-size:12.5px;color:var(--ink-soft);margin-top:10px;">Your selection has been received by the cashier. Please wait while we prepare your order.</p>
                             <div id="customer-order-progress" class="customer-order-progress" data-status="new" role="status" aria-live="polite">
                                 <p id="customer-order-id" class="customer-order-progress__id"></p>
-                                <p id="customer-order-progress-message" class="customer-order-progress__message">Order received. Waiting for the shop to accept it.</p>
+                                <p id="customer-order-progress-message" class="customer-order-progress__message">Your order has been received. Our team will confirm it shortly.</p>
                                 <ol class="customer-order-progress__steps">
                                     <li data-order-step="new" aria-current="step"><span>1</span><strong>Received</strong></li>
                                     <li data-order-step="preparing"><span>2</span><strong>Preparing</strong></li>
@@ -342,12 +380,21 @@
                                 </ol>
                             </div>
                             <p id="order-notification-status" role="status" style="font-size:12.5px;color:var(--forest);margin-top:12px;"></p>
-                            <div style="margin-top:18px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:16px; text-align:left;">
+                            <div class="customer-sent-order-card" style="margin-top:18px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:16px; text-align:left;">
                                 <p style="font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px; font-weight:700;">Current Order</p>
                                 <div id="sent-order-summary"></div>
                             </div>
-                            <button class="customer-feedback-button customer-feedback-button--block" type="button" style="margin-top:12px;" onclick="openCustomerFeedback()">Share Feedback</button>
                             <button class="btn btn-sage btn-block" style="margin-top:18px;" onclick="go('catalog')">Continue Ordering</button>
+                            <footer class="customer-sent-footer">
+                                <a class="customer-facebook-link" href="https://www.facebook.com/share/18ufHnkp6B/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Follow Florist Cafe &amp; Flowershop on Facebook">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8h3.4z"/></svg>
+                                    <span>Follow Florist Cafe &amp; Flowershop on Facebook</span>
+                                </a>
+                                <a class="customer-instagram-link" href="https://www.instagram.com/floristcafeandflowershop" target="_blank" rel="noopener noreferrer" aria-label="Visit Florist Cafe and Flowershop on Instagram">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="instagram-icon-dot" cx="18" cy="6" r="1"/></svg>
+                                    <span>Instagram</span>
+                                </a>
+                            </footer>
                         </div>
                     </section>
 
@@ -366,7 +413,7 @@
                                 <div style="display:flex;flex-direction:column;gap:12px;">
                                     <div class="card-soft" style="display:flex;justify-content:space-between;align-items:center;">
                                         <div><strong>Ticket #101</strong>
-                                            <p style="font-size:11px;color:var(--ink-soft);margin-top:4px;">Maricel D. — Peony Bouquet</p>
+                                            <p style="font-size:11px;color:var(--ink-soft);margin-top:4px;">Maricel D. — Caramel Macchiato</p>
                                         </div>
                                         <button class="btn btn-sm btn-primary" onclick="go('ticket-detail')">Open</button>
                                     </div>
@@ -399,8 +446,8 @@
                                 <div class="pdiv"></div>
                                 <table>
                                     <tr>
-                                        <td>Sweetheart Peony Bouquet ×1</td>
-                                        <td style="text-align:right;">₱980</td>
+                                        <td>Americano ×1</td>
+                                        <td style="text-align:right;">₱79</td>
                                     </tr></thead>
                                     <tr>
                                         <td>Caramel Macchiato (Medium) ×2</td>
@@ -427,7 +474,7 @@
                     <section class="screen" id="admin-login">
                         <div style="min-height:640px; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#3B2F2A,#54443B); padding:30px;">
                             <div class="login-shell" style="background:var(--paper); border-radius:20px; padding:32px 26px; width:100%; max-width:340px; box-shadow:var(--shadow);">
-                                <a class="login-back-button" href="/florea-prototype.html?view=cashier">
+                                <a class='login-back-button' href='/florea-prototype?view=cashier'>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
                                     Back
                                 </a>
@@ -825,7 +872,7 @@
                                             <div class="product-image-upload" style="margin-top:12px;">
                                                 <label for="product-image-input">Product image</label>
                                                 <input id="product-image-input" class="input" data-product-image-input type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
-                                                <p class="product-image-upload__hint">JPG, PNG, or WEBP. Original image data is preserved; maximum 5 MB on Netlify.</p>
+                                                <p class="product-image-upload__hint">JPG, PNG, or WEBP. Original image data is preserved; maximum 5 MB per image.</p>
                                                 <p data-product-image-status class="product-image-upload__status" role="status" aria-live="polite"></p>
                                                 <div data-product-image-preview-wrap class="product-image-preview" hidden>
                                                     <img data-product-image-preview alt="Product image preview">
@@ -1163,8 +1210,17 @@
             </div>
 
             <button id="customer-cart-button" class="customer-cart-button" type="button" aria-label="View cart" title="View cart" hidden onclick="go('selection')">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 9H7"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
-                <span id="customer-cart-count" class="customer-cart-count" aria-hidden="true">0</span>
+                <span class="customer-cart-button__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 9H7"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+                    <span id="customer-cart-count" class="customer-cart-count">0</span>
+                </span>
+                <span class="customer-cart-button__details">
+                    <span id="customer-cart-summary">0 items selected</span>
+                    <span id="customer-cart-total">Total: ₱0</span>
+                </span>
+                <span class="customer-cart-button__action">View Order
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg>
+                </span>
             </button>
 
             <script src="florea-orders.js"></script>
@@ -1177,20 +1233,25 @@
                 function updateCustomerCartButton() {
                     const button = document.getElementById('customer-cart-button');
                     const count = document.getElementById('customer-cart-count');
+                    const summary = document.getElementById('customer-cart-summary');
+                    const total = document.getElementById('customer-cart-total');
                     const activeScreen = document.querySelector('.screen.active')?.id;
                     const visibleScreens = ['menu-home', 'catalog', 'product-details'];
                     const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-                    if (!button || !count) return;
+                    if (!button || !count || !summary || !total) return;
 
                     button.hidden = !document.body.classList.contains('customer-view') ||
                         !visibleScreens.includes(activeScreen) || itemCount === 0;
                     count.textContent = itemCount > 99 ? '99+' : String(itemCount);
+                    summary.textContent = `${itemCount} ${itemCount === 1 ? 'item' : 'items'} selected`;
+                    total.textContent = `Total: ₱${getCartTotal().toLocaleString('en-PH')}`;
                     button.setAttribute('aria-label', `View cart with ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`);
                 }
 
                 // ============ SHOPPING CART SYSTEM ============
                 const cart = [];
-                let customerOrderType = 'Takeout';
+                let customerOrderType = 'Dine-in';
+                let customerOrderTypeSelected = false;
                 let customerSpecialInstructions = '';
                 let isSubmittingOrder = false;
                 let pendingOrderAdditionId = null;
@@ -1236,9 +1297,11 @@
                 }
 
                 cart.push(...restoreCustomerItems(restoredCustomerSession.cart));
-                customerOrderType = ['Takeout', 'Dine-in'].includes(restoredCustomerSession.orderType)
+                customerOrderTypeSelected = restoredCustomerSession.orderTypeSelected === true &&
+                    ['Takeout', 'Dine-in'].includes(restoredCustomerSession.orderType);
+                customerOrderType = customerOrderTypeSelected
                     ? restoredCustomerSession.orderType
-                    : 'Takeout';
+                    : 'Dine-in';
                 customerSpecialInstructions = typeof restoredCustomerSession.specialInstructions === 'string'
                     ? restoredCustomerSession.specialInstructions.slice(0, 500)
                     : '';
@@ -1274,6 +1337,7 @@
                         ...(customerJourneyScreenIds.has(activeScreen) ? { screen: activeScreen } : {}),
                         cart,
                         orderType: document.getElementById('customer-order-type')?.value || customerOrderType,
+                        orderTypeSelected: customerOrderTypeSelected,
                         specialInstructions: document.getElementById('customer-special-instructions')?.value ?? customerSpecialInstructions,
                         selectedProduct: selectedProduct ? { ...selectedProduct } : null,
                         selectedDrinkSize,
@@ -1370,7 +1434,7 @@
                     const customerName = localStorage.getItem('florea-watched-order-customer-name') || '';
                     const customerPrefix = customerName ? `${customerName}, ` : '';
                     const progressMessage = message || ({
-                        new: 'Order received. Waiting for the shop to accept it.',
+                        new: 'Your order has been received. Our team will confirm it shortly.',
                         preparing: `${customerPrefix}PA WAIT LANG PO`,
                         ready: `${customerPrefix}OKAY NA PO ORDERS NIYO`
                     })[normalizedStatus];
@@ -1594,6 +1658,7 @@
                         contentDiv.addEventListener('change', event => {
                             if (event.target.id === 'customer-order-type') {
                                 customerOrderType = event.target.value;
+                                customerOrderTypeSelected = true;
                                 persistCustomerJourneyState();
                             }
                         });
@@ -1619,7 +1684,7 @@
                             <div style="padding:24px 12px; text-align:center; color:var(--ink-soft);">
                                 <p style="font-size:14px;">Your selection is empty</p>
                                 <p style="font-size:12px; margin-top:10px;">
-                                    <a onclick="go('catalog')" style="color:var(--forest); cursor:pointer; text-decoration:underline;">Continue ordering</a>
+                                    <a class="selection-continue-link" onclick="go('catalog')">Continue ordering</a>
                                 </p>
                             </div>
                         `;
@@ -1658,8 +1723,8 @@
                         <div class="customer-order-info">
                             <label for="customer-order-type">Order type</label>
                             <select id="customer-order-type" class="input">
-                                <option value="Takeout"${customerOrderType === 'Takeout' ? ' selected' : ''}>Takeout</option>
                                 <option value="Dine-in"${customerOrderType === 'Dine-in' ? ' selected' : ''}>Dine-in</option>
+                                <option value="Takeout"${customerOrderType === 'Takeout' ? ' selected' : ''}>Takeout</option>
                             </select>
                             <label for="customer-special-instructions">Special instructions (optional)</label>
                             <textarea id="customer-special-instructions" class="input" rows="3" maxlength="500" placeholder="Add a note for the café">${FloreaOrderSync.escapeText(customerSpecialInstructions)}</textarea>
@@ -1727,7 +1792,7 @@
                                 pushMessage = `Phone notifications could not be enabled: ${error.message}`;
                             }
                         } else if (usesLocalOrderStorage()) {
-                            pushMessage = 'Order alerts are available when ordering from the published Netlify site.';
+                            pushMessage = 'Order alerts are available when ordering from the published customer site.';
                         }
                         let newOrder;
                         let appendedToExistingOrder = false;
@@ -1776,8 +1841,13 @@
                                 pendingOrderAdditionId = null;
                                 pendingOrderAdditionTarget = null;
                             } else {
+                                const nextOrderNumber = savedOrders.reduce((highest, order) => {
+                                    const match = /^ORD-(\d+)$/i.exec(String(order.id || ''));
+                                    const number = match ? Number(match[1]) : NaN;
+                                    return Number.isSafeInteger(number) ? Math.max(highest, number) : highest;
+                                }, 1000) + 1;
                                 newOrder = {
-                                    id: `ORD-${orderIdCounter}`,
+                                    id: `ORD-${nextOrderNumber}`,
                                     customerName,
                                     items: submittedItems.map(item => `${getOrderItemLabel(item)} ×${item.quantity}`),
                                     itemDetails: submittedItems,
@@ -1799,7 +1869,6 @@
                                     await window.FloreaInventory.restoreLocalOrder(newOrder.id, submittedItems);
                                     throw error;
                                 }
-                                orderIdCounter += 1;
                             }
                         } else {
                             if (trackedOrderId) {
@@ -1886,7 +1955,8 @@
                         }
                         renderLiveOrderManagementRow(newOrder);
                         cart.length = 0;
-                        customerOrderType = 'Takeout';
+                        customerOrderType = 'Dine-in';
+                        customerOrderTypeSelected = false;
                         customerSpecialInstructions = '';
                         pendingOrderSubmission = null;
                         pendingOrderAdditionId = null;
@@ -2146,7 +2216,7 @@
                     if (statusUpdate.notificationStatus === 'not_subscribed') {
                         alert('Order marked ready, but this order has no saved phone notification subscription. The customer needs to place a new order and allow notifications on that device. On iPhone, add the site to the Home Screen first.');
                     } else if (statusUpdate.notificationStatus === 'failed') {
-                        alert('Order marked ready, but push delivery failed. The customer can still check the order page; check the Netlify function logs for the delivery error.');
+                        alert('Order marked ready, but push delivery failed. The customer can still check the order page; check the Render API service logs for the delivery error.');
                     }
                 }
                 setTimeout(() => {
