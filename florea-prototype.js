@@ -493,6 +493,7 @@ function renderCatalogChips() {
             if (document.getElementById('catalog')?.classList.contains('active')) {
                 document.querySelectorAll('.customer-menu-search input').forEach(input => { input.value = ''; });
                 renderCatalogProducts(chip.dataset.category || null, '');
+                scrollCatalogToFirstProduct();
                 return;
             }
             if (chip.dataset.category) setCategory(chip.dataset.category);
@@ -1379,7 +1380,6 @@ document.addEventListener('submit', event => {
   alert('Please enter your name first.');
 }, true);
 
-let initialNavigationPending = true;
 let scrollRevealObserver;
 let activeScreenMutationObserver;
 let catalogScrollTop = 0;
@@ -1459,8 +1459,6 @@ function go(id){
   document.documentElement.classList.toggle('admin-view', isAdminPage);
   if (isAdminPage) renderAdminNavigation(id);
   if (id === 'catalog') renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
-  const isInitialNavigation = initialNavigationPending;
-  initialNavigationPending = false;
   if (id === 'menu-home') {
     try {
       const customerName = localStorage.getItem('florea-customer-name');
@@ -1482,8 +1480,10 @@ function go(id){
   document.body.classList.toggle('customer-view', isCustomerPage);
   document.documentElement.classList.toggle('customer-view', isCustomerPage);
   window.updateCustomerCartButton?.();
-  if (isInitialNavigation && isCustomerPage && id === 'qr-landing' &&
+  if (isCustomerPage && id === 'qr-landing' &&
       window.matchMedia('(max-width: 600px)').matches) {
+    target.classList.remove('mobile-entry');
+    void target.offsetWidth;
     const clearMobileEntry = event => {
       if (event.animationName !== 'mobile-entry-fade') return;
       target.classList.remove('mobile-entry');
@@ -1847,6 +1847,25 @@ document.getElementById('product-wrap-options')?.addEventListener('click', event
 let activeCatalogSearch = '';
 let activeCatalogCategory = null;
 let activeCatalogSortMode = 'Popular';
+
+function scrollCatalogToFirstProduct() {
+    const grid = document.getElementById('catalog-grid');
+    const firstItem = grid?.firstElementChild;
+    if (!firstItem) return;
+
+    const mobileNav = document.querySelector('#catalog .mobile-nav');
+    const chips = document.getElementById('catalog-chips');
+    const stickyBottom = chips
+        ? chips.getBoundingClientRect().bottom
+        : mobileNav?.getBoundingClientRect().bottom || 0;
+    const top = Math.max(
+        0,
+        window.scrollY + firstItem.getBoundingClientRect().top - stickyBottom - 8
+    );
+    catalogScrollTop = top;
+    window.FloreaCustomerSession.update({ catalogScrollTop });
+    window.scrollTo({ top, behavior: 'smooth' });
+}
 
 function renderCatalogProducts(category = null, searchQuery = activeCatalogSearch) {
     const grid = document.getElementById('catalog-grid');

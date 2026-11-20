@@ -708,7 +708,7 @@
         }
 
         .customer-featured-card__image {
-            height: 118px;
+            height: 145px;
             overflow: hidden;
             border-radius: 12px;
             background: var(--cream);
@@ -754,11 +754,23 @@
             transition-timing-function: cubic-bezier(.2,.8,.2,1);
         }
 
+        body.customer-view #customer-cart-button,
+        body.customer-view .install-app-dialog__close {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease, background-color .22s ease;
+        }
+
         @media (hover: hover) and (pointer: fine) {
             .screen button:hover,
             .screen a:hover,
             .screen .chip:hover,
             .screen [role="button"]:hover {
+                transform: translateY(-2px);
+            }
+
+            body.customer-view #customer-cart-button:hover,
+            body.customer-view .install-app-dialog__close:hover {
                 transform: translateY(-2px);
             }
 
@@ -776,6 +788,18 @@
         .screen .card-soft:active,
         .screen .customer-featured-card:active {
             transform: scale(.98);
+        }
+
+        body.customer-view #customer-cart-button:active,
+        body.customer-view .install-app-dialog__close:active {
+            transform: scale(.97);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.customer-view #customer-cart-button,
+            body.customer-view .install-app-dialog__close {
+                transition-duration: .01ms;
+            }
         }
 
         .screen button:focus-visible,
@@ -5382,15 +5406,15 @@ body.admin-view .admin-dashboard-panels {
     body.customer-view #qr-landing .customer-featured-card {
         display: flex;
         flex-direction: column;
-        min-width: 132px;
-        flex: 0 0 132px;
+        min-width: 165px;
+        flex: 0 0 165px;
         padding: 10px;
         border-radius: var(--radius-sm);
         scroll-snap-align: start;
     }
 
     body.customer-view #qr-landing .customer-featured-card__image {
-        height: 74px;
+        height: 145px;
         aspect-ratio: auto;
     }
 
@@ -5614,9 +5638,9 @@ body.customer-view #catalog .customer-catalog-card {
 
 body.customer-view #catalog .customer-catalog-card__image {
     box-sizing: border-box;
-    flex: 0 0 124px;
+    flex: 0 0 145px;
     width: 100% !important;
-    height: 124px !important;
+    height: 145px !important;
     margin: 0 0 8px;
     border: 2px solid #BFB09D;
     border-radius: 12px;
@@ -5652,23 +5676,31 @@ body.customer-view #catalog .customer-catalog-card__description {
     -webkit-line-clamp: 2;
 }
 
-body.customer-view #catalog .customer-catalog-card__rating {
-    min-height: 22px;
-    margin: 6px 0;
+body.customer-view #catalog .customer-catalog-card > .product-rating {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 4px;
 }
 
-body.customer-view #catalog .customer-catalog-card__rating .rating-star:not(.is-selected) {
+body.customer-view #catalog .customer-catalog-card > .product-rating .rating-star:not(.is-selected) {
     color: #9B8A76;
 }
 
-body.customer-view #catalog .customer-catalog-card__rating .rating-star.is-selected {
+body.customer-view #catalog .customer-catalog-card > .product-rating .rating-star.is-selected {
     color: #B97819;
 }
 
-body.customer-view #catalog .customer-catalog-card__rating .rating-summary {
+body.customer-view #catalog .customer-catalog-card > .product-rating .rating-summary {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
     border-color: #C5B5A1;
     background: #E8DDD0;
     color: #6B5A49;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 body.customer-view #catalog .customer-catalog-card__footer {
@@ -5849,8 +5881,8 @@ body.customer-view #menu-home .customer-catalog-card {
 
 body.customer-view #menu-home #customer-best-seller-grid .customer-catalog-card {
     display: flex;
-    flex: 0 0 154px;
-    width: 154px;
+    flex: 0 0 169px;
+    width: 169px;
     flex-direction: column;
     scroll-snap-align: start;
 }
@@ -5862,9 +5894,9 @@ body.customer-view #menu-home #customer-featured-grid .customer-catalog-card {
 
 body.customer-view #menu-home .customer-catalog-card__image {
     box-sizing: border-box;
-    flex: 0 0 104px;
+    flex: 0 0 145px;
     width: 100% !important;
-    height: 104px !important;
+    height: 145px !important;
     margin: 0 0 8px;
     border: 2px solid #BFB09D;
     border-radius: 12px;
