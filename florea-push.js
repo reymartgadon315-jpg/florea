@@ -34,7 +34,7 @@ window.FloreaPush = {
             };
         }
 
-        const keyResponse = await fetch('/api/push-key');
+        const keyResponse = await FloreaOrderSync.fetchApi('/api/push-key');
         const keyResult = await keyResponse.json();
         if (!keyResponse.ok || typeof keyResult.publicKey !== 'string') {
             throw new Error(keyResult.error || `Push setup returned ${keyResponse.status}.`);

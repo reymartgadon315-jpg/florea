@@ -5,23 +5,34 @@
 Run `npm install` and `npm run dev`, then open `http://localhost:3000/florea-prototype.html`.
 Local orders, inventory and product ratings use browser storage and are only shared between tabs in the same browser.
 
-## Deploy to Render with existing Netlify data
+## Deploy a free Render demo
 
-The Render web service runs the site's API and serves the production build. Render
-PostgreSQL replaces Netlify Blobs for the API, including orders, inventory, ratings,
-feedback, notification subscriptions, SMS contacts, and uploaded product images.
-The existing Netlify deployment continues to use Netlify Blobs.
+The existing Render Static Site (`https://florea.onrender.com`) serves the frontend.
+The Render Web Service (`https://florea-api.onrender.com`) runs the Node.js API, and
+the free Render PostgreSQL database stores API data. The frontend is configured to
+call that API, including for orders, inventory, ratings, feedback, notifications,
+and uploaded product images. The existing Netlify deployment continues to use
+Netlify Blobs.
+
+**Free-tier limitations:** Render Free web services sleep after 15 minutes without
+traffic and can take about a minute to wake. Free Render Postgres is limited to 1 GB
+and expires 30 days after creation; after the grace period, Render deletes the
+database and its data. Use this setup only for a temporary demo with noncritical
+data. Do not migrate live Netlify orders or inventory to this expiring database.
 
 1. Push the project to GitHub, then create a Render Blueprint from the repository's
-   `render.yaml`. It creates a web service and a persistent PostgreSQL database.
-   Review Render's current pricing before creating resources; the database and web
-   service may incur charges.
-2. Keep `API_MAINTENANCE_MODE=true` on Render while migrating. In the existing
-   Netlify site's environment settings, set `API_MAINTENANCE_MODE=true` and wait
-   for the new deploy. This pauses its API so no orders or inventory changes are
-   missed during the copy. The Netlify site remains the source and is not modified
-   by the migration script.
-3. From Netlify's site settings, get the source **Site ID** and create a
+   `render.yaml`. It creates the `florea-api` web service and a Free PostgreSQL
+   database. The web service allows credentialed browser requests only from the
+   configured `FRONTEND_ORIGIN` (`https://florea.onrender.com`).
+2. Set strong, unique admin and cashier passwords and session secrets in Render.
+   The API starts with `API_MAINTENANCE_MODE=false` for an empty demo database.
+3. If you later migrate Netlify data, first upgrade Render Postgres to a plan that
+   does not expire. Do not copy live data to Free Postgres. Before migrating, set
+   `API_MAINTENANCE_MODE=true` on the Render Web Service and Netlify site, then wait
+   for the Netlify deploy. This pauses its API so no orders or inventory changes
+   are missed during the copy. The Netlify site remains the source and is not
+   modified by the migration script.
+4. From Netlify's site settings, get the source **Site ID** and create a
    **Personal access token**. From Render's database settings, copy the external
    database connection string. Run the migration from this project in PowerShell;
    enter the token and database URL only at the secure prompts:
@@ -48,14 +59,15 @@ The existing Netlify deployment continues to use Netlify Blobs.
    The script checks that the Site ID belongs to `flore3aaa.netlify.app`, copies
    every configured data store, verifies each copied value, and leaves Netlify
    data intact. If interrupted, keep both sites in maintenance mode and rerun it.
-4. After the migration reports success, verify the Render service and switch
+5. After the migration reports success, verify the Render API and switch
    `API_MAINTENANCE_MODE` to `false` in Render. Update customer links/QR codes to
-   the Render URL. Keep the Netlify site in maintenance mode until the cutover is
-   complete. Do not remove the old site or database backups until the data has
-   been checked.
+   the frontend URL `https://florea.onrender.com`. Keep the Netlify site in
+   maintenance mode until the cutover is complete. Do not remove the old site or
+   database backups until the data has been checked.
 
-The Render service reads `PORT` from the platform and listens on all interfaces.
-Set strong, unique admin and cashier passwords and session secrets in Render.
+The API service reads `PORT` from Render and listens on all interfaces. Check
+`https://florea-api.onrender.com/health` before switching customers to the API;
+it should return `ok` after the service and database are ready.
 Optional push notifications need `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, and
 `VAPID_SUBJECT`; optional SMS needs the Twilio variables documented below. Never
 put these secrets in Git or share them in chat.

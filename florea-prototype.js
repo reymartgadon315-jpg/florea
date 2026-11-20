@@ -12,7 +12,8 @@
                 const isAsset = image.startsWith('assets/') && !image.split('/').includes('..');
                 const isStoredImage = /^\/api\/product-images\/[0-9a-f-]{36}$/i.test(image);
                 const isLocalImage = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/i.test(image);
-                if (isAsset || isStoredImage) return encodeURI(image);
+                if (isAsset) return encodeURI(image);
+                if (isStoredImage) return FloreaOrderSync.resolveImageUrl(image);
                 if (isLocalImage) return image;
             }
             if (!item || !category) return '';
@@ -639,7 +640,9 @@ async function loadProductRatings() {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             readLocalRatings();
         } else {
-            const response = await fetch(`/api/ratings?visitorId=${encodeURIComponent(getRatingVisitorId())}`);
+            const response = await FloreaOrderSync.fetchApi(
+                `/api/ratings?visitorId=${encodeURIComponent(getRatingVisitorId())}`
+            );
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
             if (!result.ratings || typeof result.ratings !== 'object' || Array.isArray(result.ratings)) {
@@ -677,7 +680,7 @@ async function submitProductRating(productName, value) {
             productRatings.set(productName, updatedRating);
             localStorage.setItem('florea-product-ratings', JSON.stringify(Object.fromEntries(productRatings)));
         } else {
-            const response = await fetch('/api/ratings', {
+            const response = await FloreaOrderSync.fetchApi('/api/ratings', {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
                 body: JSON.stringify({ productName, rating: value, visitorId: getRatingVisitorId() })

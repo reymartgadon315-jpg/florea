@@ -114,8 +114,32 @@ window.FloreaOrderSync = {
         return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     },
 
+    apiOrigin() {
+        return window.location.hostname === 'florea.onrender.com'
+            ? 'https://florea-api.onrender.com'
+            : window.location.origin;
+    },
+
+    apiUrl(path) {
+        return new URL(path, `${this.apiOrigin()}/`).href;
+    },
+
+    resolveImageUrl(path) {
+        return typeof path === 'string' && /^\/api\/product-images\/[0-9a-f-]{36}$/i.test(path)
+            ? this.apiUrl(path)
+            : path;
+    },
+
+    fetchApi(path, options = {}) {
+        const apiOrigin = this.apiOrigin();
+        return fetch(this.apiUrl(path), {
+            ...options,
+            credentials: apiOrigin === window.location.origin ? 'same-origin' : 'include'
+        });
+    },
+
     async request(path, options = {}) {
-        const response = await fetch(path, {
+        const response = await this.fetchApi(path, {
             ...options,
             headers: {
                 'content-type': 'application/json',
@@ -164,11 +188,13 @@ window.FloreaOrderSync = {
             const imageIsLocal = typeof data.image === 'string' &&
                 /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/i.test(data.image);
             const image = imageIsAsset || imageIsUploaded || imageIsLocal
-                ? data.image
-                : (catalogProduct && catalogProduct.image) ||
+                ? this.resolveImageUrl(data.image)
+                : this.resolveImageUrl(
+                    (catalogProduct && catalogProduct.image) ||
                     this.productImages[productName] ||
                     this.productImages[legacyProductName] ||
-                    '';
+                    ''
+                );
             const quantity = data.quantity ? ` ×${data.quantity}` : '';
             const options = [];
             if (data.drinkSize) {

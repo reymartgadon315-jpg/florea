@@ -19,6 +19,10 @@ function createPushContext(existingSubscription) {
             }
         }
     };
+    const fetchApi = async () => ({
+        ok: true,
+        json: async () => ({ publicKey: 'AQID' })
+    });
     const context = {
         window: { isSecureContext: true, PushManager: {}, Notification: {} },
         navigator: {
@@ -30,10 +34,7 @@ function createPushContext(existingSubscription) {
         Notification: { permission: 'granted' },
         atob: value => Buffer.from(value, 'base64').toString('binary'),
         Uint8Array,
-        fetch: async () => ({
-            ok: true,
-            json: async () => ({ publicKey: 'AQID' })
-        })
+        FloreaOrderSync: { fetchApi }
     };
     runInNewContext(pushScript, context);
 

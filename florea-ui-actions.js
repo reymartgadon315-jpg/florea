@@ -809,7 +809,9 @@
         if (typeof value !== 'string') return '';
         const image = value.trim();
         if (image.startsWith('assets/') && !image.split('/').includes('..')) return encodeURI(image);
-        if (/^\/api\/product-images\/[0-9a-f-]{36}$/i.test(image)) return image;
+        if (/^\/api\/product-images\/[0-9a-f-]{36}$/i.test(image)) {
+            return FloreaOrderSync.resolveImageUrl(image);
+        }
         if (/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/i.test(image)) return image;
         return '';
     }
@@ -910,7 +912,7 @@
                         setStatus('Original image ready to save on this device.');
                         return dataUrl;
                     }
-                    const response = await fetch('/api/product-images/upload', {
+                    const response = await FloreaOrderSync.fetchApi('/api/product-images/upload', {
                         method: 'POST',
                         headers: { 'content-type': contentType },
                         body: file

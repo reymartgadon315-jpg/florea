@@ -3,15 +3,8 @@ import { stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import adminAuth from './netlify/functions/admin-auth.mjs';
-import cashierAuth from './netlify/functions/cashier-auth.mjs';
-import feedback from './netlify/functions/feedback.mjs';
-import inventory from './netlify/functions/inventory.mjs';
-import order from './netlify/functions/order.mjs';
-import orders from './netlify/functions/orders.mjs';
-import productImages from './netlify/functions/product-images.mjs';
-import pushKey from './netlify/functions/push-key.mjs';
-import ratings from './netlify/functions/ratings.mjs';
+import { getApiHandler } from './server/routes/api-routes.mjs';
+import { getApiCorsHeaders } from './server/routes/cors.mjs';
 import {
     closePostgresStorage,
     initializePostgresStorage
@@ -42,35 +35,12 @@ const pathAliases = new Map([
     ['/menu/', '/florea-prototype.html']
 ]);
 
-function jsonResponse(response, status, body) {
-    response.writeHead(status, { 'content-type': 'application/json; charset=utf-8' });
+function jsonResponse(response, status, body, headers = {}) {
+    response.writeHead(status, {
+        'content-type': 'application/json; charset=utf-8',
+        ...headers
+    });
     response.end(JSON.stringify(body));
-}
-
-function getApiHandler(pathname) {
-    const fixedRoutes = new Map([
-        ['/api/admin-auth', adminAuth],
-        ['/api/cashier-auth', cashierAuth],
-        ['/api/feedback', feedback],
-        ['/api/inventory', inventory],
-        ['/api/orders', orders],
-        ['/api/push-key', pushKey],
-        ['/api/ratings', ratings]
-    ]);
-    if (fixedRoutes.has(pathname)) return { handler: fixedRoutes.get(pathname) };
-
-    const orderMatch = pathname.match(/^\/api\/orders\/([^/]+)$/);
-    if (orderMatch) {
-        return {
-            handler: order,
-            params: { orderId: decodeURIComponent(orderMatch[1]) }
-        };
-    }
-
-    if (/^\/api\/product-images\/[^/]+$/.test(pathname)) {
-        return { handler: productImages };
-    }
-    return null;
 }
 
 async function toFetchRequest(incoming, url) {
@@ -163,14 +133,30 @@ async function handleRequest(incoming, response) {
     }
 
     if (url.pathname.startsWith('/api/')) {
+        const cors = getApiCorsHeaders(incoming.headers.origin, process.env.FRONTEND_ORIGIN);
+        if (incoming.method === 'OPTIONS') {
+            response.writeHead(cors.allowed ? 204 : 403, {
+                ...cors.headers,
+                ...(cors.allowed ? {
+                    'access-control-allow-methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+                    'access-control-allow-headers': 'content-type',
+                    'access-control-max-age': '600'
+                } : {})
+            });
+            response.end();
+            return;
+        }
+
         if (process.env.API_MAINTENANCE_MODE === 'true') {
-            jsonResponse(response, 503, { error: 'The service is temporarily unavailable while data is being migrated.' });
+            jsonResponse(response, 503, {
+                error: 'The service is temporarily unavailable while data is being migrated.'
+            }, cors.headers);
             return;
         }
 
         const route = getApiHandler(url.pathname);
         if (!route) {
-            jsonResponse(response, 404, { error: 'API route not found.' });
+            jsonResponse(response, 404, { error: 'API route not found.' }, cors.headers);
             return;
         }
         const request = await toFetchRequest(incoming, url);
@@ -179,6 +165,7 @@ async function handleRequest(incoming, response) {
         result.headers.forEach((value, name) => {
             headers[name] = value;
         });
+        Object.assign(headers, cors.headers);
         response.writeHead(result.status, headers);
         response.end(result.body ? Buffer.from(await result.arrayBuffer()) : undefined);
         return;
@@ -208,9 +195,13 @@ const server = createServer((request, response) => {
             response.destroy(error);
             return;
         }
+        const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
+        const headers = url.pathname.startsWith('/api/')
+            ? getApiCorsHeaders(request.headers.origin, process.env.FRONTEND_ORIGIN).headers
+            : {};
         jsonResponse(response, error.statusCode || 500, {
             error: error.statusCode === 413 ? error.message : 'The request could not be completed.'
-        });
+        }, headers);
     });
 });
 
