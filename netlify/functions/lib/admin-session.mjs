@@ -52,9 +52,9 @@ export function verifyAdminSession(request, secret, now = Date.now()) {
 }
 
 export function adminSessionCookie(token) {
-    return `${adminSessionCookieName}=${token}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${adminSessionTtlSeconds}`;
+    return `${adminSessionCookieName}=${token}; HttpOnly; Secure; SameSite=None; Partitioned; Path=/api; Max-Age=${adminSessionTtlSeconds}`;
 }
 
 export function clearAdminSessionCookie() {
-    return `${adminSessionCookieName}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`;
+    return `${adminSessionCookieName}=; HttpOnly; Secure; SameSite=None; Partitioned; Path=/api; Max-Age=0`;
 }

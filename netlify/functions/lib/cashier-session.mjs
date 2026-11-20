@@ -52,9 +52,9 @@ export function verifyCashierSession(request, secret, now = Date.now()) {
 }
 
 export function cashierSessionCookie(token) {
-    return `${cashierSessionCookieName}=${token}; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=${cashierSessionTtlSeconds}`;
+    return `${cashierSessionCookieName}=${token}; HttpOnly; Secure; SameSite=None; Partitioned; Path=/api; Max-Age=${cashierSessionTtlSeconds}`;
 }
 
 export function clearCashierSessionCookie() {
-    return `${cashierSessionCookieName}=; HttpOnly; Secure; SameSite=Strict; Path=/api; Max-Age=0`;
+    return `${cashierSessionCookieName}=; HttpOnly; Secure; SameSite=None; Partitioned; Path=/api; Max-Age=0`;
 }
