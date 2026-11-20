@@ -2678,17 +2678,17 @@ h4,
 
 html.admin-view,
 body.admin-view {
-    --cream: #F8F4EF;
-    --cream-deep: #F8F4EF;
-    --paper: #FFFFFF;
-    --blush: #E8B9C5;
-    --blush-soft: #F8E9ED;
-    --blush-deep: #8A5867;
-    --mocha: #352622;
-    --ink: #302B29;
-    --ink-soft: #A89589;
-    --line: #E8DFD9;
-    --shadow: 0 2px 8px rgba(53, 38, 34, .05), 0 12px 28px rgba(53, 38, 34, .06);
+    --cream: #D2C3AF;
+    --cream-deep: #D2C3AF;
+    --paper: #DFD3C1;
+    --blush: #C5B5A1;
+    --blush-soft: #E8DDD0;
+    --blush-deep: #6B3E1E;
+    --mocha: #6B3E1E;
+    --ink: #3E230E;
+    --ink-soft: #715946;
+    --line: #BFB09D;
+    --shadow: 0 3px 8px rgba(74, 42, 20, .1), 0 12px 24px rgba(74, 42, 20, .08);
     background: var(--cream);
     color: var(--ink);
 }
@@ -2749,7 +2749,7 @@ body.admin-view .admin-topbar h3 {
 
 body.admin-view .admin-topbar p {
     margin-top: 4px !important;
-    color: #84766E !important;
+    color: var(--ink-soft) !important;
     font-size: 12px !important;
 }
 
@@ -2904,7 +2904,7 @@ body.admin-view .admin-sidenav .admin-nav-link.active {
     flex: 0 0 34px;
     place-items: center;
     border-radius: 50%;
-    background: #F8F4EF;
+    background: #E8DDD0;
     color: var(--mocha);
     font-size: 13px;
     font-weight: 800;
@@ -2969,7 +2969,7 @@ body.admin-view .admin-content {
 body.admin-view .admin-content .card,
 body.admin-view .admin-content .card-soft,
 body.admin-view .admin-content .kpi {
-    border: 1px solid rgba(168, 149, 137, .18);
+    border: 1px solid var(--line);
     border-radius: 15px;
     background: var(--paper);
     box-shadow: var(--shadow);
@@ -2980,7 +2980,7 @@ body.admin-view .admin-content .kpi {
 }
 
 body.admin-view .admin-content .kpi .kicker {
-    color: #8B7B71;
+    color: var(--ink-soft);
 }
 
 body.admin-view .admin-content .kpi .value {
@@ -3003,7 +3003,7 @@ body.admin-view .admin-dashboard-panels {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #84766E;
+    color: var(--ink-soft);
     font-size: 11px;
     font-weight: 650;
 }
@@ -3015,14 +3015,14 @@ body.admin-view .admin-dashboard-panels {
     padding: 0 10px;
     border: 1px solid var(--line);
     border-radius: 9px;
-    background: #fff;
+    background: #E8DDD0;
     color: var(--ink);
     font: inherit;
 }
 
 .admin-chart-caption {
     margin: -4px 0 12px;
-    color: #887A71;
+    color: var(--ink-soft);
     font-size: 11px;
     line-height: 1.5;
 }
@@ -3048,7 +3048,7 @@ body.admin-view .admin-dashboard-panels {
 
 .admin-sales-bar-value {
     max-width: 100%;
-    color: #75665E;
+    color: var(--ink-soft);
     font-size: 9px;
     font-weight: 650;
     overflow-wrap: anywhere;
@@ -3061,7 +3061,7 @@ body.admin-view .admin-dashboard-panels {
     align-items: flex-end;
     overflow: hidden;
     border-radius: 8px 8px 3px 3px;
-    background: #F3EDE8;
+    background: #E8DDD0;
 }
 
 .admin-sales-bar-fill {
@@ -3073,7 +3073,7 @@ body.admin-view .admin-dashboard-panels {
 }
 
 .admin-sales-bar-label {
-    color: #84766E;
+    color: var(--ink-soft);
     font-size: 9px;
     white-space: nowrap;
 }
@@ -3092,7 +3092,7 @@ body.admin-view .admin-dashboard-panels {
     padding: 12px;
     border: 1px solid var(--line);
     border-radius: 11px;
-    background: #FFFEFD;
+    background: #E8DDD0;
 }
 
 .admin-status-card span {
@@ -3132,7 +3132,7 @@ body.admin-view .admin-dashboard-panels {
     flex: 0 0 40px;
     place-items: center;
     border-radius: 9px;
-    background: #F6F0EB;
+    background: #E8DDD0;
     object-fit: contain;
 }
 
@@ -3151,7 +3151,7 @@ body.admin-view .admin-dashboard-panels {
 }
 
 .admin-best-seller__details small {
-    color: #887A71;
+    color: var(--ink-soft);
     font-size: 10px;
 }
 
@@ -3159,8 +3159,8 @@ body.admin-view .admin-dashboard-panels {
 .admin-data-note {
     padding: 13px 15px;
     border-radius: 10px;
-    background: #F7F1EC;
-    color: #82736B;
+    background: #E8DDD0;
+    color: var(--ink-soft);
     font-size: 11px;
     line-height: 1.5;
 }
@@ -3181,7 +3181,7 @@ body.admin-view .admin-dashboard-panels {
     padding: 16px;
     border: 1px solid var(--line);
     border-radius: 13px;
-    background: #fff;
+    background: var(--paper);
     box-shadow: var(--shadow);
 }
 
@@ -3192,7 +3192,7 @@ body.admin-view .admin-dashboard-panels {
     flex: 0 0 34px;
     place-items: center;
     border-radius: 10px;
-    background: #F8E9ED;
+    background: #E8DDD0;
     color: var(--blush-deep);
 }
 
@@ -3209,7 +3209,7 @@ body.admin-view .admin-dashboard-panels {
 
 .admin-notification__copy span,
 .admin-notification__copy time {
-    color: #887A71;
+    color: var(--ink-soft);
     font-size: 10px;
 }
 
@@ -3255,8 +3255,8 @@ body.admin-view .admin-dashboard-panels {
 }
 
 .admin-view th {
-    background: #F7F1EC;
-    color: #72635B;
+    background: #C5B5A1;
+    color: #3E230E;
     font-size: 10px;
     font-weight: 750;
     letter-spacing: .035em;
@@ -3273,7 +3273,40 @@ body.admin-view .admin-dashboard-panels {
 }
 
 .admin-view .btn-primary:hover {
-    background: #4B3731;
+    background: #5A331B;
+}
+
+body.admin-view #admin-login > div:first-child,
+#cashier-login > div:first-child {
+    background: linear-gradient(160deg, #6B3E1E, #3E230E) !important;
+}
+
+#cashier-login .login-shell {
+    box-sizing: border-box;
+    width: min(100%, 420px) !important;
+    max-width: 420px !important;
+    padding: 38px 34px !important;
+    border: 1px solid #BFB09D;
+    border-radius: 24px;
+    background: #DFD3C1 !important;
+    color: #3E230E;
+    box-shadow: 0 10px 28px rgba(30, 20, 17, .24);
+}
+
+#cashier-login .login-shell h2 {
+    font-size: 21px !important;
+    color: #3E230E;
+}
+
+#cashier-login .login-shell > div[style*="margin-top:22px"] {
+    width: 100%;
+    max-width: 350px;
+}
+
+#cashier-login .login-shell .input-wrap label {
+    color: #715946;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 @media (max-width: 900px) {
@@ -6681,4 +6714,257 @@ body.customer-view #product-details .product-hero-image {
     border-radius: 14px !important;
     background: #E8DDD0 !important;
     box-shadow: 0 3px 8px rgba(74, 42, 20, .1), inset 0 1px 3px rgba(74, 42, 20, .08);
+}
+
+.cashier-shell {
+    --cashier-background: #D2C3AF;
+    --cashier-surface: #DFD3C1;
+    --cashier-panel: #E8DDD0;
+    --cashier-border: #BFB09D;
+    --cashier-ink: #3E230E;
+    --cashier-muted: #715946;
+    --cashier-accent: #6B3E1E;
+    --cashier-accent-soft: #C5B5A1;
+    background: var(--cashier-background);
+    color: var(--cashier-ink);
+}
+
+.cashier-header,
+.cashier-navigation {
+    border-color: var(--cashier-border);
+    background: var(--cashier-surface);
+    box-shadow: 0 3px 8px rgba(74, 42, 20, .08);
+}
+
+.cashier-header h1,
+.cashier-header-tools b,
+.cashier-section-heading h2,
+.cashier-section-heading h3,
+.cashier-order-total b,
+.cashier-order-card__customer,
+.cashier-order-card__total,
+.cashier-transaction-summary strong,
+.cashier-transaction-row strong,
+.cashier-notification-row strong,
+.cashier-customer-feedback-card__header strong {
+    color: var(--cashier-ink);
+}
+
+.cashier-eyebrow,
+.cashier-live-indicator,
+.cashier-clock,
+.cashier-clock span,
+.cashier-order-total,
+.cashier-day-label,
+.cashier-order-card__time,
+.cashier-order-card__meta,
+.cashier-order-card .order-items,
+.cashier-empty-state,
+.cashier-transaction-summary span,
+.cashier-section-heading p:not(.cashier-eyebrow),
+.cashier-transaction-row small,
+.cashier-notification-row small,
+.cashier-feedback-tools,
+.cashier-customer-feedback-card__header time {
+    color: var(--cashier-muted);
+}
+
+.cashier-clock {
+    border-left-color: var(--cashier-border);
+}
+
+.cashier-icon-button,
+.cashier-logout-button,
+.cashier-bell-toggle {
+    border-color: var(--cashier-border);
+    background: var(--cashier-panel);
+    color: var(--cashier-ink);
+}
+
+.cashier-logout-button,
+.cashier-action-button.is-primary {
+    border-color: var(--cashier-accent);
+    background: var(--cashier-accent);
+    color: #FFFFFF;
+}
+
+.cashier-bell-toggle[aria-pressed="true"] {
+    border-color: var(--cashier-accent-soft);
+    background: var(--cashier-panel);
+}
+
+.cashier-navigation button,
+.cashier-filter-list button {
+    color: var(--cashier-muted);
+}
+
+.cashier-navigation button.is-active,
+.cashier-navigation button:hover,
+.cashier-filter-list button.is-active {
+    border-bottom-color: var(--cashier-accent);
+    color: var(--cashier-accent);
+}
+
+.cashier-feedback-nav-count,
+.cashier-summary-icon,
+.cashier-order-group-heading > span {
+    background: var(--cashier-panel);
+    color: var(--cashier-accent);
+}
+
+.cashier-section,
+.cashier-summary-card,
+.cashier-notifications-panel,
+.cashier-customer-feedback-card {
+    border-color: var(--cashier-border);
+    background: var(--cashier-surface);
+    color: var(--cashier-ink);
+    box-shadow: 0 4px 12px rgba(74, 42, 20, .08);
+}
+
+.cashier-order-group,
+.cashier-transaction-summary > div,
+.cashier-transaction-row,
+.cashier-notification-row {
+    border-color: var(--cashier-border);
+    background: var(--cashier-panel);
+}
+
+.cashier-order-card {
+    border-top-color: var(--cashier-border);
+    border-right-color: var(--cashier-border);
+    border-bottom-color: var(--cashier-border);
+    background: var(--cashier-surface);
+    color: var(--cashier-ink);
+    box-shadow: 0 3px 10px rgba(74, 42, 20, .07);
+}
+
+.cashier-order-card__instructions,
+.cashier-order-card .order-items {
+    background: var(--cashier-panel);
+    color: var(--cashier-muted);
+}
+
+.cashier-order-card__footer {
+    border-top-color: var(--cashier-border);
+}
+
+.cashier-search,
+.cashier-order-card__payment select,
+.cashier-action-button {
+    border-color: var(--cashier-border);
+    background: var(--cashier-panel);
+    color: var(--cashier-ink);
+}
+
+.cashier-filter-list {
+    border-bottom-color: var(--cashier-border);
+}
+
+.cashier-empty-state {
+    border-color: var(--cashier-border);
+}
+
+.cashier-transaction-row,
+.cashier-notification-row,
+.cashier-customer-feedback-card {
+    border-color: var(--cashier-border);
+}
+
+.cashier-notification-row.is-unread {
+    border-color: var(--cashier-accent-soft);
+    background: var(--cashier-surface);
+}
+
+.cashier-text-button {
+    color: var(--cashier-accent);
+}
+
+body.staff-portal-view .rail,
+body.staff-portal-view .topbar {
+    display: none;
+}
+
+body.staff-portal-view #admin-login .login-back-button {
+    display: none;
+}
+
+body.staff-portal-view .app,
+body.staff-portal-view .main,
+body.staff-portal-view .stage-wrap,
+body.staff-portal-view .stage {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+body.staff-portal-view .stage-wrap {
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 0;
+}
+
+body.staff-portal-view .stage,
+body.staff-portal-view .stage.tablet,
+body.staff-portal-view .stage.desktop {
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+body.staff-portal-view .screen.active {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+body.staff-portal-view #cashier-login > div:first-child {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+}
+
+.cashier-shell .cashier-order-item__image,
+.cashier-shell .cashier-order-item__placeholder {
+    background: var(--cashier-accent-soft);
+}
+
+#cashier-login .login-shell .input {
+    box-sizing: border-box;
+    min-height: 54px;
+    padding: 0 16px;
+    border-color: #BFB09D;
+    border-radius: 14px;
+    background: #E8DDD0;
+    color: #3E230E;
+    font-size: 15px;
+}
+
+#cashier-login .login-shell p {
+    color: #715946 !important;
+    font-size: 13px !important;
+}
+
+#cashier-login .btn-primary {
+    min-height: 54px;
+    border-color: #6B3E1E;
+    border-radius: 14px;
+    background: #6B3E1E;
+    color: #FFFFFF;
+    font-size: 14px;
+}
+
+@media (max-width: 420px) {
+    #cashier-login > div:first-child {
+        padding: 20px !important;
+    }
+
+    #cashier-login .login-shell {
+        padding: 30px 24px !important;
+    }
+}
+
+#cashier-login .btn-primary:hover {
+    background: #5A331B;
 }

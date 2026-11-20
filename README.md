@@ -117,6 +117,10 @@ and admin views. Hosted image uploads support JPG, PNG, and WEBP files up to
 to 1 MB. Do not use this system for real customer data or payments until public
 data access and production data protections are reviewed.
 
+The staff sign-in pages open directly at `/admin` and `/cashier`, without the
+prototype navigation rail. Their dashboards still require the appropriate
+server-side staff session.
+
 ## Cashier new-order bell
 
 On the integrated cashier dashboard, click **Enable sound** once after signing

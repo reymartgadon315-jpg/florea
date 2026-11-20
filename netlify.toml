@@ -55,10 +55,20 @@
 
 [[redirects]]
   from = "/admin"
-  to = "/florea-prototype.html?view=admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/"
+  to = "/admin/index.html"
   status = 200
 
 [[redirects]]
   from = "/cashier"
-  to = "/florea-prototype.html?view=cashier"
+  to = "/cashier/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cashier/"
+  to = "/cashier/index.html"
   status = 200

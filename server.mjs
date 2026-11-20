@@ -29,8 +29,6 @@ const contentTypes = new Map([
     ['.woff2', 'font/woff2']
 ]);
 const pathAliases = new Map([
-    ['/admin', '/florea-prototype.html?view=admin'],
-    ['/cashier', '/florea-prototype.html?view=cashier'],
     ['/menu', '/florea-prototype.html'],
     ['/menu/', '/florea-prototype.html']
 ]);

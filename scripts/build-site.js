@@ -34,6 +34,17 @@ for (const file of publicFiles) {
 // Make the public Render URL open the customer ordering storefront directly.
 fs.copyFileSync(path.join(output, 'florea-prototype.html'), path.join(output, 'index.html'));
 
+const prototypeHtml = fs.readFileSync(path.join(output, 'florea-prototype.html'), 'utf8');
+const staffRouteHtml = prototypeHtml.replace('<head>', '<head>\n    <base href="/">');
+if (staffRouteHtml === prototypeHtml) {
+    throw new Error('Could not prepare standalone staff portal routes.');
+}
+for (const route of ['admin', 'cashier']) {
+    const routeDirectory = path.join(output, route);
+    fs.mkdirSync(routeDirectory, { recursive: true });
+    fs.writeFileSync(path.join(routeDirectory, 'index.html'), staffRouteHtml);
+}
+
 fs.cpSync(path.join(root, 'assets'), path.join(output, 'assets'), { recursive: true });
 
 const serviceWorkerPath = path.join(output, 'service-worker.js');

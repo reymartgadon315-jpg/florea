@@ -1101,7 +1101,17 @@ async function loginCashier() {
   const password = field ? field.value.trim() : '';
   const error = document.getElementById('cashier-login-error');
   if (error) error.hidden = true;
-  if (FloreaOrderSync.isLocal() && password === 'cashier123') {
+  if (FloreaOrderSync.isLocal()) {
+    if (password !== 'cashier123') {
+      if (error) {
+        error.textContent = 'Incorrect cashier password.';
+        error.hidden = false;
+      } else {
+        alert('Incorrect cashier password.');
+      }
+      if (field) field.focus();
+      return;
+    }
     setAuthenticated('cashier', true);
     go('cashier-dashboard');
     return;
@@ -1348,8 +1358,10 @@ customerNameInput?.addEventListener('input', () => {
     console.warn('Unable to retain the customer name for this session.', error);
   }
 });
+const routePath = window.location.pathname.replace(/\/+$/, '') || '/';
 const requestedView = new URLSearchParams(window.location.search).get('view') ||
-  (window.location.pathname === '/admin' ? 'admin' : window.location.pathname === '/cashier' ? 'cashier' : null);
+  (routePath === '/admin' ? 'admin' : routePath === '/cashier' ? 'cashier' : null);
+const isStaffPortalView = requestedView === 'admin' || requestedView === 'cashier';
 const requestedScreen = new URLSearchParams(window.location.search).get('screen');
 
 function hasCustomerNameForSession() {
@@ -1457,6 +1469,8 @@ function go(id){
   const isAdminPage = adminProtectedScreenIds.has(id) || id === 'admin-login';
   document.body.classList.toggle('admin-view', isAdminPage);
   document.documentElement.classList.toggle('admin-view', isAdminPage);
+  document.body.classList.toggle('staff-portal-view', isStaffPortalView);
+  document.documentElement.classList.toggle('staff-portal-view', isStaffPortalView);
   if (isAdminPage) renderAdminNavigation(id);
   if (id === 'catalog') renderCatalogProducts(activeCatalogCategory, activeCatalogSearch);
   if (id === 'menu-home') {
