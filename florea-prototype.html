@@ -1242,6 +1242,7 @@
 
                     button.hidden = !document.body.classList.contains('customer-view') ||
                         !visibleScreens.includes(activeScreen) || itemCount === 0;
+                    document.body.classList.toggle('has-customer-cart', !button.hidden);
                     count.textContent = itemCount > 99 ? '99+' : String(itemCount);
                     summary.textContent = `${itemCount} ${itemCount === 1 ? 'item' : 'items'} selected`;
                     total.textContent = `Total: ₱${getCartTotal().toLocaleString('en-PH')}`;

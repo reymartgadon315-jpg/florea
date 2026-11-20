@@ -4286,7 +4286,12 @@ body.admin-view .admin-dashboard-panels {
     body.customer-view .customer-menu-content,
     body.customer-view .customer-catalog-content {
         box-sizing: border-box;
-        padding: 14px 16px calc(112px + env(safe-area-inset-bottom)) !important;
+        padding: 14px 16px calc(24px + env(safe-area-inset-bottom)) !important;
+    }
+
+    body.customer-view.has-customer-cart .customer-menu-content,
+    body.customer-view.has-customer-cart .customer-catalog-content {
+        padding-bottom: calc(112px + env(safe-area-inset-bottom)) !important;
     }
 
     body.customer-view .customer-menu-search {
