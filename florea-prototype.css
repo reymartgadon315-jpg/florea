@@ -2755,6 +2755,53 @@ body.cashier-view {
     overscroll-behavior-x: none;
 }
 
+/* ===== CASHIER FULL-SCREEN via :has() — works without JS body class ===== */
+/* Hide rail and topbar when cashier screen is active */
+.app:has(.cashier-screen.active) .rail,
+.main:has(.cashier-screen.active) .topbar,
+.app:has(#cashier-login.active) .rail,
+.main:has(#cashier-login.active) .topbar {
+    display: none !important;
+}
+
+/* Make main fill full width */
+.app:has(.cashier-screen.active),
+.main:has(.cashier-screen.active),
+.app:has(#cashier-login.active),
+.main:has(#cashier-login.active) {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Remove centering and padding from stage-wrap */
+.stage-wrap:has(.cashier-screen.active),
+.stage-wrap:has(#cashier-login.active) {
+    padding: 0 !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    background: #F8F4EF !important;
+}
+
+/* Make stage full width, no border/shadow/radius */
+.stage:has(.cashier-screen.active),
+.stage:has(#cashier-login.active) {
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
+}
+
+/* Full height active screen */
+.cashier-screen.active,
+#cashier-login.active {
+    width: 100% !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+}
+
 body.cashier-view {
     background: #F8F4EF;
     -webkit-text-size-adjust: 100%;
