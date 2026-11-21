@@ -1826,6 +1826,8 @@ function go(id){
   observeScreenReveals(target);
   if (restoreCatalogScroll) {
     window.scrollTo({ top: catalogScrollTop, behavior: 'auto' });
+  } else if (isStaffPortalView) {
+    window.scrollTo(0, 0);
   } else {
     document.getElementById('stage').scrollIntoView({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
