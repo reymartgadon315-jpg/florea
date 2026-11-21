@@ -7668,3 +7668,332 @@ body.customer-view #qr-landing .customer-featured-card__price {
     font-size: 13px;
     text-align: center;
 }
+
+
+/* ===== ADMIN LOGIN — same visual style as #cashier-login ===== */
+#admin-login .cashier-login-page {
+    box-sizing: border-box;
+    display: grid;
+    min-height: 100vh;
+    min-height: 100dvh;
+    place-items: center;
+    padding: 32px 18px;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(205, 161, 110, .2), transparent 34%),
+        linear-gradient(145deg, #26180F, #4A2D1D 55%, #2F2016);
+}
+
+#admin-login .cashier-login-card {
+    box-sizing: border-box;
+    width: min(100%, 430px);
+    padding: 38px 36px 26px;
+    border: 1px solid rgba(91, 61, 40, .16);
+    border-radius: 26px;
+    background: linear-gradient(160deg, #FFFDF9, #F5EBDD);
+    box-shadow: 0 24px 70px rgba(13, 9, 6, .34), 0 3px 12px rgba(13, 9, 6, .12);
+    color: #3E291B;
+    text-align: center;
+}
+
+#admin-login .cashier-login-logo {
+    display: block;
+    box-sizing: border-box;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 15px;
+    padding: 7px;
+    border: 1px solid #E8D8C4;
+    border-radius: 22px;
+    background: #FFF9F0;
+    object-fit: contain;
+}
+
+#admin-login .cashier-login-eyebrow {
+    margin: 0;
+    color: #8A674C;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .2em;
+}
+
+#admin-login .cashier-login-card h1 {
+    margin: 8px 0 0;
+    color: #3E230E;
+    font-family: var(--font-display, Georgia, serif);
+    font-size: clamp(25px, 6vw, 30px);
+    font-weight: 700;
+    letter-spacing: -.025em;
+}
+
+#admin-login .cashier-login-subtitle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin: 8px 0 0;
+    color: #795E49;
+    font-size: 13px;
+}
+
+#admin-login .cashier-login-subtitle svg {
+    width: 15px;
+    height: 15px;
+    fill: currentColor;
+}
+
+#admin-login .cashier-login-meta {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 21px;
+    color: #8B7968;
+    font-size: 11px;
+}
+
+#admin-login .cashier-login-clock {
+    font-variant-numeric: tabular-nums;
+}
+
+#admin-login .cashier-connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 13px;
+    padding: 7px 10px;
+    border: 1px solid #E4D9CB;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .52);
+    color: #76614E;
+    font-size: 11px;
+}
+
+#admin-login .cashier-connection-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #C28A3F;
+    box-shadow: 0 0 0 3px rgba(194, 138, 63, .13);
+}
+
+#admin-login .cashier-connection-status[data-state="online"] .cashier-connection-dot {
+    background: #4F8B5C;
+    box-shadow: 0 0 0 3px rgba(79, 139, 92, .13);
+}
+
+#admin-login .cashier-connection-status[data-state="offline"] .cashier-connection-dot {
+    background: #B94C3C;
+    box-shadow: 0 0 0 3px rgba(185, 76, 60, .13);
+}
+
+#admin-login .cashier-login-form {
+    display: grid;
+    gap: 17px;
+    margin-top: 26px;
+    text-align: left;
+}
+
+#admin-login .cashier-login-field {
+    display: grid;
+    gap: 8px;
+}
+
+#admin-login .cashier-login-field > label {
+    color: #604832;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+#admin-login .cashier-login-field input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 15px;
+    border: 1px solid #D9C9B6;
+    border-radius: 13px;
+    outline: none;
+    background: #FFFCF8;
+    color: #3E291B;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+#admin-login .cashier-login-field input::placeholder {
+    color: #AA9A89;
+}
+
+#admin-login .cashier-login-field input:focus {
+    border-color: #8B5B36;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(139, 91, 54, .14);
+}
+
+#admin-login .cashier-password-field {
+    position: relative;
+}
+
+#admin-login .cashier-password-field input {
+    padding-right: 50px;
+}
+
+#admin-login .cashier-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 7px;
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    padding: 0;
+    transform: translateY(-50%);
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #80664F;
+    cursor: pointer;
+}
+
+#admin-login .cashier-password-toggle:hover {
+    background: #F1E6D9;
+}
+
+#admin-login .cashier-password-toggle svg {
+    width: 19px;
+    height: 19px;
+}
+
+#admin-login .cashier-password-toggle svg[hidden] {
+    display: none !important;
+}
+
+#admin-login .cashier-login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: -3px;
+}
+
+#admin-login .cashier-remember-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #705A45;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+#admin-login .cashier-remember-option input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: #6B3E1E;
+}
+
+#admin-login .cashier-forgot-link {
+    color: #7A4A2A;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+#admin-login .cashier-forgot-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+#admin-login .cashier-login-message {
+    margin: -2px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #E6B9AF;
+    border-radius: 11px;
+    background: #FFF1EE;
+    color: #8D3025 !important;
+    font-size: 12px !important;
+    line-height: 1.45;
+    text-align: left;
+}
+
+#admin-login .cashier-login-message[hidden] {
+    display: none;
+}
+
+#admin-login .cashier-login-message[data-state="success"] {
+    border-color: #B8D5BC;
+    background: #EFF8F0;
+    color: #2F6840 !important;
+}
+
+#admin-login .cashier-login-submit {
+    display: inline-flex;
+    min-height: 53px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid #5A331B;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #704322, #4A2916);
+    box-shadow: 0 8px 18px rgba(74, 41, 22, .2);
+    color: #FFF9F1;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+#admin-login .cashier-login-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #80512D, #5A331B);
+    box-shadow: 0 11px 22px rgba(74, 41, 22, .26);
+}
+
+#admin-login .cashier-login-submit:focus-visible,
+#admin-login .cashier-password-toggle:focus-visible,
+#admin-login .cashier-forgot-link:focus-visible {
+    outline: 3px solid rgba(139, 91, 54, .34);
+    outline-offset: 3px;
+}
+
+#admin-login .cashier-login-submit:disabled {
+    cursor: wait;
+    opacity: .78;
+}
+
+#admin-login .cashier-login-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 249, 241, .48);
+    border-top-color: #FFF9F1;
+    border-radius: 50%;
+    animation: cashier-login-spin .7s linear infinite;
+}
+
+#admin-login .cashier-login-footer {
+    margin-top: 22px;
+    color: #9A8875;
+    font-size: 9px;
+    line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+    #admin-login .cashier-login-page {
+        padding: 20px 14px;
+    }
+
+    #admin-login .cashier-login-card {
+        padding: 30px 22px 22px;
+        border-radius: 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #admin-login .cashier-login-field input,
+    #admin-login .cashier-login-submit {
+        transition: none;
+    }
+
+    #admin-login .cashier-login-spinner {
+        animation-duration: 1.5s;
+    }
+}
