@@ -7335,6 +7335,10 @@ body.customer-view #qr-landing .customer-featured-card__name {
     height: 19px;
 }
 
+#cashier-login .cashier-password-toggle svg[hidden] {
+    display: none !important;
+}
+
 #cashier-login .cashier-login-options {
     display: flex;
     align-items: center;
