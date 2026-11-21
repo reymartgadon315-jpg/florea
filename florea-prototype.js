@@ -1256,8 +1256,10 @@ function initializeCashierLogin() {
       return;
     }
     try {
-      const response = await FloreaOrderSync.fetchApi('/health', { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Health check returned ${response.status}.`);
+      const response = await FloreaOrderSync.fetchApi('/api/cashier-auth', { cache: 'no-store' });
+      if (!response.ok && response.status !== 401) {
+        throw new Error(`Cashier API check returned ${response.status}.`);
+      }
       status.dataset.state = 'online';
       statusLabel.textContent = 'System connected';
     } catch {
