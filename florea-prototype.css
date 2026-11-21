@@ -2763,38 +2763,40 @@ body.cashier-view {
 
 body.cashier-view .rail,
 body.cashier-view .topbar {
-    display: none;
+    display: none !important;
 }
 
 body.cashier-view .app,
 body.cashier-view .main {
-    width: 100%;
-    min-width: 0;
+    width: 100% !important;
+    min-width: 0 !important;
     min-height: 100vh;
     min-height: 100dvh;
 }
 
 body.cashier-view .stage-wrap {
-    box-sizing: border-box;
-    width: 100%;
+    box-sizing: border-box !important;
+    width: 100% !important;
     min-height: 100vh;
     min-height: 100dvh;
-    padding: 0;
-    align-items: stretch;
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
     background: #F8F4EF;
 }
 
 body.cashier-view .stage,
 body.cashier-view .stage.tablet,
 body.cashier-view .stage.desktop {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: none;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
     min-height: 100vh;
     min-height: 100dvh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
 }
 
 body.cashier-view .screen.active {
