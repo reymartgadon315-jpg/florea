@@ -72,6 +72,48 @@
             body.cashier-view .cashier-order-workboard { grid-template-columns: 1fr 1fr !important; }
             body.cashier-view .cashier-main { padding: 18px 20px !important; }
         }
+
+        /* ===== ADMIN FULL-SCREEN OVERRIDE — inline for reliability ===== */
+        body.admin-view .rail,
+        body.admin-view .topbar,
+        .app:has(#admin-login.active) .rail,
+        .app:has(#admin-dashboard.active) .rail,
+        .app:has(.admin-screen.active) .rail,
+        .main:has(#admin-login.active) .topbar,
+        .main:has(#admin-dashboard.active) .topbar,
+        .main:has(.admin-screen.active) .topbar { display: none !important; }
+
+        body.admin-view .app,
+        body.admin-view .main { width: 100% !important; min-width: 0 !important; }
+
+        body.admin-view .stage-wrap,
+        .stage-wrap:has(#admin-login.active),
+        .stage-wrap:has(#admin-dashboard.active),
+        .stage-wrap:has(.admin-screen.active) {
+            padding: 0 !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+
+        body.admin-view .stage,
+        body.admin-view .stage.tablet,
+        body.admin-view .stage.desktop,
+        .stage:has(#admin-login.active),
+        .stage:has(#admin-dashboard.active),
+        .stage:has(.admin-screen.active) {
+            width: 100% !important;
+            max-width: none !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            transition: none !important;
+        }
+
+        body.admin-view .screen.active {
+            width: 100% !important;
+            min-height: 100vh !important;
+        }
     </style>
 </head>
 

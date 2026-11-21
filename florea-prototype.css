@@ -2924,37 +2924,77 @@ body.cashier-view .screen.active {
 
 body.admin-view .rail,
 body.admin-view .topbar {
-    display: none;
+    display: none !important;
 }
 
 body.admin-view .app,
 body.admin-view .main {
-    width: 100%;
-    min-width: 0;
+    width: 100% !important;
+    min-width: 0 !important;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 body.admin-view .stage-wrap {
-    width: 100%;
+    box-sizing: border-box !important;
+    width: 100% !important;
     min-height: 100vh;
-    padding: 0;
+    min-height: 100dvh;
+    padding: 0 !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
     background: var(--cream);
 }
 
 body.admin-view .stage,
 body.admin-view .stage.tablet,
 body.admin-view .stage.desktop {
-    width: 100%;
-    max-width: none;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
     min-height: 100vh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    min-height: 100dvh;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
 }
 
 body.admin-view .screen.active {
+    box-sizing: border-box;
+    width: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
     background: var(--cream);
+}
+
+/* Admin full-screen via :has() — fallback without JS body class */
+.app:has(#admin-login.active) .rail,
+.app:has(#admin-dashboard.active) .rail,
+.app:has(.admin-screen.active) .rail,
+.main:has(#admin-login.active) .topbar,
+.main:has(#admin-dashboard.active) .topbar,
+.main:has(.admin-screen.active) .topbar {
+    display: none !important;
+}
+
+.stage-wrap:has(#admin-login.active),
+.stage-wrap:has(#admin-dashboard.active),
+.stage-wrap:has(.admin-screen.active) {
+    width: 100% !important;
+    padding: 0 !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+}
+
+.stage:has(#admin-login.active),
+.stage:has(#admin-dashboard.active),
+.stage:has(.admin-screen.active) {
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 body.admin-view .admin-topbar {
