@@ -1827,7 +1827,12 @@ function go(id){
   if (restoreCatalogScroll) {
     window.scrollTo({ top: catalogScrollTop, behavior: 'auto' });
   } else if (isStaffPortalView) {
-    window.scrollTo(0, 0);
+    window.requestAnimationFrame(() => {
+      if (document.body.classList.contains('staff-portal-view')) {
+        const activeScreenTop = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: activeScreenTop, left: 0, behavior: 'auto' });
+      }
+    });
   } else {
     document.getElementById('stage').scrollIntoView({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
