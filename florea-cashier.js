@@ -425,6 +425,7 @@
             const loginError = document.getElementById('cashier-login-error');
             if (loginError) {
                 loginError.textContent = `Your cashier session ended. Sign in again. ${error.message}`;
+                loginError.dataset.state = 'error';
                 loginError.hidden = false;
             }
             window.go('cashier-login');

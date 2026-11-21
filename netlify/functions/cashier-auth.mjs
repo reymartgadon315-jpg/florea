@@ -2,9 +2,17 @@ import {
     cashierSessionCookie,
     clearCashierSessionCookie,
     createCashierSession,
-    verifyCashierPassword,
+    verifyCashierPassword as verifyPlainCashierPassword,
     verifyCashierSession
 } from './lib/cashier-session.mjs';
+import {
+    cashierLoginAttemptKey,
+    clearCashierLoginFailures,
+    getCashierLoginLock,
+    recordCashierLoginFailure
+} from './lib/cashier-login-attempts.mjs';
+import { verifyCashierPassword } from './lib/cashier-password.mjs';
+import { getStore } from './lib/get-store.mjs';
 import { maintenanceResponse } from './lib/maintenance.mjs';
 
 export const config = { path: '/api/cashier-auth' };
@@ -20,10 +28,19 @@ function jsonResponse(statusCode, body, headers = {}) {
     });
 }
 
-export default async function handler(request) {
+export async function handleCashierAuth(request, {
+    attemptStore,
+    now = Date.now()
+} = {}) {
     const maintenance = maintenanceResponse();
     if (maintenance) return maintenance;
-    const { CASHIER_PASSWORD, CASHIER_SESSION_SECRET } = process.env;
+    const {
+        CASHIER_PASSWORD,
+        CASHIER_PASSWORD_HASH,
+        CASHIER_SESSION_SECRET
+    } = process.env;
+    const cashierUsername = process.env.CASHIER_USERNAME || 'cashier';
+    const hasPasswordConfiguration = Boolean(CASHIER_PASSWORD || CASHIER_PASSWORD_HASH);
 
     if (request.method === 'DELETE') {
         return new Response(null, {
@@ -39,9 +56,9 @@ export default async function handler(request) {
         return jsonResponse(405, { error: 'Method not allowed.' }, { allow: 'GET, POST, DELETE' });
     }
 
-    if (!CASHIER_PASSWORD || !CASHIER_SESSION_SECRET || CASHIER_SESSION_SECRET.length < 32) {
+    if (!hasPasswordConfiguration || !CASHIER_SESSION_SECRET || CASHIER_SESSION_SECRET.length < 32) {
         return jsonResponse(503, {
-            error: 'Cashier sign-in is not configured. Set CASHIER_PASSWORD and a 32-character CASHIER_SESSION_SECRET in the server environment.'
+            error: 'Cashier sign-in is not configured. Set CASHIER_PASSWORD or CASHIER_PASSWORD_HASH and a 32-character CASHIER_SESSION_SECRET in the server environment.'
         });
     }
 
@@ -58,12 +75,69 @@ export default async function handler(request) {
         return jsonResponse(400, { error: 'Request body must be valid JSON.' });
     }
 
-    if (!verifyCashierPassword(payload?.password, CASHIER_PASSWORD)) {
-        return jsonResponse(401, { error: 'Incorrect cashier password.' });
+    const username = typeof payload?.username === 'string' ? payload.username.trim() : '';
+    const password = typeof payload?.password === 'string' ? payload.password : '';
+    if (!username || password.length === 0) {
+        return jsonResponse(400, { error: 'Enter your username and password to continue.' });
     }
 
-    const token = createCashierSession(CASHIER_SESSION_SECRET);
+    const attemptKey = cashierLoginAttemptKey(cashierUsername);
+    let store;
+    let lock;
+    try {
+        store = attemptStore || getStore('cashier-login-attempts');
+        lock = await getCashierLoginLock(store, attemptKey, now);
+    } catch (error) {
+        console.error('Cashier login-attempt storage is unavailable.', error);
+        return jsonResponse(503, { error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
+    }
+    if (lock?.lockedUntil) {
+        return jsonResponse(429, {
+            error: `Account temporarily locked. Please try again in ${Math.max(1, Math.ceil(lock.retryAfterSeconds / 60))} minutes.`
+        }, { 'retry-after': String(lock.retryAfterSeconds) });
+    }
+
+    let validCredentials = false;
+    try {
+        const validUsername = verifyPlainCashierPassword(username, cashierUsername);
+        const validPassword = await verifyCashierPassword(password, {
+            password: CASHIER_PASSWORD,
+            passwordHash: CASHIER_PASSWORD_HASH
+        });
+        validCredentials = validUsername && validPassword;
+    } catch (error) {
+        console.error('Cashier password verification failed.', error);
+        return jsonResponse(503, { error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
+    }
+
+    if (!validCredentials) {
+        try {
+            lock = await recordCashierLoginFailure(store, attemptKey, now);
+        } catch (error) {
+            console.error('Cashier login-attempt tracking failed.', error);
+            return jsonResponse(503, { error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
+        }
+        if (lock.lockedUntil) {
+            return jsonResponse(429, {
+                error: `Account temporarily locked. Please try again in ${Math.max(1, Math.ceil(lock.retryAfterSeconds / 60))} minutes.`
+            }, { 'retry-after': String(lock.retryAfterSeconds) });
+        }
+        return jsonResponse(401, { error: 'Incorrect username or password.' });
+    }
+
+    try {
+        await clearCashierLoginFailures(store, attemptKey);
+    } catch (error) {
+        console.error('Unable to clear cashier login-attempt history.', error);
+        return jsonResponse(503, { error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
+    }
+
+    const token = createCashierSession(CASHIER_SESSION_SECRET, now);
     return jsonResponse(200, { authenticated: true }, {
         'set-cookie': cashierSessionCookie(token)
     });
+}
+
+export default function handler(request) {
+    return handleCashierAuth(request);
 }

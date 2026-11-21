@@ -12,10 +12,16 @@ const secret = 'a-test-secret-with-at-least-thirty-two-characters';
 test('cashier session accepts a valid signed and unexpired cookie', () => {
     const now = 1_800_000_000_000;
     const token = createCashierSession(secret, now);
+    const secondToken = createCashierSession(secret, now);
+    const payload = JSON.parse(Buffer.from(token.split('.')[0], 'base64url').toString('utf8'));
+    const secondPayload = JSON.parse(Buffer.from(secondToken.split('.')[0], 'base64url').toString('utf8'));
     const request = new Request('https://example.test/api/orders', {
         headers: { cookie: `${cashierSessionCookieName}=${token}` }
     });
 
+    assert.equal(typeof payload.jti, 'string');
+    assert.ok(payload.jti.length > 0);
+    assert.notEqual(payload.jti, secondPayload.jti);
     assert.equal(verifyCashierSession(request, secret, now), true);
 });
 

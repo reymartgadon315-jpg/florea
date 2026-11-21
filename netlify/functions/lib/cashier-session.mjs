@@ -1,4 +1,4 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 
 export const cashierSessionCookieName = 'florea-cashier-session';
 export const cashierSessionTtlSeconds = 8 * 60 * 60;
@@ -22,7 +22,8 @@ export function verifyCashierPassword(candidate, expected) {
 export function createCashierSession(secret, now = Date.now()) {
     const payload = Buffer.from(JSON.stringify({
         role: 'cashier',
-        exp: Math.floor(now / 1000) + cashierSessionTtlSeconds
+        exp: Math.floor(now / 1000) + cashierSessionTtlSeconds,
+        jti: randomUUID()
     })).toString('base64url');
     return `${payload}.${signature(payload, secret)}`;
 }

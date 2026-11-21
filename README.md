@@ -20,12 +20,16 @@ and expires 30 days after creation; after the grace period, Render deletes the
 database and its data. Use this setup only for a temporary demo with noncritical
 data. Do not migrate live Netlify orders or inventory to this expiring database.
 
-1. Push the project to GitHub, then create a Render Blueprint from the repository's
-   `render.yaml`. It creates the `florea-api` web service and a Free PostgreSQL
-   database. The web service allows credentialed browser requests only from the
-   configured `FRONTEND_ORIGIN` (`https://florea.onrender.com`).
-2. Set strong, unique admin and cashier passwords and session secrets in Render.
-   The API starts with `API_MAINTENANCE_MODE=false` for an empty demo database.
+1. Use the existing Render resources: the `florea` Static Site, `florea-api` Web
+   Service, and `florea-db` database. Do not create another Blueprint or database.
+   Confirm the API service deploys this repository's `main` branch; pushing to that
+   branch may automatically deploy if auto-deploy is enabled. The API allows
+   credentialed browser requests only from `FRONTEND_ORIGIN`
+   (`https://florea.onrender.com`).
+2. Set strong, unique admin and cashier passwords and session secrets in the
+   existing `florea-api` Web Service environment. `CASHIER_USERNAME` is optional
+   and defaults to `cashier`. The API starts with
+   `API_MAINTENANCE_MODE=false` for an empty demo database.
 3. If you later migrate Netlify data, first upgrade Render Postgres to a plan that
    does not expire. Do not copy live data to Free Postgres. Before migrating, set
    `API_MAINTENANCE_MODE=true` on the Render Web Service and Netlify site, then wait
@@ -106,9 +110,17 @@ image in `assets/products/`, used on catalog cards and product details.
 The integrated cashier dashboard is designed for order processing, payment
 verification, order history, and daily paid-sales totals. Cashier status changes,
 payment verification, cancellation, and deletion require the server-side cashier
-session. Configure `CASHIER_PASSWORD` and a `CASHIER_SESSION_SECRET` with at least
-32 characters in the Netlify site environment before enabling hosted cashier
-sign-in. Product-image uploads are stored as original files in Netlify Blobs and
+session. For Render, configure `CASHIER_PASSWORD` (or `CASHIER_PASSWORD_HASH`),
+`CASHIER_USERNAME` (optional; defaults to `cashier`), and a `CASHIER_SESSION_SECRET`
+with at least 32 characters in the existing `florea-api` Web Service environment.
+Failed sign-ins are tracked in the configured PostgreSQL database and locked for
+15 minutes after five consecutive failures. To generate a password hash locally,
+set `CASHIER_PASSWORD` temporarily in your environment and run
+`node scripts/hash-cashier-password.mjs`; save the printed hash as
+`CASHIER_PASSWORD_HASH`, then remove the plain `CASHIER_PASSWORD` variable.
+For a separate Netlify deployment, configure `CASHIER_PASSWORD` and
+`CASHIER_SESSION_SECRET` in the Netlify site environment. Product-image uploads are
+stored as original files in Netlify Blobs and
 require the server-side admin session. Product catalog records, including the
 image URLs, continue to use this prototype's existing browser storage and are not
 synchronized between browsers. Orders can still be read publicly for customer

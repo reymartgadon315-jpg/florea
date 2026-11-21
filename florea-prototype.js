@@ -1176,41 +1176,146 @@ function togglePasswordVisibility(inputId, button) {
   });
 }
 
-async function loginCashier() {
-  const field = document.getElementById('cashier-password-input');
-  const password = field ? field.value.trim() : '';
-  const error = document.getElementById('cashier-login-error');
-  if (error) error.hidden = true;
-  if (FloreaOrderSync.isLocal()) {
-    if (password !== 'cashier123') {
-      if (error) {
-        error.textContent = 'Incorrect cashier password.';
-        error.hidden = false;
-      } else {
-        alert('Incorrect cashier password.');
+function setCashierLoginMessage(message, state = 'error') {
+  const messageElement = document.getElementById('cashier-login-error');
+  if (!messageElement) return;
+  messageElement.textContent = message;
+  messageElement.dataset.state = state;
+  messageElement.hidden = false;
+}
+
+function setCashierLoginLoading(isLoading) {
+  const button = document.getElementById('cashier-login-submit');
+  const label = document.getElementById('cashier-login-submit-label');
+  const spinner = document.getElementById('cashier-login-spinner');
+  if (button) button.disabled = isLoading;
+  if (label) label.textContent = isLoading ? 'Signing in…' : 'Sign In';
+  if (spinner) spinner.hidden = !isLoading;
+}
+
+function rememberCashierUsername() {
+  const username = document.getElementById('cashier-username-input');
+  const remember = document.getElementById('cashier-remember-username');
+  if (!(username instanceof HTMLInputElement) || !(remember instanceof HTMLInputElement)) return;
+  try {
+    if (remember.checked) localStorage.setItem('florea-cashier-username', username.value.trim());
+    else localStorage.removeItem('florea-cashier-username');
+  } catch (storageError) {
+    console.warn('Unable to remember the cashier username.', storageError);
+  }
+}
+
+function initializeCashierLogin() {
+  const username = document.getElementById('cashier-username-input');
+  const remember = document.getElementById('cashier-remember-username');
+  if (username instanceof HTMLInputElement && remember instanceof HTMLInputElement) {
+    try {
+      const savedUsername = localStorage.getItem('florea-cashier-username');
+      if (savedUsername) {
+        username.value = savedUsername;
+        remember.checked = true;
       }
-      if (field) field.focus();
+    } catch (storageError) {
+      console.warn('Unable to restore the remembered cashier username.', storageError);
+    }
+    remember.addEventListener('change', rememberCashierUsername);
+    username.addEventListener('change', rememberCashierUsername);
+  }
+
+  const date = document.getElementById('cashier-login-date');
+  const clock = document.getElementById('cashier-login-clock');
+  const updateClock = () => {
+    const now = new Date();
+    if (date) {
+      date.dateTime = now.toISOString();
+      date.textContent = new Intl.DateTimeFormat(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }).format(now);
+    }
+    if (clock) {
+      clock.textContent = new Intl.DateTimeFormat(undefined, {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit'
+      }).format(now);
+    }
+  };
+  updateClock();
+  window.setInterval(updateClock, 1000);
+
+  const status = document.getElementById('cashier-connection-status');
+  const statusLabel = document.getElementById('cashier-connection-label');
+  const updateConnectionStatus = async () => {
+    if (!status || !statusLabel) return;
+    if (!navigator.onLine) {
+      status.dataset.state = 'offline';
+      statusLabel.textContent = 'No internet connection';
       return;
     }
-    setAuthenticated('cashier', true);
-    go('cashier-dashboard');
+    try {
+      const response = await FloreaOrderSync.fetchApi('/health', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Health check returned ${response.status}.`);
+      status.dataset.state = 'online';
+      statusLabel.textContent = 'System connected';
+    } catch {
+      status.dataset.state = 'offline';
+      statusLabel.textContent = 'System connection unavailable';
+    }
+  };
+  updateConnectionStatus();
+  window.setInterval(updateConnectionStatus, 30000);
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
+}
+
+async function loginCashier(event) {
+  event?.preventDefault();
+  const usernameField = document.getElementById('cashier-username-input');
+  const passwordField = document.getElementById('cashier-password-input');
+  const username = usernameField instanceof HTMLInputElement ? usernameField.value.trim() : '';
+  const password = passwordField instanceof HTMLInputElement ? passwordField.value : '';
+  const error = document.getElementById('cashier-login-error');
+  if (error) error.hidden = true;
+
+  if (!username || password.length === 0) {
+    setCashierLoginMessage('Enter your username and password to continue.');
+    (!username ? usernameField : passwordField)?.focus();
     return;
   }
+
+  setCashierLoginLoading(true);
   try {
-    await FloreaOrderSync.request('/api/cashier-auth', {
-      method: 'POST',
-      body: JSON.stringify({ password })
-    });
+    if (FloreaOrderSync.isLocal()) {
+      if (username !== 'cashier' || password !== 'cashier123') {
+        setCashierLoginMessage('Incorrect username or password.');
+        passwordField?.focus();
+        return;
+      }
+    } else {
+      await FloreaOrderSync.request('/api/cashier-auth', {
+        method: 'POST',
+        body: JSON.stringify({ username, password })
+      });
+    }
+    rememberCashierUsername();
+    if (passwordField) passwordField.value = '';
+    setCashierLoginMessage('Login successful. Opening your dashboard…', 'success');
+    await new Promise(resolve => window.setTimeout(resolve, 300));
     setAuthenticated('cashier', true);
     go('cashier-dashboard');
   } catch (requestError) {
-    if (error) {
-      error.textContent = requestError.message;
-      error.hidden = false;
-    } else {
-      alert(requestError.message);
+    if (requestError instanceof TypeError || !requestError.status || requestError.status >= 500) {
+      console.error('Cashier sign-in request failed.', requestError);
     }
-    if (field) field.focus();
+    setCashierLoginMessage(requestError instanceof TypeError
+      ? 'Unable to reach the system. Check your connection and try again.'
+      : requestError.message || 'System error. Please try again.');
+    if (passwordField) passwordField.focus();
+  } finally {
+    setCashierLoginLoading(false);
   }
 }
 
@@ -1236,6 +1341,8 @@ async function logoutCashier() {
   setAuthenticated('cashier', false);
   window.cashierInitialized = false;
   window.resetCashierDashboard?.();
+  const loginMessage = document.getElementById('cashier-login-error');
+  if (loginMessage) loginMessage.hidden = true;
   go('cashier-login');
   if (logoutError) alert(`The browser session was cleared, but the server logout request failed. ${logoutError.message}`);
 }
@@ -1682,7 +1789,10 @@ function restoreInitialScreen() {
     }
   }
 }
-window.addEventListener('DOMContentLoaded', restoreInitialScreen, { once: true });
+window.addEventListener('DOMContentLoaded', () => {
+  initializeCashierLogin();
+  restoreInitialScreen();
+}, { once: true });
 initAdminQrCode();
 
 document.querySelectorAll('.device-toggle button').forEach(btn=>{
