@@ -98,7 +98,29 @@
         body.cashier-view { background: #F8F4EF; }
         body.cashier-view .stage-wrap { background: #F8F4EF !important; }
 
-        /* 8. Responsive — mobile */
+        /* 8. Admin login — kill old brown override on div:first-child */
+        body.admin-view #admin-login > div:first-child,
+        #admin-login > div:first-child {
+            background: none !important;
+        }
+        /* Admin login page background — dark gradient same as cashier */
+        #admin-login .cashier-login-page {
+            min-height: 100vh !important;
+            min-height: 100dvh !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 9. html, body, app: no margin/padding in staff portal */
+        body.staff-portal-view,
+        body.staff-portal-view .app,
+        body.staff-portal-view .main {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        html { margin: 0; padding: 0; }
+
+        /* 10. Responsive — mobile */
         @media (max-width: 600px) {
             body.cashier-view .cashier-header { flex-wrap: wrap; padding: 12px 14px; }
             body.cashier-view .cashier-header-tools { width: 100%; }
@@ -107,7 +129,7 @@
             body.cashier-view .cashier-summary-grid { grid-template-columns: 1fr 1fr !important; }
             body.cashier-view .cashier-main { padding: 14px !important; }
         }
-        /* 9. Responsive — tablet */
+        /* 11. Responsive — tablet */
         @media (min-width: 601px) and (max-width: 1024px) {
             body.cashier-view .cashier-order-workboard { grid-template-columns: 1fr 1fr !important; }
             body.cashier-view .cashier-main { padding: 18px 20px !important; }
