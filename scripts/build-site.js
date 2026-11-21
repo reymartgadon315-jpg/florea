@@ -39,7 +39,7 @@ const staffRouteHtml = prototypeHtml.replace('<head>', '<head>\n    <base href="
 if (staffRouteHtml === prototypeHtml) {
     throw new Error('Could not prepare standalone staff portal routes.');
 }
-for (const route of ['admin', 'cashier']) {
+for (const route of ['admin', 'cashier', 'staff']) {
     const routeDirectory = path.join(output, route);
     fs.mkdirSync(routeDirectory, { recursive: true });
     fs.writeFileSync(path.join(routeDirectory, 'index.html'), staffRouteHtml);

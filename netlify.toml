@@ -72,3 +72,13 @@
   from = "/cashier/"
   to = "/cashier/index.html"
   status = 200
+
+[[redirects]]
+  from = "/staff"
+  to = "/staff/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/staff/"
+  to = "/staff/index.html"
+  status = 200

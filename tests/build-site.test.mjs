@@ -21,7 +21,7 @@ test('build serves the customer storefront at the clean root URL', () => {
     assert.match(index, /florea-orders\.js/);
     assert.match(index, /florea-prototype\.js/);
 
-    for (const route of ['admin', 'cashier']) {
+    for (const route of ['admin', 'cashier', 'staff']) {
         const portal = fs.readFileSync(path.join(root, 'dist', route, 'index.html'), 'utf8');
         assert.match(portal, /<base href="\/">/);
         assert.match(portal, /florea-prototype\.css/);

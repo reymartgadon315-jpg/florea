@@ -1135,8 +1135,9 @@ async function loginAdminForm(event) {
   event?.preventDefault();
   const usernameField = document.getElementById('admin-username-input');
   const passwordField = document.getElementById('admin-password-input');
-  const username = usernameField instanceof HTMLInputElement ? usernameField.value.trim().toLowerCase() : '';
+  const username = usernameField instanceof HTMLInputElement ? usernameField.value.trim() : '';
   const password = passwordField instanceof HTMLInputElement ? passwordField.value : '';
+  const isAdminLogin = username.toLowerCase() === 'admin';
   const error = document.getElementById('admin-login-error');
   if (error) error.hidden = true;
 
@@ -1148,22 +1149,40 @@ async function loginAdminForm(event) {
 
   setAdminLoginLoading(true);
   try {
-    if (username !== 'admin') {
-      throw new Error('The admin username must be "admin".');
-    }
-    if (FloreaOrderSync.isLocal() && password === 'admin123') {
+    if (isAdminLogin) {
+      if (FloreaOrderSync.isLocal() && password === 'admin123') {
+        setAuthenticated('admin', true);
+        if (passwordField) passwordField.value = '';
+        go('admin-dashboard');
+        return;
+      }
+      await FloreaOrderSync.request('/api/admin-auth', {
+        method: 'POST',
+        body: JSON.stringify({ username: username.toLowerCase(), password })
+      });
       setAuthenticated('admin', true);
+      if (passwordField) passwordField.value = '';
       go('admin-dashboard');
-      return;
+    } else {
+      if (FloreaOrderSync.isLocal()) {
+        if (username !== 'cashier' || password !== 'cashier123') {
+          throw new Error('Incorrect username or password.');
+        }
+      } else {
+        await FloreaOrderSync.request('/api/cashier-auth', {
+          method: 'POST',
+          body: JSON.stringify({ username, password })
+        });
+      }
+      setAuthenticated('cashier', true);
+      if (passwordField) passwordField.value = '';
+      go('cashier-dashboard');
     }
-    await FloreaOrderSync.request('/api/admin-auth', {
-      method: 'POST',
-      body: JSON.stringify({ username, password })
-    });
-    setAuthenticated('admin', true);
-    go('admin-dashboard');
   } catch (requestError) {
-    setAdminLoginMessage(requestError.message || 'Login failed. Check your credentials.');
+    if (requestError instanceof TypeError || !requestError.status || requestError.status >= 500) {
+      console.error('Staff sign-in request failed.', requestError);
+    }
+    setAdminLoginMessage(requestError.message || 'Login failed. Check your username and password.');
     passwordField?.focus();
   } finally {
     setAdminLoginLoading(false);
@@ -1197,7 +1216,9 @@ function initializeAdminLogin() {
   const remember = document.getElementById('admin-remember-username');
   if (username instanceof HTMLInputElement && remember instanceof HTMLInputElement) {
     try {
-      const savedUsername = localStorage.getItem('florea-admin-username');
+      const savedUsername = localStorage.getItem('florea-staff-username') ||
+        localStorage.getItem('florea-admin-username') ||
+        localStorage.getItem('florea-cashier-username');
       if (savedUsername) {
         username.value = savedUsername;
         remember.checked = true;
@@ -1207,10 +1228,10 @@ function initializeAdminLogin() {
     }
     const rememberAdminUsername = () => {
       try {
-        if (remember.checked) localStorage.setItem('florea-admin-username', username.value.trim());
-        else localStorage.removeItem('florea-admin-username');
+        if (remember.checked) localStorage.setItem('florea-staff-username', username.value.trim());
+        else localStorage.removeItem('florea-staff-username');
       } catch (storageError) {
-        console.warn('Unable to remember the admin username.', storageError);
+        console.warn('Unable to remember the staff username.', storageError);
       }
     };
     remember.addEventListener('change', rememberAdminUsername);
@@ -1655,8 +1676,8 @@ customerNameInput?.addEventListener('input', () => {
 });
 const routePath = window.location.pathname.replace(/\/+$/, '') || '/';
 const requestedView = new URLSearchParams(window.location.search).get('view') ||
-  (routePath === '/admin' ? 'admin' : routePath === '/cashier' ? 'cashier' : null);
-const isStaffPortalView = requestedView === 'admin' || requestedView === 'cashier';
+  (['/admin', '/cashier', '/staff'].includes(routePath) ? 'staff' : null);
+const isStaffPortalView = ['admin', 'cashier', 'staff'].includes(requestedView);
 const requestedScreen = new URLSearchParams(window.location.search).get('screen');
 
 function hasCustomerNameForSession() {
@@ -1738,6 +1759,9 @@ function observeScreenReveals(screen) {
 }
 
 function go(id){
+  if (isStaffPortalView && id === 'cashier-login') {
+    id = 'admin-login';
+  }
   if (adminProtectedScreenIds.has(id) && !isAuthenticated('admin')) {
     id = 'admin-login';
   }
@@ -1842,12 +1866,8 @@ function go(id){
 }
 function restoreInitialScreen() {
   const savedState = window.FloreaCustomerSession.read();
-  if (requestedView === 'admin') {
+  if (isStaffPortalView) {
     go('admin-login');
-    return;
-  }
-  if (requestedView === 'cashier') {
-    go('cashier-login');
     return;
   }
 
