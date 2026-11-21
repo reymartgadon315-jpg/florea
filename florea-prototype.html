@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#315c46">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <script>document.documentElement.classList.add('app-booting');</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@500;600;700&family=Playfair+Display:wght@500;600;700&family=Poppins:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
@@ -18,6 +19,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="florea-prototype.css">
     <style>
+        html.app-booting {
+            background: var(--cream-deep);
+        }
+
+        html.app-booting .app {
+            visibility: hidden;
+        }
+
         /*
          * STAFF PORTAL FULL-SCREEN — inline for reliability.
          * The prototype viewer has a 278px rail, 390px stage, and

@@ -1928,9 +1928,15 @@ function restoreInitialScreen() {
   }
 }
 window.addEventListener('DOMContentLoaded', () => {
-  initializeCashierLogin();
-  initializeAdminLogin();
-  restoreInitialScreen();
+  try {
+    initializeCashierLogin();
+    initializeAdminLogin();
+    restoreInitialScreen();
+  } finally {
+    window.requestAnimationFrame(() => {
+      document.documentElement.classList.remove('app-booting');
+    });
+  }
 }, { once: true });
 initAdminQrCode();
 
