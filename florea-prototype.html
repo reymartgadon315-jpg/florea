@@ -17,48 +17,88 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="florea-prototype.css">
     <style>
-        /* CASHIER FULL-SCREEN OVERRIDE — inline for reliability */
-        body.cashier-view .rail,
-        body.cashier-view .topbar,
-        .app:has(.cashier-screen.active) .rail,
-        .main:has(.cashier-screen.active) .topbar,
-        .app:has(#cashier-login.active) .rail,
-        .main:has(#cashier-login.active) .topbar { display: none !important; }
+        /*
+         * STAFF PORTAL FULL-SCREEN — inline for reliability.
+         * The prototype viewer has a 278px rail, 390px stage, and
+         * justify-content:center on stage-wrap. When in staff-portal-view
+         * (cashier or admin), we kill ALL of that so the dashboard fills
+         * the entire viewport.  We use display:block on stage-wrap to
+         * completely eliminate the flex centering that causes the
+         * right-shift layout bug.
+         */
 
-        body.cashier-view .app,
-        body.cashier-view .main { width: 100% !important; min-width: 0 !important; }
+        /* 1. Hide prototype chrome */
+        body.staff-portal-view .rail,
+        body.staff-portal-view .topbar { display: none !important; }
 
-        body.cashier-view .stage-wrap,
-        .stage-wrap:has(.cashier-screen.active),
-        .stage-wrap:has(#cashier-login.active) {
-            padding: 0 !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
+        /* 2. App and main fill viewport */
+        body.staff-portal-view .app,
+        body.staff-portal-view .main {
             width: 100% !important;
-            background: #F8F4EF !important;
+            min-width: 0 !important;
+            min-height: 100vh !important;
         }
 
-        body.cashier-view .stage,
-        body.cashier-view .stage.tablet,
-        body.cashier-view .stage.desktop,
-        .stage:has(.cashier-screen.active),
-        .stage:has(#cashier-login.active) {
+        /* 3. Stage-wrap: kill flex centering with display:block */
+        body.staff-portal-view .stage-wrap {
+            display: block !important;
             width: 100% !important;
-            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background-image: none !important;
+            min-height: 100vh !important;
+        }
+
+        /* 4. Stage: fill 100% width, kill phone frame */
+        body.staff-portal-view .stage,
+        body.staff-portal-view .stage.tablet,
+        body.staff-portal-view .stage.desktop {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: 100vh !important;
             border: 0 !important;
             border-radius: 0 !important;
             box-shadow: none !important;
+            overflow: visible !important;
             transition: none !important;
+            background: transparent !important;
         }
 
-        body.cashier-view .screen.active,
-        .cashier-screen.active,
-        #cashier-login.active {
+        /* 5. Active screen fills width */
+        body.staff-portal-view .screen.active {
             width: 100% !important;
             min-height: 100vh !important;
         }
 
-        /* Responsive — mobile */
+        /* 6. :has() fallback for browsers that apply class late */
+        .app:has(.cashier-screen.active) .rail,
+        .app:has(#cashier-login.active) .rail,
+        .main:has(.cashier-screen.active) .topbar,
+        .main:has(#cashier-login.active) .topbar { display: none !important; }
+
+        .stage-wrap:has(.cashier-screen.active),
+        .stage-wrap:has(#cashier-login.active) {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            background-image: none !important;
+        }
+
+        .stage:has(.cashier-screen.active),
+        .stage:has(#cashier-login.active) {
+            width: 100% !important;
+            max-width: 100% !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+        }
+
+        /* 7. Cashier background */
+        body.cashier-view { background: #F8F4EF; }
+        body.cashier-view .stage-wrap { background: #F8F4EF !important; }
+
+        /* 8. Responsive — mobile */
         @media (max-width: 600px) {
             body.cashier-view .cashier-header { flex-wrap: wrap; padding: 12px 14px; }
             body.cashier-view .cashier-header-tools { width: 100%; }
@@ -67,52 +107,10 @@
             body.cashier-view .cashier-summary-grid { grid-template-columns: 1fr 1fr !important; }
             body.cashier-view .cashier-main { padding: 14px !important; }
         }
-        /* Responsive — tablet */
+        /* 9. Responsive — tablet */
         @media (min-width: 601px) and (max-width: 1024px) {
             body.cashier-view .cashier-order-workboard { grid-template-columns: 1fr 1fr !important; }
             body.cashier-view .cashier-main { padding: 18px 20px !important; }
-        }
-
-        /* ===== ADMIN FULL-SCREEN OVERRIDE — inline for reliability ===== */
-        body.admin-view .rail,
-        body.admin-view .topbar,
-        .app:has(#admin-login.active) .rail,
-        .app:has(#admin-dashboard.active) .rail,
-        .app:has(.admin-screen.active) .rail,
-        .main:has(#admin-login.active) .topbar,
-        .main:has(#admin-dashboard.active) .topbar,
-        .main:has(.admin-screen.active) .topbar { display: none !important; }
-
-        body.admin-view .app,
-        body.admin-view .main { width: 100% !important; min-width: 0 !important; }
-
-        body.admin-view .stage-wrap,
-        .stage-wrap:has(#admin-login.active),
-        .stage-wrap:has(#admin-dashboard.active),
-        .stage-wrap:has(.admin-screen.active) {
-            padding: 0 !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
-            width: 100% !important;
-        }
-
-        body.admin-view .stage,
-        body.admin-view .stage.tablet,
-        body.admin-view .stage.desktop,
-        .stage:has(#admin-login.active),
-        .stage:has(#admin-dashboard.active),
-        .stage:has(.admin-screen.active) {
-            width: 100% !important;
-            max-width: none !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            transition: none !important;
-        }
-
-        body.admin-view .screen.active {
-            width: 100% !important;
-            min-height: 100vh !important;
         }
     </style>
 </head>

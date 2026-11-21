@@ -366,6 +366,41 @@
             border: 1px solid var(--line);
         }
         
+        /* Staff portal (cashier / admin) full-screen: override prototype shell */
+        body.staff-portal-view .app {
+            display: flex;
+            width: 100%;
+        }
+        body.staff-portal-view .rail {
+            display: none !important;
+        }
+        body.staff-portal-view .topbar {
+            display: none !important;
+        }
+        body.staff-portal-view .main {
+            flex: 1;
+            width: 100%;
+            min-width: 0;
+        }
+        body.staff-portal-view .stage-wrap {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            background-image: none !important;
+        }
+        body.staff-portal-view .stage,
+        body.staff-portal-view .stage.tablet,
+        body.staff-portal-view .stage.desktop {
+            width: 100% !important;
+            max-width: 100% !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+            transition: none !important;
+            background: transparent !important;
+        }
+        
         .stage.tablet {
             width: 760px;
         }
@@ -2776,21 +2811,22 @@ body.cashier-view {
 /* Remove centering and padding from stage-wrap */
 .stage-wrap:has(.cashier-screen.active),
 .stage-wrap:has(#cashier-login.active) {
+    display: block !important;
     padding: 0 !important;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
     width: 100% !important;
     background: #F8F4EF !important;
+    background-image: none !important;
 }
 
 /* Make stage full width, no border/shadow/radius */
 .stage:has(.cashier-screen.active),
 .stage:has(#cashier-login.active) {
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    overflow: visible !important;
     transition: none !important;
 }
 
@@ -2822,14 +2858,14 @@ body.cashier-view .main {
 }
 
 body.cashier-view .stage-wrap {
+    display: block !important;
     box-sizing: border-box !important;
     width: 100% !important;
     min-height: 100vh;
     min-height: 100dvh;
     padding: 0 !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
     background: #F8F4EF;
+    background-image: none !important;
 }
 
 body.cashier-view .stage,
@@ -2837,13 +2873,15 @@ body.cashier-view .stage.tablet,
 body.cashier-view .stage.desktop {
     box-sizing: border-box !important;
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
     min-height: 100vh;
     min-height: 100dvh;
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    overflow: visible !important;
     transition: none !important;
+    background: transparent !important;
 }
 
 body.cashier-view .screen.active {
@@ -2936,14 +2974,14 @@ body.admin-view .main {
 }
 
 body.admin-view .stage-wrap {
+    display: block !important;
     box-sizing: border-box !important;
     width: 100% !important;
     min-height: 100vh;
     min-height: 100dvh;
     padding: 0 !important;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
     background: var(--cream);
+    background-image: none !important;
 }
 
 body.admin-view .stage,
@@ -2951,13 +2989,15 @@ body.admin-view .stage.tablet,
 body.admin-view .stage.desktop {
     box-sizing: border-box !important;
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
     min-height: 100vh;
     min-height: 100dvh;
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    overflow: visible !important;
     transition: none !important;
+    background: transparent !important;
 }
 
 body.admin-view .screen.active {
@@ -2981,20 +3021,21 @@ body.admin-view .screen.active {
 .stage-wrap:has(#admin-login.active),
 .stage-wrap:has(#admin-dashboard.active),
 .stage-wrap:has(.admin-screen.active) {
+    display: block !important;
     width: 100% !important;
     padding: 0 !important;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
+    background-image: none !important;
 }
 
 .stage:has(#admin-login.active),
 .stage:has(#admin-dashboard.active),
 .stage:has(.admin-screen.active) {
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
     border: 0 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    overflow: visible !important;
 }
 
 body.admin-view .admin-topbar {
@@ -7235,40 +7276,56 @@ body.customer-view #product-details .product-hero-image {
 
 body.staff-portal-view .rail,
 body.staff-portal-view .topbar {
-    display: none;
+    display: none !important;
 }
 
 body.staff-portal-view #admin-login .login-back-button {
     display: none;
 }
 
-body.staff-portal-view .app,
-body.staff-portal-view .main,
-body.staff-portal-view .stage-wrap,
-body.staff-portal-view .stage {
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
+body.staff-portal-view .app {
+    display: flex;
+    width: 100% !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+body.staff-portal-view .main {
+    flex: 1;
+    width: 100% !important;
+    min-width: 0 !important;
     min-height: 100vh;
     min-height: 100dvh;
 }
 
 body.staff-portal-view .stage-wrap {
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 0;
+    display: block !important;
+    box-sizing: border-box;
+    width: 100% !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0 !important;
+    background-image: none !important;
 }
 
 body.staff-portal-view .stage,
 body.staff-portal-view .stage.tablet,
 body.staff-portal-view .stage.desktop {
-    max-width: none;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    transition: none !important;
+    background: transparent !important;
 }
 
 body.staff-portal-view .screen.active {
+    width: 100% !important;
     min-height: 100vh;
     min-height: 100dvh;
 }
