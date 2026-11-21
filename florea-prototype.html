@@ -529,34 +529,60 @@
                     <!-- 11. ADMIN LOGIN -->
                     <!-- ================================================================= -->
                     <section class="screen" id="admin-login">
-                        <div style="min-height:640px; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#3B2F2A,#54443B); padding:30px;">
-                            <div class="login-shell" style="background:var(--paper); border-radius:20px; padding:32px 26px; width:100%; max-width:340px; box-shadow:var(--shadow);">
-                                <a class='login-back-button' href='/florea-prototype?view=cashier'>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
-                                    Back
-                                </a>
-                                <div style="text-align:center;">
-                                    <h2 style="font-size:18px;">Console</h2>
-                                    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Owner &amp; Staff Access</p>
+                        <div class="cashier-login-page">
+                            <main class="cashier-login-card">
+                                <img class="cashier-login-logo" src="florea-logo.png" alt="Floréa logo">
+                                <p class="cashier-login-eyebrow">FLORÉA · CONSOLE</p>
+                                <h1>Admin Access</h1>
+                                <p class="cashier-login-subtitle">
+                                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2 4.5 5v6.2c0 5 3.2 9.5 7.5 10.8 4.3-1.3 7.5-5.8 7.5-10.8V5L12 2Zm0 3.2 4.5 1.8v4.2c0 3.5-1.9 6.8-4.5 8-2.6-1.2-4.5-4.5-4.5-8V7l4.5-1.8Z"/></svg>
+                                    Owner &amp; Staff Secure Login
+                                </p>
+
+                                <div class="cashier-login-meta">
+                                    <time id="admin-login-date"></time>
+                                    <span class="cashier-login-clock" id="admin-login-clock" aria-label="Current time"></span>
                                 </div>
-                                <div style="margin-top:22px; display:flex; flex-direction:column; gap:12px;">
-                                    <div class="input-wrap"><label for="admin-username-input">Username</label><input id="admin-username-input" class="input" name="username" value="admin" autocomplete="username"></div>
-                                    <div class="input-wrap">
+
+                                <div class="cashier-connection-status" id="admin-connection-status" role="status" aria-live="polite">
+                                    <span class="cashier-connection-dot" aria-hidden="true"></span>
+                                    <span id="admin-connection-label">Checking connection…</span>
+                                </div>
+
+                                <form id="admin-login-form" class="cashier-login-form" onsubmit="loginAdminForm(event)" novalidate>
+                                    <div class="cashier-login-field">
+                                        <label for="admin-username-input">Username</label>
+                                        <input id="admin-username-input" name="username" type="text" value="admin" autocomplete="username" placeholder="admin" required>
+                                    </div>
+                                    <div class="cashier-login-field">
                                         <label for="admin-password-input">Password</label>
-                                        <div class="password-field">
-                                            <input id="admin-password-input" class="input" type="password" placeholder="Enter admin password" autocomplete="current-password">
-                                            <button type="button" class="password-visibility-toggle" aria-label="Show password" aria-controls="admin-password-input" aria-pressed="false" onclick="togglePasswordVisibility('admin-password-input', this)">
+                                        <div class="cashier-password-field">
+                                            <input id="admin-password-input" name="password" type="password" autocomplete="current-password" placeholder="Enter admin password" required>
+                                            <button class="cashier-password-toggle" type="button" aria-label="Show password" aria-controls="admin-password-input" aria-pressed="false" onclick="togglePasswordVisibility('admin-password-input', this)">
                                                 <svg data-password-icon="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c5.1 0 8.6 4.1 9.5 6.4a1.8 1.8 0 0 1 0 1.2 11.6 11.6 0 0 1-3.1 4.2"/><path d="M6.6 6.6a11.7 11.7 0 0 0-4.1 4.8 1.8 1.8 0 0 0 0 1.2A10.9 10.9 0 0 0 12 19a10.7 10.7 0 0 0 3.2-.5"/></svg>
                                                 <svg data-password-icon="visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/></svg>
                                             </button>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="login-card-actions" style="margin-top:18px;">
-                                    <button class="btn btn-primary btn-block" onclick="loginAdmin()">Log In to Dashboard</button>
-                                </div>
-                                <p style="text-align:center;font-size:10.5px;color:var(--ink-soft);margin-top:16px;">Role-based access · Owner / Cashier / Florist</p>
-                            </div>
+
+                                    <div class="cashier-login-options">
+                                        <label class="cashier-remember-option">
+                                            <input id="admin-remember-username" type="checkbox">
+                                            <span>Remember username</span>
+                                        </label>
+                                        <a class="cashier-forgot-link" href="mailto:owner@bloom.ph?subject=Admin%20password%20reset%20request">Forgot password?</a>
+                                    </div>
+
+                                    <p id="admin-login-error" class="cashier-login-message" role="alert" aria-live="assertive" hidden></p>
+
+                                    <button class="cashier-login-submit" id="admin-login-submit" type="submit">
+                                        <span class="cashier-login-spinner" id="admin-login-spinner" aria-hidden="true" hidden></span>
+                                        <span id="admin-login-submit-label">Sign In</span>
+                                    </button>
+                                </form>
+
+                                <footer class="cashier-login-footer">Role-based access · Owner / Cashier / Florist</footer>
+                            </main>
                         </div>
                     </section>
 

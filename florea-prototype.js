@@ -1131,22 +1131,31 @@ async function submitCustomerFeedback(event) {
 
 document.getElementById('customer-feedback-form').addEventListener('submit', submitCustomerFeedback);
 
-async function loginAdmin() {
+async function loginAdminForm(event) {
+  event?.preventDefault();
   const usernameField = document.getElementById('admin-username-input');
-  const username = usernameField ? usernameField.value.trim().toLowerCase() : '';
-  const field = document.getElementById('admin-password-input');
-  const password = field ? field.value.trim() : '';
-  if (username !== 'admin') {
-    alert('The admin username must be admin.');
-    if (usernameField) usernameField.focus();
+  const passwordField = document.getElementById('admin-password-input');
+  const username = usernameField instanceof HTMLInputElement ? usernameField.value.trim().toLowerCase() : '';
+  const password = passwordField instanceof HTMLInputElement ? passwordField.value : '';
+  const error = document.getElementById('admin-login-error');
+  if (error) error.hidden = true;
+
+  if (!username || password.length === 0) {
+    setAdminLoginMessage('Enter your username and password to continue.');
+    (!username ? usernameField : passwordField)?.focus();
     return;
   }
-  if (FloreaOrderSync.isLocal() && password === 'admin123') {
-    setAuthenticated('admin', true);
-    go('admin-dashboard');
-    return;
-  }
+
+  setAdminLoginLoading(true);
   try {
+    if (username !== 'admin') {
+      throw new Error('The admin username must be "admin".');
+    }
+    if (FloreaOrderSync.isLocal() && password === 'admin123') {
+      setAuthenticated('admin', true);
+      go('admin-dashboard');
+      return;
+    }
     await FloreaOrderSync.request('/api/admin-auth', {
       method: 'POST',
       body: JSON.stringify({ username, password })
@@ -1154,9 +1163,106 @@ async function loginAdmin() {
     setAuthenticated('admin', true);
     go('admin-dashboard');
   } catch (requestError) {
-    alert(requestError.message);
-    if (field) field.focus();
+    setAdminLoginMessage(requestError.message || 'Login failed. Check your credentials.');
+    passwordField?.focus();
+  } finally {
+    setAdminLoginLoading(false);
   }
+}
+
+async function loginAdmin() {
+  return loginAdminForm();
+}
+
+function setAdminLoginMessage(message, state = 'error') {
+  const messageElement = document.getElementById('admin-login-error');
+  if (!messageElement) return;
+  messageElement.textContent = message;
+  messageElement.dataset.state = state;
+  messageElement.hidden = false;
+}
+
+function setAdminLoginLoading(isLoading) {
+  const button = document.getElementById('admin-login-submit');
+  const label = document.getElementById('admin-login-submit-label');
+  const spinner = document.getElementById('admin-login-spinner');
+  if (button) button.disabled = isLoading;
+  if (label) label.textContent = isLoading ? 'Signing in…' : 'Sign In';
+  if (spinner) spinner.hidden = !isLoading;
+}
+
+function initializeAdminLogin() {
+  // Remember username
+  const username = document.getElementById('admin-username-input');
+  const remember = document.getElementById('admin-remember-username');
+  if (username instanceof HTMLInputElement && remember instanceof HTMLInputElement) {
+    try {
+      const savedUsername = localStorage.getItem('florea-admin-username');
+      if (savedUsername) {
+        username.value = savedUsername;
+        remember.checked = true;
+      }
+    } catch (storageError) {
+      console.warn('Unable to restore the remembered admin username.', storageError);
+    }
+    const rememberAdminUsername = () => {
+      try {
+        if (remember.checked) localStorage.setItem('florea-admin-username', username.value.trim());
+        else localStorage.removeItem('florea-admin-username');
+      } catch (storageError) {
+        console.warn('Unable to remember the admin username.', storageError);
+      }
+    };
+    remember.addEventListener('change', rememberAdminUsername);
+    username.addEventListener('change', rememberAdminUsername);
+  }
+
+  // Live clock
+  const date = document.getElementById('admin-login-date');
+  const clock = document.getElementById('admin-login-clock');
+  const updateClock = () => {
+    const now = new Date();
+    if (date) {
+      date.dateTime = now.toISOString();
+      date.textContent = new Intl.DateTimeFormat(undefined, {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+      }).format(now);
+    }
+    if (clock) {
+      clock.textContent = new Intl.DateTimeFormat(undefined, {
+        hour: 'numeric', minute: '2-digit', second: '2-digit'
+      }).format(now);
+    }
+  };
+  updateClock();
+  window.setInterval(updateClock, 1000);
+
+  // Connection status
+  const status = document.getElementById('admin-connection-status');
+  const statusLabel = document.getElementById('admin-connection-label');
+  const updateConnectionStatus = async () => {
+    if (!status || !statusLabel) return;
+    if (!navigator.onLine) {
+      status.dataset.state = 'offline';
+      statusLabel.textContent = 'No internet connection';
+      return;
+    }
+    try {
+      const response = await FloreaOrderSync.fetchApi('/api/admin-auth', { cache: 'no-store' });
+      if (!response.ok && response.status !== 401) {
+        throw new Error(`Admin API check returned ${response.status}.`);
+      }
+      status.dataset.state = 'online';
+      statusLabel.textContent = 'System connected';
+    } catch {
+      status.dataset.state = 'offline';
+      statusLabel.textContent = 'System connection unavailable';
+    }
+  };
+  updateConnectionStatus();
+  window.setInterval(updateConnectionStatus, 30000);
+  window.addEventListener('online', updateConnectionStatus);
+  window.addEventListener('offline', updateConnectionStatus);
 }
 
 function togglePasswordVisibility(inputId, button) {
@@ -1796,6 +1902,7 @@ function restoreInitialScreen() {
 }
 window.addEventListener('DOMContentLoaded', () => {
   initializeCashierLogin();
+  initializeAdminLogin();
   restoreInitialScreen();
 }, { once: true });
 initAdminQrCode();
