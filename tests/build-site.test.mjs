@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
+import { Script } from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -20,6 +21,19 @@ test('build serves the customer storefront at the clean root URL', () => {
     assert.equal(index, storefront);
     assert.match(index, /florea-orders\.js/);
     assert.match(index, /florea-prototype\.js/);
+
+    const inlineScripts = [...storefront.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+    for (const [index, [, attributes, source]] of inlineScripts.entries()) {
+        const type = /\btype\s*=\s*["']([^"']+)["']/i.exec(attributes)?.[1].toLowerCase();
+        if (/\bsrc\s*=/.test(attributes) ||
+            (type && !['text/javascript', 'application/javascript'].includes(type))) {
+            continue;
+        }
+        assert.doesNotThrow(
+            () => new Script(source, { filename: `inline-script-${index + 1}.js` }),
+            `inline script ${index + 1} should parse`
+        );
+    }
 
     for (const route of ['admin', 'cashier', 'staff']) {
         const portal = fs.readFileSync(path.join(root, 'dist', route, 'index.html'), 'utf8');

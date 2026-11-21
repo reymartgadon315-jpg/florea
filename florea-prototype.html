@@ -1606,7 +1606,7 @@
                 const count = document.getElementById('customer-cart-count');
                 const summary = document.getElementById('customer-cart-summary');
                 const total = document.getElementById('customer-cart-total');
-                const activeScreen = document.querySelector('.screen.active') ? .id;
+                const activeScreen = document.querySelector('.screen.active')?.id;
                 const visibleScreens = ['menu-home', 'catalog', 'product-details'];
                 const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
                 if (!button || !count || !summary || !total) return;
@@ -1699,7 +1699,7 @@
 
             function persistCustomerJourneyState() {
                 if (!isPublicCustomerView) return;
-                const activeScreen = document.querySelector('.screen.active') ? .id;
+                const activeScreen = document.querySelector('.screen.active')?.id;
                 const feedbackDialog = document.getElementById('customer-feedback-dialog');
                 const feedbackName = document.getElementById('customer-feedback-name');
                 const feedbackMessage = document.getElementById('customer-feedback-message');
@@ -1714,9 +1714,9 @@
                         screen: activeScreen
                     } : {}),
                     cart,
-                    orderType: document.getElementById('customer-order-type') ? .value || customerOrderType,
+                    orderType: document.getElementById('customer-order-type')?.value || customerOrderType,
                     orderTypeSelected: customerOrderTypeSelected,
-                    specialInstructions: document.getElementById('customer-special-instructions') ? .value ? ? customerSpecialInstructions,
+                    specialInstructions: document.getElementById('customer-special-instructions')?.value ?? customerSpecialInstructions,
                     selectedProduct: selectedProduct ? {...selectedProduct
                     } : null,
                     selectedDrinkSize,
@@ -1725,17 +1725,17 @@
                     catalogSearch: activeCatalogSearch,
                     catalogSortMode: activeCatalogSortMode,
                     homeCategory: currentCategory,
-                    catalogChipScrollLeft: document.getElementById('catalog-chips') ? .scrollLeft || 0,
-                    menuSearchDraft: menuSearch ? .value || '',
-                    featuredScrollLeft: featuredItems ? .scrollLeft || 0,
-                    fullMenuOpen: Boolean(fullMenuDialog ? .open),
-                    fullMenuScrollTop: fullMenuGrid ? .scrollTop || 0,
-                    feedbackOpen: Boolean(feedbackDialog ? .open),
+                    catalogChipScrollLeft: document.getElementById('catalog-chips')?.scrollLeft || 0,
+                    menuSearchDraft: menuSearch?.value || '',
+                    featuredScrollLeft: featuredItems?.scrollLeft || 0,
+                    fullMenuOpen: Boolean(fullMenuDialog?.open),
+                    fullMenuScrollTop: fullMenuGrid?.scrollTop || 0,
+                    feedbackOpen: Boolean(feedbackDialog?.open),
                     feedbackDraft: {
-                        name: feedbackName ? .value || '',
-                        message: feedbackMessage ? .value || ''
+                        name: feedbackName?.value || '',
+                        message: feedbackMessage?.value || ''
                     },
-                    cartScrollTop: stage ? .scrollTop || 0,
+                    cartScrollTop: stage?.scrollTop || 0,
                     pageScrollY: window.scrollY,
                     submittedItems: lastSubmittedItems,
                     notificationMessage: lastOrderNotificationMessage,
@@ -1847,7 +1847,7 @@
                         lastObservedOrderStatus = order.status;
                         try {
                             const registration = await navigator.serviceWorker.ready;
-                            registration.active ? .postMessage({
+                            registration.active?.postMessage({
                                 type: 'ORDER_STATUS_FALLBACK',
                                 orderId: order.id,
                                 customerName: order.customerName,
