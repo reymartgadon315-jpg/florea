@@ -1682,6 +1682,9 @@ function go(id){
   const isCustomerPage = isCustomerFlowPage && isPublicCustomerView;
   document.body.classList.toggle('customer-view', isCustomerPage);
   document.documentElement.classList.toggle('customer-view', isCustomerPage);
+  const isCashierPage = Boolean(cashier) || id === 'cashier-login';
+  document.body.classList.toggle('cashier-view', isCashierPage);
+  document.documentElement.classList.toggle('cashier-view', isCashierPage);
   window.updateCustomerCartButton?.();
   if (isCustomerPage && id === 'qr-landing' &&
       window.matchMedia('(max-width: 600px)').matches) {

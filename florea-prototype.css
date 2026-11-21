@@ -2744,6 +2744,135 @@ body.admin-view {
     color: var(--ink);
 }
 
+/* ============ CASHIER VIEW — FULL SCREEN LAYOUT ============ */
+
+html.cashier-view,
+body.cashier-view {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+}
+
+body.cashier-view {
+    background: #F8F4EF;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body.cashier-view .rail,
+body.cashier-view .topbar {
+    display: none;
+}
+
+body.cashier-view .app,
+body.cashier-view .main {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+body.cashier-view .stage-wrap {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0;
+    align-items: stretch;
+    background: #F8F4EF;
+}
+
+body.cashier-view .stage,
+body.cashier-view .stage.tablet,
+body.cashier-view .stage.desktop {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+body.cashier-view .screen.active {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* Responsive cashier — mobile phones */
+@media (max-width: 600px) {
+    body.cashier-view .cashier-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 14px 16px;
+    }
+    body.cashier-view .cashier-header-tools {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+    body.cashier-view .cashier-navigation {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
+    body.cashier-view .cashier-navigation button {
+        flex-shrink: 0;
+    }
+    body.cashier-view .cashier-order-workboard {
+        grid-template-columns: 1fr;
+    }
+    body.cashier-view .cashier-summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    body.cashier-view .cashier-transaction-summary {
+        flex-direction: column;
+        gap: 10px;
+    }
+    body.cashier-view .cashier-main {
+        padding: 16px 14px;
+    }
+}
+
+/* Responsive cashier — tablets */
+@media (min-width: 601px) and (max-width: 1024px) {
+    body.cashier-view .cashier-order-workboard {
+        grid-template-columns: 1fr 1fr;
+    }
+    body.cashier-view .cashier-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    body.cashier-view .cashier-main {
+        padding: 20px 20px;
+    }
+}
+
+/* Responsive cashier — desktop */
+@media (min-width: 1025px) {
+    body.cashier-view .cashier-order-workboard {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    body.cashier-view .cashier-summary-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Touch targets for mobile */
+@media (max-width: 900px) {
+    body.cashier-view :is(button, a, [role="button"]) {
+        touch-action: manipulation;
+    }
+    body.cashier-view :is(input, select, textarea) {
+        font-size: 16px !important;
+    }
+}
+
 body.admin-view .rail,
 body.admin-view .topbar {
     display: none;
