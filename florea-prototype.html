@@ -16,6 +16,63 @@
     <link rel="apple-touch-icon" href="/florea-logo-192.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="florea-prototype.css">
+    <style>
+        /* CASHIER FULL-SCREEN OVERRIDE — inline for reliability */
+        body.cashier-view .rail,
+        body.cashier-view .topbar,
+        .app:has(.cashier-screen.active) .rail,
+        .main:has(.cashier-screen.active) .topbar,
+        .app:has(#cashier-login.active) .rail,
+        .main:has(#cashier-login.active) .topbar { display: none !important; }
+
+        body.cashier-view .app,
+        body.cashier-view .main { width: 100% !important; min-width: 0 !important; }
+
+        body.cashier-view .stage-wrap,
+        .stage-wrap:has(.cashier-screen.active),
+        .stage-wrap:has(#cashier-login.active) {
+            padding: 0 !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            background: #F8F4EF !important;
+        }
+
+        body.cashier-view .stage,
+        body.cashier-view .stage.tablet,
+        body.cashier-view .stage.desktop,
+        .stage:has(.cashier-screen.active),
+        .stage:has(#cashier-login.active) {
+            width: 100% !important;
+            max-width: none !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            transition: none !important;
+        }
+
+        body.cashier-view .screen.active,
+        .cashier-screen.active,
+        #cashier-login.active {
+            width: 100% !important;
+            min-height: 100vh !important;
+        }
+
+        /* Responsive — mobile */
+        @media (max-width: 600px) {
+            body.cashier-view .cashier-header { flex-wrap: wrap; padding: 12px 14px; }
+            body.cashier-view .cashier-header-tools { width: 100%; }
+            body.cashier-view .cashier-navigation { overflow-x: auto; white-space: nowrap; }
+            body.cashier-view .cashier-order-workboard { grid-template-columns: 1fr !important; }
+            body.cashier-view .cashier-summary-grid { grid-template-columns: 1fr 1fr !important; }
+            body.cashier-view .cashier-main { padding: 14px !important; }
+        }
+        /* Responsive — tablet */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            body.cashier-view .cashier-order-workboard { grid-template-columns: 1fr 1fr !important; }
+            body.cashier-view .cashier-main { padding: 18px 20px !important; }
+        }
+    </style>
 </head>
 
 <body>
