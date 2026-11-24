@@ -9,6 +9,8 @@
         "build": "node scripts/build-site.js",
         "serve": "live-server --host=0.0.0.0 --port=8000",
         "test": "node --test tests/*.test.mjs",
+        "android:twa:create": "node scripts/create-twa.mjs",
+        "android:twa:build": "powershell -ExecutionPolicy Bypass -File scripts/build-twa.ps1",
         "migrate:netlify": "node scripts/migrate-netlify-data.mjs"
     },
     "keywords": [
@@ -24,6 +26,8 @@
         "node": ">=20"
     },
     "devDependencies": {
+        "@bubblewrap/cli": "^1.27.0",
+        "@bubblewrap/core": "^1.27.0",
         "live-server": "^1.2.2"
     },
     "dependencies": {

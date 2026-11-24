@@ -47,6 +47,21 @@ for (const route of ['admin', 'cashier', 'staff']) {
 
 fs.cpSync(path.join(root, 'assets'), path.join(output, 'assets'), { recursive: true });
 
+const assetLinksDirectory = path.join(output, '.well-known');
+fs.mkdirSync(assetLinksDirectory, { recursive: true });
+fs.writeFileSync(path.join(assetLinksDirectory, 'assetlinks.json'), JSON.stringify([
+    {
+        relation: ['delegate_permission/common.handle_all_urls'],
+        target: {
+            namespace: 'android_app',
+            package_name: 'com.florea.customer',
+            sha256_cert_fingerprints: [
+                'EF:46:68:FB:65:8E:62:97:BD:98:5B:12:39:DB:86:12:B5:E1:72:9D:02:3F:FE:B4:71:E2:DF:F7:83:9B:57:40'
+            ]
+        }
+    }
+], null, 2));
+
 const serviceWorkerPath = path.join(output, 'service-worker.js');
 const buildVersion = process.env.DEPLOY_ID || new Date().toISOString();
 fs.appendFileSync(

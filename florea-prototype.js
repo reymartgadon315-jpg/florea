@@ -982,7 +982,7 @@ function getExistingMenuUrl() {
   if (isLocalDevelopment) {
     return new URL('florea-prototype.html?view=customer', window.location.href).href;
   }
-  return new URL('/', window.location.origin).href;
+  return new URL('/?view=customer', window.location.origin).href;
 }
 
 function initAdminQrCode() {
