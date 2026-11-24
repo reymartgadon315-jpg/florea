@@ -1795,7 +1795,29 @@
                     }
                     return;
                 }
-                const normalizedStatus = status === 'completed' ? 'ready' : status;
+                if (status === 'completed') {
+                    progress.dataset.status = 'completed';
+                    if (orderIdElement) {
+                        const orderId = localStorage.getItem('florea-watched-order-id');
+                        orderIdElement.textContent = orderId ? `Order ${orderId}` : '';
+                    }
+                    progress.querySelectorAll('[data-order-step]').forEach(step => {
+                        step.classList.add('is-complete');
+                        step.classList.remove('is-current');
+                        step.removeAttribute('aria-current');
+                    });
+                    const customerName = localStorage.getItem('florea-watched-order-customer-name') || '';
+                    messageElement.textContent = message || (customerName
+                        ? `${customerName}, THANK YOU SO MUCH!`
+                        : 'THANK YOU SO MUCH!');
+                    try {
+                        localStorage.setItem('florea-watched-order-status', 'completed');
+                    } catch (error) {
+                        console.warn('Unable to save the latest order status.', error);
+                    }
+                    return;
+                }
+                const normalizedStatus = status;
                 const steps = ['new', 'preparing', 'ready'];
                 const activeIndex = steps.indexOf(normalizedStatus);
                 if (activeIndex < 0) return;
@@ -1824,7 +1846,7 @@
                 const customerPrefix = customerName ? `${customerName}, ` : '';
                 const progressMessage = message || ({
                     new: 'Your order has been received. Our team will confirm it shortly.',
-                    preparing: `${customerPrefix}PA WAIT LANG PO`,
+                    preparing: `${customerPrefix}PA WAIT LANG PO ORDERS NIYO`,
                     ready: `${customerPrefix}OKAY NA PO ORDERS NIYO`
                 })[normalizedStatus];
                 if (messageElement.textContent !== progressMessage) {
@@ -1851,7 +1873,7 @@
                         order = result.order;
                     }
                     renderCustomerOrderProgress(order.status);
-                    if (['preparing', 'ready'].includes(order.status) &&
+                    if (['preparing', 'ready', 'completed'].includes(order.status) &&
                         order.status !== lastObservedOrderStatus &&
                         localStorage.getItem('florea-watched-order-notifications') === 'true') {
                         lastObservedOrderStatus = order.status;
@@ -1867,8 +1889,15 @@
                             console.warn('Unable to show an order status notification.', error);
                         }
                     }
+                    if (order.status === 'completed') {
+                        const customerName = order.customerName || localStorage.getItem('florea-watched-order-customer-name') || '';
+                        renderCustomerOrderProgress('completed', customerName
+                            ? `${customerName}, THANK YOU SO MUCH!`
+                            : 'THANK YOU SO MUCH!');
+                        lastObservedOrderStatus = 'completed';
+                    }
                     if (order.status === 'new') lastObservedOrderStatus = 'new';
-                    if (['ready', 'completed', 'cancelled'].includes(order.status)) {
+                    if (['completed', 'cancelled'].includes(order.status)) {
                         if (orderStatusPollTimer !== null) {
                             window.clearInterval(orderStatusPollTimer);
                             orderStatusPollTimer = null;

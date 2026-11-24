@@ -9,7 +9,7 @@ self.addEventListener('activate', event => {
 const pendingNotifications = new Set();
 
 async function showOrderNotification(message) {
-    const status = ['preparing', 'ready'].includes(message.status) ? message.status : 'ready';
+    const status = ['preparing', 'ready', 'completed'].includes(message.status) ? message.status : 'ready';
     const orderId = typeof message.orderId === 'string' ? message.orderId : 'order';
     const tag = `florea-order-${orderId}`;
     const notificationKey = `${tag}-${status}`;
@@ -21,15 +21,18 @@ async function showOrderNotification(message) {
         if (existing.some(notification => notification.data?.status === status)) return;
 
         const ready = status === 'ready';
+        const completed = status === 'completed';
         const customerName = typeof message.customerName === 'string' && message.customerName.trim()
             ? message.customerName.trim()
             : 'Customer';
         await self.registration.showNotification(
             message.title || 'Floréa',
             {
-                body: message.body || (ready
-                    ? `${customerName}, OKAY NA PO ORDERS NIYO`
-                    : `${customerName}, PA WAIT LANG PO`),
+                body: message.body || (completed
+                    ? `${customerName}, THANK YOU SO MUCH!`
+                    : ready
+                        ? `${customerName}, OKAY NA PO ORDERS NIYO`
+                        : `${customerName}, PA WAIT LANG PO ORDERS NIYO`),
                 icon: '/florea-logo-512.png',
                 image: '/florea-logo.png',
                 badge: '/florea-logo-192.png',
@@ -57,7 +60,7 @@ self.addEventListener('push', event => {
 self.addEventListener('message', event => {
     const message = event.data;
     if (!message || message.type !== 'ORDER_STATUS_FALLBACK' ||
-        !['preparing', 'ready'].includes(message.status) ||
+        !['preparing', 'ready', 'completed'].includes(message.status) ||
         typeof message.orderId !== 'string' || !/^ORD-[\w-]{1,60}$/.test(message.orderId)) {
         return;
     }
@@ -65,12 +68,15 @@ self.addEventListener('message', event => {
         ? message.customerName.trim()
         : 'Customer';
     const ready = message.status === 'ready';
+    const completed = message.status === 'completed';
     event.waitUntil(showOrderNotification({
         ...message,
         title: 'Floréa',
-        body: ready
-            ? `${customerName}, OKAY NA PO ORDERS NIYO`
-            : `${customerName}, PA WAIT LANG PO`
+        body: completed
+            ? `${customerName}, THANK YOU SO MUCH!`
+            : ready
+                ? `${customerName}, OKAY NA PO ORDERS NIYO`
+                : `${customerName}, PA WAIT LANG PO ORDERS NIYO`
     }));
 });
 

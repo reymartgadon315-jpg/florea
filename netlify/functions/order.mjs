@@ -358,7 +358,7 @@ export default async function handler(request, context) {
     let notificationSent = false;
     let notificationStatus = previousStatus === nextStatus ? 'not_attempted' : 'not_subscribed';
     let smsSent = false;
-    if (previousStatus !== nextStatus && ['preparing', 'ready'].includes(nextStatus)) {
+    if (previousStatus !== nextStatus && ['preparing', 'ready', 'completed'].includes(nextStatus)) {
         const notificationStore = getStore('florea-order-notifications', { consistency: 'strong' });
         try {
             const subscription = await notificationStore.get(key, { type: 'json' });
@@ -371,14 +371,17 @@ export default async function handler(request, context) {
                     try {
                         webPush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
                         const ready = nextStatus === 'ready';
+                        const completed = nextStatus === 'completed';
                         const customerName = typeof order.customerName === 'string' && order.customerName.trim()
                             ? order.customerName.trim()
                             : 'Customer';
                         await sendPushWithRetry(subscription, {
                             title: 'Floréa',
-                            body: ready
-                                ? `${customerName}, OKAY NA PO ORDERS NIYO`
-                                : `${customerName}, PA WAIT LANG PO`,
+                            body: completed
+                                ? `${customerName}, THANK YOU SO MUCH!`
+                                : ready
+                                    ? `${customerName}, OKAY NA PO ORDERS NIYO`
+                                    : `${customerName}, PA WAIT LANG PO ORDERS NIYO`,
                             url: '/menu',
                             orderId,
                             status: payload.status
@@ -395,7 +398,7 @@ export default async function handler(request, context) {
                             }
                         }
                     }
-                    if (notificationSent && payload.status === 'ready') {
+                    if (notificationSent && payload.status === 'completed') {
                         try {
                             await notificationStore.delete(key);
                         } catch (error) {
@@ -423,7 +426,7 @@ export default async function handler(request, context) {
         } catch (error) {
             console.error(`Unable to look up ${nextStatus} SMS contact for ${orderId}.`, error);
         }
-        if (nextStatus === 'ready') {
+        if (nextStatus === 'completed') {
             try {
                 await smsStore.delete(key);
             } catch (error) {

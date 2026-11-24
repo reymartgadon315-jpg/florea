@@ -11,10 +11,11 @@ export async function sendOrderStatusSms(phoneNumber, customerName, status) {
         throw new Error('Twilio SMS is not configured.');
     }
 
-    const isReady = status === 'ready';
-    const message = isReady
-        ? `${customerName}, OKAY NA PO ORDERS NIYO`
-        : `${customerName}, PA WAIT LANG PO`;
+    const message = status === 'completed'
+        ? `${customerName}, THANK YOU SO MUCH!`
+        : status === 'ready'
+            ? `${customerName}, OKAY NA PO ORDERS NIYO`
+            : `${customerName}, PA WAIT LANG PO ORDERS NIYO`;
     const body = new URLSearchParams({
         To: phoneNumber,
         From: TWILIO_FROM_NUMBER,
