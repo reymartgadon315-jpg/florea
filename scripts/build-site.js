@@ -56,7 +56,7 @@ fs.writeFileSync(path.join(assetLinksDirectory, 'assetlinks.json'), JSON.stringi
             namespace: 'android_app',
             package_name: 'com.florea.customer',
             sha256_cert_fingerprints: [
-                'EF:46:68:FB:65:8E:62:97:BD:98:5B:12:39:DB:86:12:B5:E1:72:9D:02:3F:FE:B4:71:E2:DF:F7:83:9B:57:40'
+                '63:F6:5C:B6:2E:B0:0E:48:6B:4F:84:EC:9D:C3:9F:44:8C:B3:BF:6A:13:87:27:39:34:57:5F:D4:DF:2D:DF:4B'
             ]
         }
     }
