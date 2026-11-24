@@ -424,253 +424,275 @@
         let currentCategory = 'Coffee';
         window.selectedProduct = null;
 
-function escapeCatalogText(value) {
-    return String(value ?? '').replace(/[&<>"']/g, character => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-    })[character]);
-}
+        function escapeCatalogText(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
 
-function renderFeaturedToday() {
-    const container = document.querySelector('#qr-landing .customer-featured-items');
-    const fullMenu = document.getElementById('customer-full-menu-grid');
-    if (!container || !fullMenu) return;
+        function renderFeaturedToday() {
+            const container = document.querySelector('#qr-landing .customer-featured-items');
+            const fullMenu = document.getElementById('customer-full-menu-grid');
+            if (!container || !fullMenu) return;
 
-    const products = CUSTOMER_CATALOG_ORDER.flatMap(category =>
-        (PRODUCTS[category] || []).map(product => ({ category, product }))
-    );
-    const renderCards = items => items.map(({ category, product }) => {
-        const image = getProductImage(product, category);
-        const imageMarkup = image
-            ? `<img src="${escapeCatalogText(image)}" alt="${escapeCatalogText(product.n)}" loading="lazy" decoding="async">`
-            : `<span aria-hidden="true">${escapeCatalogText(product.e || '')}</span>`;
-        return `<article class="customer-featured-card" data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(category)}">
+            const products = CUSTOMER_CATALOG_ORDER.flatMap(category =>
+                (PRODUCTS[category] || []).map(product => ({ category, product }))
+            );
+            const renderCards = items => items.map(({ category, product }) => {
+                const image = getProductImage(product, category);
+                const imageMarkup = image ?
+                    `<img src="${escapeCatalogText(image)}" alt="${escapeCatalogText(product.n)}" loading="lazy" decoding="async">` :
+                    `<span aria-hidden="true">${escapeCatalogText(product.e || '')}</span>`;
+                return `<article class="customer-featured-card" data-product-name="${escapeCatalogText(product.n)}" data-product-category="${escapeCatalogText(category)}">
             <div class="customer-featured-card__image">${imageMarkup}</div>
             <p class="customer-featured-card__name">${escapeCatalogText(product.n)}</p>
             <p class="customer-featured-card__category">${escapeCatalogText(category)}</p>
             <p class="customer-featured-card__price">${escapeCatalogText(product.p || '')}</p>
             ${renderCustomerStockBadge(product)}
         </article>`;
-    }).join('');
-    const featuredProducts = CUSTOMER_CATALOG_ORDER
-        .map(category => products.find(item =>
-            item.category === category && item.product.n !== 'Strawberry Coffee'
-        ))
-        .filter(Boolean);
-    container.innerHTML = renderCards(featuredProducts);
-    fullMenu.innerHTML = renderCards(products);
-}
+            }).join('');
+            const featuredProducts = CUSTOMER_CATALOG_ORDER
+                .map(category => products.find(item =>
+                    item.category === category && item.product.n !== 'Strawberry Coffee'
+                ))
+                .filter(Boolean);
+            container.innerHTML = renderCards(featuredProducts);
+            fullMenu.innerHTML = renderCards(products);
+        }
 
-renderFeaturedToday();
+        renderFeaturedToday();
 
-function openFeaturedMenu() {
-    const dialog = document.getElementById('customer-full-menu-dialog');
-    if (!dialog || typeof dialog.showModal !== 'function') {
-        console.error('The full menu dialog is unavailable in this browser.');
-        return;
-    }
-    if (!dialog.open) dialog.showModal();
-    window.FloreaCustomerSession.update({ fullMenuOpen: true });
-}
-
-function closeFeaturedMenu() {
-    const dialog = document.getElementById('customer-full-menu-dialog');
-    if (dialog?.open) dialog.close();
-    window.FloreaCustomerSession.update({ fullMenuOpen: false });
-}
-
-function renderCatalogChips() {
-    const wrap = document.getElementById('catalog-chips');
-    wrap.innerHTML = CUSTOMER_CATALOG_ORDER.map(cat =>
-        `<button type="button" class="chip${cat===currentCategory?' active':''}" data-category="${escapeCatalogText(cat)}">${escapeCatalogText(cat)}</button>`
-    ).join('');
-    if (!wrap.dataset.clickBound) {
-        wrap.addEventListener('click', event => {
-            const chip = event.target.closest('[data-category]');
-            if (!chip || !wrap.contains(chip)) return;
-            if (document.getElementById('catalog')?.classList.contains('active')) {
-                document.querySelectorAll('.customer-menu-search input').forEach(input => { input.value = ''; });
-                renderCatalogProducts(chip.dataset.category || null, '');
-                scrollCatalogToFirstProduct();
+        function openFeaturedMenu() {
+            const dialog = document.getElementById('customer-full-menu-dialog');
+            if (!dialog || typeof dialog.showModal !== 'function') {
+                console.error('The full menu dialog is unavailable in this browser.');
                 return;
             }
-            if (chip.dataset.category) setCategory(chip.dataset.category);
-        });
-        wrap.dataset.clickBound = 'true';
-    }
-}
+            if (!dialog.open) dialog.showModal();
+            window.FloreaCustomerSession.update({ fullMenuOpen: true });
+        }
 
-function renderProductThumb(item, width = '100%', category = '', loading = 'lazy') {
-    const activeCategory = category || currentCategory;
-    const src = getProductImage(item, activeCategory);
-    const imageHeight = '224px';
-    if (!src) return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};">${item ? escapeCatalogText(item.e) : ''}</div>`;
-    return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};overflow:hidden;">
+        function closeFeaturedMenu() {
+            const dialog = document.getElementById('customer-full-menu-dialog');
+            if (dialog?.open) dialog.close();
+            window.FloreaCustomerSession.update({ fullMenuOpen: false });
+        }
+
+        function renderCatalogChips() {
+            const wrap = document.getElementById('catalog-chips');
+            wrap.innerHTML = CUSTOMER_CATALOG_ORDER.map(cat =>
+                `<button type="button" class="chip${cat===currentCategory?' active':''}" data-category="${escapeCatalogText(cat)}">${escapeCatalogText(cat)}</button>`
+            ).join('');
+            if (!wrap.dataset.clickBound) {
+                wrap.addEventListener('click', event => {
+                    const chip = event.target.closest('[data-category]');
+                    if (!chip || !wrap.contains(chip)) return;
+                    if (document.getElementById('catalog')?.classList.contains('active')) {
+                        document.querySelectorAll('.customer-menu-search input').forEach(input => { input.value = ''; });
+                        renderCatalogProducts(chip.dataset.category || null, '');
+                        scrollCatalogToFirstProduct();
+                        return;
+                    }
+                    if (chip.dataset.category) setCategory(chip.dataset.category);
+                });
+                wrap.dataset.clickBound = 'true';
+            }
+        }
+
+        function renderProductThumb(item, width = '100%', category = '', loading = 'lazy') {
+            const activeCategory = category || currentCategory;
+            const src = getProductImage(item, activeCategory);
+            const imageHeight = '224px';
+            if (!src) return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};">${item ? escapeCatalogText(item.e) : ''}</div>`;
+            return `<div class="thumb customer-catalog-card__image" style="height:${imageHeight};width:${width};overflow:hidden;">
         <img src="${escapeCatalogText(src)}" alt="${escapeCatalogText(item ? item.n : category || 'Menu item')}" class="thumb-image" loading="${loading}" decoding="async" style="width:100%;height:100%;object-fit:contain;display:block;" />
     </div>`;
-}
-
-const productRatings = new Map();
-const ratingVisitorStorageKey = 'florea-rating-visitor-id';
-let ratingsReady = false;
-let ratingsLoadInProgress = false;
-
-function renderRating(productName) {
-    const rating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
-    const selectedRating = rating.myRating;
-    const stars = Array.from({ length: 5 }, (_, index) => {
-        const value = index + 1;
-        return `<button type="button" class="rating-star${value <= selectedRating ? ' is-selected' : ''}" data-rating-product="${escapeCatalogText(productName)}" data-rating-value="${value}" aria-label="Rate ${escapeCatalogText(productName)} ${value} out of 5 stars" aria-pressed="${rating.myRating === value}" ${ratingsReady ? '' : 'disabled'}>★</button>`;
-    }).join('');
-    const summary = rating.count
-        ? `${rating.average.toFixed(1)} (${rating.count} ${rating.count === 1 ? 'rating' : 'ratings'})`
-        : 'No ratings yet';
-    return `<div class="product-rating" data-product-name="${escapeCatalogText(productName)}"><div class="rating-stars" role="group" aria-label="Rate ${escapeCatalogText(productName)}">${stars}</div><span class="rating-summary">${summary}</span></div>`;
-}
-
-function renderFeaturedRatings() {
-    document.querySelectorAll('[data-featured-rating]').forEach(container => {
-        container.innerHTML = renderRating(container.dataset.featuredRating);
-    });
-}
-
-function refreshRatingWidgets(productName = null) {
-    document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
-        const name = widget.dataset.productName;
-        if (!productName || name === productName) {
-            widget.outerHTML = renderRating(name);
         }
-    });
-    renderBestSellerCards();
-    renderFeaturedRatings();
-}
 
-function getRatingVisitorId() {
-    let visitorId = localStorage.getItem(ratingVisitorStorageKey);
-    if (!visitorId) {
-        visitorId = crypto.randomUUID();
-        localStorage.setItem(ratingVisitorStorageKey, visitorId);
-    }
-    return visitorId;
-}
+        const productRatings = new Map();
+        const ratingVisitorStorageKey = 'florea-rating-visitor-id';
+        const ratingSnapshotStorageKey = 'florea-product-ratings';
+        let ratingsReady = false;
+        let ratingsLoadInProgress = false;
 
-function showRatingNotice(message, isError = false) {
-    let notice = document.getElementById('rating-notice');
-    if (!notice) {
-        notice = document.createElement('div');
-        notice.id = 'rating-notice';
-        notice.className = 'rating-notice';
-        notice.setAttribute('role', 'status');
-        notice.setAttribute('aria-live', 'polite');
-        document.body.appendChild(notice);
-    }
-    notice.textContent = message;
-    notice.classList.toggle('is-error', isError);
-    notice.hidden = false;
-    clearTimeout(notice.timeoutId);
-    notice.timeoutId = setTimeout(() => { notice.hidden = true; }, 3500);
-}
-
-function readLocalRatings() {
-    const savedRatings = JSON.parse(localStorage.getItem('florea-product-ratings') || '{}');
-    if (!savedRatings || typeof savedRatings !== 'object' || Array.isArray(savedRatings)) {
-        throw new Error('Saved product ratings have an invalid format.');
-    }
-    productRatings.clear();
-    Object.entries(savedRatings).forEach(([name, value]) => {
-        if (typeof name === 'string' && value && Number.isFinite(value.average) &&
-            Number.isInteger(value.count) && Number.isInteger(value.myRating)) {
-            productRatings.set(name, value);
-        }
-    });
-}
-
-async function loadProductRatings(showErrors = true) {
-    if (ratingsLoadInProgress) return;
-    ratingsLoadInProgress = true;
-    try {
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            readLocalRatings();
-        } else {
-            const response = await FloreaOrderSync.fetchApi(
-                `/api/ratings?visitorId=${encodeURIComponent(getRatingVisitorId())}`
-            );
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
-            if (!result.ratings || typeof result.ratings !== 'object' || Array.isArray(result.ratings)) {
-                throw new Error('The rating service returned invalid data.');
+        function saveRatingSnapshot() {
+            try {
+                localStorage.setItem(ratingSnapshotStorageKey, JSON.stringify(Object.fromEntries(productRatings)));
+            } catch (error) {
+                console.warn('Unable to save the local rating snapshot.', error);
             }
+        }
+
+        function readRatingSnapshot() {
+            const savedRatings = JSON.parse(localStorage.getItem(ratingSnapshotStorageKey) || '{}');
+            if (!savedRatings || typeof savedRatings !== 'object' || Array.isArray(savedRatings)) return;
             productRatings.clear();
-            Object.entries(result.ratings).forEach(([name, value]) => productRatings.set(name, value));
-        }
-        ratingsReady = true;
-        refreshRatingWidgets();
-    } catch (error) {
-        console.error('Unable to load product ratings.', error);
-        ratingsReady = true;
-        refreshRatingWidgets();
-        if (showErrors) showRatingNotice(`Ratings are unavailable: ${error.message}`, true);
-    } finally {
-        ratingsLoadInProgress = false;
-    }
-}
-
-async function submitProductRating(productName, value) {
-    if (!Number.isInteger(value) || value < 1 || value > 5) return;
-    const buttons = [...document.querySelectorAll('[data-rating-product]')]
-        .filter(button => button.dataset.ratingProduct === productName);
-    buttons.forEach(button => { button.disabled = true; });
-    try {
-        let updatedRating;
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            const previousRating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
-            const previousTotal = previousRating.average * previousRating.count;
-            const count = previousRating.count + (previousRating.myRating ? 0 : 1);
-            const total = previousTotal - previousRating.myRating + value;
-            updatedRating = { average: total / count, count, myRating: value };
-            productRatings.set(productName, updatedRating);
-            localStorage.setItem('florea-product-ratings', JSON.stringify(Object.fromEntries(productRatings)));
-        } else {
-            const response = await FloreaOrderSync.fetchApi('/api/ratings', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ productName, rating: value, visitorId: getRatingVisitorId() })
+            Object.entries(savedRatings).forEach(([name, value]) => {
+                if (typeof name === 'string' && value && Number.isFinite(value.average) &&
+                    Number.isInteger(value.count) && Number.isInteger(value.myRating)) {
+                    productRatings.set(name, value);
+                }
             });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
-            updatedRating = result.rating;
-            if (!updatedRating || !Number.isFinite(updatedRating.average) ||
-                !Number.isInteger(updatedRating.count) || updatedRating.myRating !== value) {
-                throw new Error('The rating service returned invalid data.');
-            }
-            productRatings.set(productName, updatedRating);
         }
-        refreshRatingWidgets(productName);
-        showRatingNotice(`Thanks for rating ${productName}!`);
-    } catch (error) {
-        console.error('Unable to save product rating.', error);
-        buttons.forEach(button => { button.disabled = false; });
-        showRatingNotice(`Your rating could not be saved: ${error.message}`, true);
-    }
-}
 
-document.addEventListener('click', event => {
-    const ratingButton = event.target.closest('[data-rating-value]');
-    if (!ratingButton) return;
-    event.preventDefault();
-    event.stopPropagation();
-    submitProductRating(ratingButton.dataset.ratingProduct, Number(ratingButton.dataset.ratingValue));
-});
+        function renderRating(productName) {
+            const rating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
+            const selectedRating = rating.myRating;
+            const stars = Array.from({ length: 5 }, (_, index) => {
+                const value = index + 1;
+                return `<button type="button" class="rating-star${value <= selectedRating ? ' is-selected' : ''}" data-rating-product="${escapeCatalogText(productName)}" data-rating-value="${value}" aria-label="Rate ${escapeCatalogText(productName)} ${value} out of 5 stars" aria-pressed="${rating.myRating === value}" ${ratingsReady ? '' : 'disabled'}>★</button>`;
+            }).join('');
+            const summary = rating.count ?
+                `${rating.average.toFixed(1)} (${rating.count} ${rating.count === 1 ? 'rating' : 'ratings'})` :
+                'No ratings yet';
+            return `<div class="product-rating" data-product-name="${escapeCatalogText(productName)}"><div class="rating-stars" role="group" aria-label="Rate ${escapeCatalogText(productName)}">${stars}</div><span class="rating-summary">${summary}</span></div>`;
+        }
 
-function renderCatalogGrid() {
-    const items = HIDDEN_CATALOG_CATEGORIES.has(currentCategory) ? [] : PRODUCTS[currentCategory] || [];
-    document.getElementById('catalog-count').innerHTML = `${items.length} items in <b style="color:var(--ink);">${escapeCatalogText(currentCategory)}</b>`;
-    document.getElementById('catalog-grid').innerHTML = items.map((it, index) => {
-                const newTag = it.badge ? `<span class="badge badge-blush" style="font-size:9px;padding:2px 7px;margin-left:6px;">${escapeCatalogText(it.badge)}</span>` : '';
-                return `<div class="card customer-catalog-card" data-product-index="${index}" data-product-category="${escapeCatalogText(currentCategory)}">
+        function renderFeaturedRatings() {
+            document.querySelectorAll('[data-featured-rating]').forEach(container => {
+                container.innerHTML = renderRating(container.dataset.featuredRating);
+            });
+        }
+
+        function refreshRatingWidgets(productName = null) {
+            document.querySelectorAll('.product-rating[data-product-name]').forEach(widget => {
+                const name = widget.dataset.productName;
+                if (!productName || name === productName) {
+                    widget.outerHTML = renderRating(name);
+                }
+            });
+            renderBestSellerCards();
+            renderFeaturedRatings();
+        }
+
+        function getRatingVisitorId() {
+            let visitorId = localStorage.getItem(ratingVisitorStorageKey);
+            if (!visitorId) {
+                visitorId = typeof crypto.randomUUID === 'function'
+                    ? crypto.randomUUID()
+                    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
+                        const random = Math.floor(Math.random() * 16);
+                        const value = character === 'x' ? random : (random & 0x3) | 0x8;
+                        return value.toString(16);
+                    });
+                localStorage.setItem(ratingVisitorStorageKey, visitorId);
+            }
+            return visitorId;
+        }
+
+        function showRatingNotice(message, isError = false) {
+            let notice = document.getElementById('rating-notice');
+            if (!notice) {
+                notice = document.createElement('div');
+                notice.id = 'rating-notice';
+                notice.className = 'rating-notice';
+                notice.setAttribute('role', 'status');
+                notice.setAttribute('aria-live', 'polite');
+                document.body.appendChild(notice);
+            }
+            notice.textContent = message;
+            notice.classList.toggle('is-error', isError);
+            notice.hidden = false;
+            clearTimeout(notice.timeoutId);
+            notice.timeoutId = setTimeout(() => { notice.hidden = true; }, 3500);
+        }
+
+        function readLocalRatings() {
+            readRatingSnapshot();
+        }
+
+        async function loadProductRatings(showErrors = true) {
+            if (ratingsLoadInProgress) return;
+            ratingsLoadInProgress = true;
+            try {
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    readLocalRatings();
+                } else {
+                    const response = await FloreaOrderSync.fetchApi(
+                        `/api/ratings?visitorId=${encodeURIComponent(getRatingVisitorId())}&cacheBust=${Date.now()}`,
+                        { cache: 'no-store' }
+                    );
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
+                    if (!result.ratings || typeof result.ratings !== 'object' || Array.isArray(result.ratings)) {
+                        throw new Error('The rating service returned invalid data.');
+                    }
+                    productRatings.clear();
+                    Object.entries(result.ratings).forEach(([name, value]) => productRatings.set(name, value));
+                }
+                saveRatingSnapshot();
+                ratingsReady = true;
+                refreshRatingWidgets();
+            } catch (error) {
+                console.error('Unable to load product ratings.', error);
+                readRatingSnapshot();
+                ratingsReady = true;
+                refreshRatingWidgets();
+                if (showErrors) showRatingNotice(`Ratings are unavailable: ${error.message}`, true);
+            } finally {
+                ratingsLoadInProgress = false;
+            }
+        }
+
+        async function submitProductRating(productName, value) {
+            if (!Number.isInteger(value) || value < 1 || value > 5) return;
+            const buttons = [...document.querySelectorAll('[data-rating-product]')]
+                .filter(button => button.dataset.ratingProduct === productName);
+            buttons.forEach(button => { button.disabled = true; });
+            try {
+                let updatedRating;
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    const previousRating = productRatings.get(productName) || { average: 0, count: 0, myRating: 0 };
+                    const previousTotal = previousRating.average * previousRating.count;
+                    const count = previousRating.count + (previousRating.myRating ? 0 : 1);
+                    const total = previousTotal - previousRating.myRating + value;
+                    updatedRating = { average: total / count, count, myRating: value };
+                    productRatings.set(productName, updatedRating);
+                    saveRatingSnapshot();
+                } else {
+                    const response = await FloreaOrderSync.fetchApi(`/api/ratings?cacheBust=${Date.now()}`, {
+                        method: 'POST',
+                        headers: { 'content-type': 'application/json' },
+                        body: JSON.stringify({ productName, rating: value, visitorId: getRatingVisitorId() })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error || `Rating service returned ${response.status}.`);
+                    updatedRating = result.rating;
+                    if (!updatedRating || !Number.isFinite(updatedRating.average) ||
+                        !Number.isInteger(updatedRating.count) || updatedRating.myRating !== value) {
+                        throw new Error('The rating service returned invalid data.');
+                    }
+                    productRatings.set(productName, updatedRating);
+                    saveRatingSnapshot();
+                }
+                refreshRatingWidgets(productName);
+                await loadProductRatings(false);
+                showRatingNotice(`Thanks for rating ${productName}!`);
+            } catch (error) {
+                console.error('Unable to save product rating.', error);
+                buttons.forEach(button => { button.disabled = false; });
+                showRatingNotice(`Your rating could not be saved: ${error.message}`, true);
+            }
+        }
+
+        document.addEventListener('click', event => {
+            const ratingButton = event.target.closest('[data-rating-value]');
+            if (!ratingButton) return;
+            event.preventDefault();
+            event.stopPropagation();
+            submitProductRating(ratingButton.dataset.ratingProduct, Number(ratingButton.dataset.ratingValue));
+        });
+
+        function renderCatalogGrid() {
+            const items = HIDDEN_CATALOG_CATEGORIES.has(currentCategory) ? [] : PRODUCTS[currentCategory] || [];
+            document.getElementById('catalog-count').innerHTML = `${items.length} items in <b style="color:var(--ink);">${escapeCatalogText(currentCategory)}</b>`;
+            document.getElementById('catalog-grid').innerHTML = items.map((it, index) => {
+                        const newTag = it.badge ? `<span class="badge badge-blush" style="font-size:9px;padding:2px 7px;margin-left:6px;">${escapeCatalogText(it.badge)}</span>` : '';
+                        return `<div class="card customer-catalog-card" data-product-index="${index}" data-product-category="${escapeCatalogText(currentCategory)}">
       ${renderProductThumb(it, '100%', currentCategory)}
       <p class="customer-catalog-card__name">${escapeCatalogText(it.n)}${newTag}</p>
       ${it.d ? `<p class="customer-catalog-card__description">${escapeCatalogText(it.d)}</p>` : '<p class="customer-catalog-card__description"></p>'}
@@ -2445,5 +2467,5 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     });
     window.setInterval(() => {
         if (document.visibilityState === 'visible') loadProductRatings(false);
-    }, 30000);
+    }, 10000);
 }

@@ -547,6 +547,7 @@
                                 <div id="sent-order-summary"></div>
                             </div>
                             <button class="btn btn-sage btn-block" style="margin-top:18px;" onclick="go('catalog')">Continue Ordering</button>
+                            <button class="btn btn-primary btn-block" style="margin-top:10px;" type="button" onclick="openCustomerFeedback()">Share Feedback</button>
                             <footer class="customer-sent-footer">
                                 <a class="customer-facebook-link" href="https://www.facebook.com/share/18ufHnkp6B/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Follow Florist Cafe &amp; Flowershop on Facebook">
                                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3h-3.1V8.1c0-.9.3-1.5 1.6-1.5h1.7V3.9c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.3v3h2.8v8h3.4z"/></svg>
@@ -2223,7 +2224,7 @@
                                 existingOrder.customerName.trim().toLocaleLowerCase() === customerName.toLocaleLowerCase()) {
                                 const additionId = pendingOrderAdditionTarget === existingOrder.id && pendingOrderAdditionId
                                     ? pendingOrderAdditionId
-                                    : crypto.randomUUID();
+                                    : FloreaOrderSync.createRequestId();
                                 pendingOrderAdditionId = additionId;
                                 pendingOrderAdditionTarget = existingOrder.id;
                                 persistCustomerJourneyState();
@@ -2290,7 +2291,7 @@
                             if (trackedOrderId) {
                                 const additionId = pendingOrderAdditionTarget === trackedOrderId && pendingOrderAdditionId
                                     ? pendingOrderAdditionId
-                                    : crypto.randomUUID();
+                                    : FloreaOrderSync.createRequestId();
                                 pendingOrderAdditionId = additionId;
                                 pendingOrderAdditionTarget = trackedOrderId;
                                 persistCustomerJourneyState();
@@ -2342,7 +2343,7 @@
                                     pendingOrderSubmission.signature !== requestSignature) {
                                     pendingOrderSubmission = {
                                         signature: requestSignature,
-                                        requestId: crypto.randomUUID()
+                                        requestId: FloreaOrderSync.createRequestId()
                                     };
                                     persistCustomerJourneyState();
                                 }

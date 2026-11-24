@@ -5465,11 +5465,7 @@ body.admin-view #admin-login > div:first-child,
 
 @media (max-width: 360px) {
     body.customer-view .customer-catalog-card__rating {
-        overflow: hidden;
-    }
-
-    body.customer-view .customer-catalog-card__rating .rating-summary {
-        display: none;
+        overflow: visible;
     }
 }
 
