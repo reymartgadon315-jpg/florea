@@ -45,11 +45,14 @@ if (installButton && installDialog && installIntro && installSteps && installNot
 
     if (isInstalled()) {
         installButton.hidden = true;
+    } else {
+        installButton.hidden = false;
     }
 
     window.addEventListener('beforeinstallprompt', event => {
         event.preventDefault();
         deferredInstallPrompt = event;
+        installButton.hidden = false;
     });
 
     window.addEventListener('appinstalled', () => {
