@@ -5,7 +5,8 @@
   "description": "Browse the Floréa menu and place dine-in or takeout orders.",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "orientation": "portrait",
   "launch_handler": {
     "client_mode": "navigate-existing"
@@ -13,8 +14,8 @@
   "dir": "ltr",
   "lang": "en-PH",
   "categories": ["food", "shopping", "lifestyle"],
-  "background_color": "#f8f6f0",
-  "theme_color": "#f8f6f0",
+  "background_color": "#d2c3af",
+  "theme_color": "#d2c3af",
   "icons": [
     {
       "src": "/florea-logo-192.png",

@@ -4673,6 +4673,11 @@ body.admin-view #admin-login > div:first-child,
         overflow: visible;
     }
 
+    html.customer-view,
+    body.customer-view {
+        background: #D2C3AF;
+    }
+
     body.customer-view .customer-landing-content {
         width: 100%;
         padding: 20px 16px calc(28px + env(safe-area-inset-bottom)) !important;
