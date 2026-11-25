@@ -1867,6 +1867,10 @@
                 };
                 const message = messages[status];
                 if (!message) return;
+                const isInstalledApp =
+                    window.matchMedia('(display-mode: standalone)').matches ||
+                    window.navigator.standalone === true;
+                if (isInstalledApp) return;
 
                 let toast = document.getElementById('florea-order-status-toast');
                 if (!toast) {
