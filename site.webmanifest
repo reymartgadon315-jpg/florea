@@ -14,7 +14,7 @@
   "lang": "en-PH",
   "categories": ["food", "shopping", "lifestyle"],
   "background_color": "#f8f6f0",
-  "theme_color": "#315c46",
+  "theme_color": "#f8f6f0",
   "icons": [
     {
       "src": "/florea-logo-192.png",

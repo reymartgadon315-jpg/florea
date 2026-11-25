@@ -26,9 +26,15 @@ manifest.packageId = 'com.florea.customer';
 manifest.host = 'florea.onrender.com';
 manifest.name = 'Floréa';
 manifest.launcherName = 'Floréa';
+manifest.themeColor = '#F8F6F0';
+manifest.themeColorDark = '#F8F6F0';
+manifest.navigationColor = '#F8F6F0';
+manifest.navigationColorDark = '#F8F6F0';
+manifest.navigationDividerColor = '#F8F6F0';
+manifest.navigationDividerColorDark = '#F8F6F0';
 manifest.startUrl = '/?view=customer';
-manifest.appVersionName = '1.0.0';
-manifest.appVersionCode = 1;
+manifest.appVersionName = '1.0.1';
+manifest.appVersionCode = 2;
 manifest.orientation = 'portrait';
 manifest.minSdkVersion = 24;
 manifest.signingKey = {
