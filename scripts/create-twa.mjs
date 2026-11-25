@@ -34,8 +34,8 @@ manifest.navigationDividerColor = '#D2C3AF';
 manifest.navigationDividerColorDark = '#D2C3AF';
 manifest.backgroundColor = '#D2C3AF';
 manifest.startUrl = '/?view=customer';
-manifest.appVersionName = '1.0.3';
-manifest.appVersionCode = 4;
+manifest.appVersionName = '1.0.4';
+manifest.appVersionCode = 5;
 manifest.orientation = 'portrait';
 manifest.minSdkVersion = 24;
 manifest.signingKey = {
