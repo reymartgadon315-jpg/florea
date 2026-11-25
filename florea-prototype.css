@@ -6728,6 +6728,13 @@ body.customer-view #sent-confirmation .thumb {
     box-shadow: 0 6px 16px rgba(74, 42, 20, .08);
 }
 
+body.customer-view #sent-confirmation .order-sent-success-graphic {
+    display: block;
+    width: min(260px, 78vw);
+    height: auto;
+    margin: 0 auto;
+}
+
 body.customer-view #sent-confirmation h2 {
     color: #452711;
     font-family: var(--font-body);
