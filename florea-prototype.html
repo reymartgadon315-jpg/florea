@@ -1859,6 +1859,8 @@
             }
 
             function showCustomerOrderToast(status, customerName = '') {
+                const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent) ||
+                    (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
                 const messages = {
                     preparing: `${customerName ? `${customerName}, ` : ''}PA WAIT LANG PO ORDERS NIYO`,
                     ready: `${customerName ? `${customerName}, ` : ''}OKAY NA PO ORDERS NIYO`,
@@ -1870,7 +1872,7 @@
                 const isInstalledApp =
                     window.matchMedia('(display-mode: standalone)').matches ||
                     window.navigator.standalone === true;
-                if (isInstalledApp) return;
+                if (isIOS && isInstalledApp) return;
 
                 let toast = document.getElementById('florea-order-status-toast');
                 if (!toast) {
