@@ -6827,7 +6827,8 @@ body.customer-view #sent-confirmation .customer-sent-footer {
     position: fixed;
     z-index: 5000;
     left: 50%;
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    top: calc(12px + env(safe-area-inset-top));
+    bottom: auto;
     width: max-content;
     max-width: calc(100vw - 32px);
     box-sizing: border-box;
@@ -6843,7 +6844,7 @@ body.customer-view #sent-confirmation .customer-sent-footer {
     line-height: 1.35;
     text-align: center;
     opacity: 0;
-    transform: translate(-50%, 18px);
+    transform: translate(-50%, -18px);
     pointer-events: none;
     transition: opacity .18s ease, transform .18s ease;
 }
