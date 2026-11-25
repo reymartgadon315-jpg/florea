@@ -92,11 +92,16 @@ async function showOrderNotification(message) {
                         ? `${customerName}, OKAY NA PO ORDERS NIYO`
                         : `${customerName}, PA WAIT LANG PO ORDERS NIYO`),
                 icon: '/florea-logo-512.png',
-                image: '/florea-logo.png',
                 badge: '/florea-logo-192.png',
                 data: { url: message.url || '/', orderId, status },
                 tag,
-                renotify: true
+                renotify: true,
+                silent: false,
+                requireInteraction: ready,
+                vibrate: ready
+                    ? [180, 100, 180, 100, 280]
+                    : [160, 80, 160],
+                timestamp: Date.now()
             }
         );
     } finally {
