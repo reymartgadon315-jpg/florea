@@ -1858,6 +1858,35 @@
                 }
             }
 
+            function showCustomerOrderToast(status, customerName = '') {
+                const messages = {
+                    preparing: `${customerName ? `${customerName}, ` : ''}PA WAIT LANG PO ORDERS NIYO`,
+                    ready: `${customerName ? `${customerName}, ` : ''}OKAY NA PO ORDERS NIYO`,
+                    completed: `${customerName ? `${customerName}, ` : ''}THANK YOU SO MUCH!`,
+                    cancelled: 'Your order was cancelled.'
+                };
+                const message = messages[status];
+                if (!message) return;
+
+                let toast = document.getElementById('florea-order-status-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'florea-order-status-toast';
+                    toast.setAttribute('role', 'status');
+                    toast.setAttribute('aria-live', 'polite');
+                    toast.className = 'florea-order-status-toast';
+                    document.body.appendChild(toast);
+                }
+                toast.textContent = message;
+                toast.classList.remove('is-visible');
+                void toast.offsetWidth;
+                toast.classList.add('is-visible');
+                window.clearTimeout(toast.hideTimer);
+                toast.hideTimer = window.setTimeout(() => {
+                    toast.classList.remove('is-visible');
+                }, 4200);
+            }
+
             async function checkCustomerOrderStatus() {
                 const orderId = localStorage.getItem('florea-watched-order-id');
                 if (!orderId || orderStatusPollInProgress) return;
@@ -1877,20 +1906,22 @@
                         order = result.order;
                     }
                     renderCustomerOrderProgress(order.status);
-                    if (['preparing', 'ready', 'completed'].includes(order.status) &&
-                        order.status !== lastObservedOrderStatus &&
-                        localStorage.getItem('florea-watched-order-notifications') === 'true') {
+                    if (['preparing', 'ready', 'completed', 'cancelled'].includes(order.status) &&
+                        order.status !== lastObservedOrderStatus) {
                         lastObservedOrderStatus = order.status;
-                        try {
-                            const registration = await navigator.serviceWorker.ready;
-                            registration.active?.postMessage({
-                                type: 'ORDER_STATUS_FALLBACK',
-                                orderId: order.id,
-                                customerName: order.customerName,
-                                status: order.status
-                            });
-                        } catch (error) {
-                            console.warn('Unable to show an order status notification.', error);
+                        showCustomerOrderToast(order.status, order.customerName || '');
+                        if (localStorage.getItem('florea-watched-order-notifications') === 'true') {
+                            try {
+                                const registration = await navigator.serviceWorker.ready;
+                                registration.active?.postMessage({
+                                    type: 'ORDER_STATUS_FALLBACK',
+                                    orderId: order.id,
+                                    customerName: order.customerName,
+                                    status: order.status
+                                });
+                            } catch (error) {
+                                console.warn('Unable to show an order status notification.', error);
+                            }
                         }
                     }
                     if (order.status === 'completed') {
