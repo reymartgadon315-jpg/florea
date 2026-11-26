@@ -3593,6 +3593,17 @@ body.admin-view .admin-dashboard-panels {
     font-size: 11px;
 }
 
+.inventory-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#inventory-table td[data-no-export] {
+    min-width: 220px;
+}
+
 .admin-view .btn-primary {
     border-color: var(--mocha);
     background: var(--mocha);

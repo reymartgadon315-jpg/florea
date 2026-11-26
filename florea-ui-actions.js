@@ -173,8 +173,10 @@
                 <td><span class="badge ${status.className}">${status.label}</span></td>
                 <td>${escapeHtml(updated)}</td>
                 <td data-no-export>
-                    <button type="button" class="btn btn-ghost btn-sm" data-ui-action="stock-adjustment" data-item-id="${escapeHtml(item.id)}" data-direction="add">+ Add Stock</button>
-                    ${item.type === 'product' ? `<button type="button" class="btn btn-ghost btn-sm" data-ui-action="inventory-cost" data-item-id="${escapeHtml(item.id)}">Edit Cost</button>` : ''}
+                    <div class="inventory-row-actions">
+                        <button type="button" class="btn btn-ghost btn-sm" data-ui-action="stock-adjustment" data-item-id="${escapeHtml(item.id)}" data-direction="add">+ Add Stock</button>
+                        ${item.type === 'product' ? `<button type="button" class="btn btn-ghost btn-sm" data-ui-action="inventory-cost" data-item-id="${escapeHtml(item.id)}">Edit Cost</button>` : ''}
+                    </div>
                 </td>
             </tr>`;
             }).join('') || '<tr><td colspan="9">No inventory items are configured.</td></tr>';
@@ -1820,7 +1822,11 @@
     if (typeof originalGo === 'function') {
         window.go = function(screenId) {
             originalGo(screenId);
-            if (screenId === 'inventory-control') refreshInventory();
+            if (screenId === 'inventory-control') {
+                const allFilter = document.querySelector('#inventory-category-filters [data-filter="all"]');
+                if (allFilter) setInventoryFilter(allFilter);
+                refreshInventory();
+            }
         };
     }
     refreshInventory();

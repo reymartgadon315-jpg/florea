@@ -19,7 +19,6 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="icon" href="/florea-logo-192.png" type="image/png">
     <link rel="apple-touch-icon" href="/florea-logo-192.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="florea-prototype.css">
     <style>
         html.app-booting {
@@ -798,21 +797,6 @@
                                     <div class="icon" style="background:#F6DEDA;">⚠</div>
                                     <p class="kicker">Low Stock Items</p>
                                     <p class="value" id="admin-low-stock-count">—</p><span class="delta down">Needs restock</span></div>
-                            </div>
-
-                            <div class="card" style="margin-top:18px; display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
-                                <div style="flex:1; min-width:220px;">
-                                    <div class="section-title">
-                                        <h3>QR Menu Code</h3><span class="badge badge-sage">Live menu link</span></div>
-                                    <p style="font-size:12px;color:var(--ink-soft);margin-top:8px;max-width:460px;">Print this code for tables, posters, and the store entrance. Customers will open the existing QR Landing Page, then continue to the Digital Menu.</p>
-                                    <label for="admin-qr-url-input" style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-top:12px;">QR target URL</label>
-                                    <input id="admin-qr-url-input" class="input" type="url" style="margin-top:5px;font-size:11px;" aria-describedby="admin-qr-url-help">
-                                    <p id="admin-qr-url-help" style="font-size:10.5px;color:var(--ink-soft);margin-top:5px;">For phone testing, use your Wi-Fi address instead of localhost.</p>
-                                    <button id="generate-admin-qr" class="btn btn-ghost btn-sm" type="button" style="margin-top:10px;border:1px solid var(--line);">Generate QR</button>
-                                    <p id="admin-qr-url" style="font-family:var(--font-mono);font-size:10.5px;color:var(--ink-soft);margin-top:10px;overflow-wrap:anywhere;"></p>
-                                    <button id="download-admin-qr" class="btn btn-primary btn-sm" type="button" style="margin-top:12px;">Download QR Code</button>
-                                </div>
-                                <div id="admin-qr-code" aria-label="QR code for the existing Floréa QR Landing Page" style="background:#fff;padding:12px;border:1px solid var(--line);border-radius:12px;min-width:154px;min-height:154px;display:flex;align-items:center;justify-content:center;"></div>
                             </div>
 
                             <div class="grid admin-dashboard-panels" style="margin-top:18px; align-items:stretch;">

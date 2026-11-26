@@ -975,60 +975,6 @@ function setAuthenticated(role, value){
   } catch (e) {}
 }
 
-function getExistingMenuUrl() {
-  const localHosts = ['localhost', '127.0.0.1'];
-  const localPorts = ['3000', '8000'];
-  const isLocalDevelopment = localHosts.includes(window.location.hostname) || localPorts.includes(window.location.port);
-  if (isLocalDevelopment) {
-    return new URL('florea-prototype.html?view=customer', window.location.href).href;
-  }
-  return new URL('/?view=customer', window.location.origin).href;
-}
-
-function initAdminQrCode() {
-  const qrContainer = document.getElementById('admin-qr-code');
-  const urlInput = document.getElementById('admin-qr-url-input');
-  const generateButton = document.getElementById('generate-admin-qr');
-  const downloadButton = document.getElementById('download-admin-qr');
-  const urlLabel = document.getElementById('admin-qr-url');
-  if (!qrContainer || !urlInput || !generateButton || !downloadButton || !urlLabel || typeof QRCode === 'undefined') return;
-
-  function renderQrCode() {
-    const menuUrl = urlInput.value.trim();
-    try {
-      new URL(menuUrl);
-    } catch (error) {
-      urlInput.focus();
-      return;
-    }
-    urlLabel.textContent = menuUrl;
-    qrContainer.innerHTML = '';
-    new QRCode(qrContainer, {
-      text: menuUrl,
-      width: 130,
-      height: 130,
-      colorDark: '#16240F',
-      colorLight: '#FFFFFF',
-      correctLevel: QRCode.CorrectLevel.M
-    });
-  }
-
-  urlInput.value = getExistingMenuUrl();
-  renderQrCode();
-  generateButton.addEventListener('click', renderQrCode);
-
-  downloadButton.addEventListener('click', () => {
-    const canvas = qrContainer.querySelector('canvas');
-    const image = qrContainer.querySelector('img');
-    const dataUrl = canvas ? canvas.toDataURL('image/png') : (image ? image.src : '');
-    if (!dataUrl) return;
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'florea-existing-menu-qr.png';
-    link.click();
-  });
-}
-
 function startCustomerJourney() {
   const field = document.getElementById('customer-name-input');
   const name = field ? field.value.trim() : '';
@@ -1960,7 +1906,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 }, { once: true });
-initAdminQrCode();
 
 document.querySelectorAll('.device-toggle button').forEach(btn=>{
   btn.addEventListener('click', ()=>{

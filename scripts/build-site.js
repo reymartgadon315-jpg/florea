@@ -16,7 +16,6 @@ const publicFiles = [
     'florea-push.js',
     'florea-install.js',
     'florea-ui-actions.js',
-    'florea-existing-menu-qr.png',
     'service-worker.js',
     'site.webmanifest',
     'florea-app-icon.svg',

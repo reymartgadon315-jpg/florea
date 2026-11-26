@@ -21,6 +21,7 @@ test('build serves the customer storefront at the clean root URL', () => {
     assert.equal(index, storefront);
     assert.match(index, /florea-orders\.js/);
     assert.match(index, /florea-prototype\.js/);
+    assert.doesNotMatch(storefront, /admin-qr-code|QR Menu Code|qrcode\.min\.js/i);
     assert.ok(fs.existsSync(path.join(root, 'dist', 'florea-accounting.mjs')));
     assert.match(fs.readFileSync(path.join(root, 'dist', 'florea-ui-actions.js'), 'utf8'), /florea-accounting\.mjs/);
 
