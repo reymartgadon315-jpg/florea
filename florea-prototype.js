@@ -1689,7 +1689,7 @@ function hasCustomerNameForSession() {
 function blockUnnamedCustomerClick(event) {
   if (!isPublicCustomerView || hasCustomerNameForSession()) return;
   const target = event.target instanceof Element ? event.target : event.target?.parentElement;
-  if (!target || target.closest('#customer-name-input, #customer-name-continue, #install-app-button, #customer-full-menu-open, #customer-full-menu-close, a[data-customer-contact], a.customer-facebook-link, a.customer-instagram-link')) return;
+  if (!target || target.closest('#customer-name-input, #customer-name-continue, #install-app-button, .install-app-dialog__close, .install-app-dialog, #customer-full-menu-open, #customer-full-menu-close, a[data-customer-contact], a.customer-facebook-link, a.customer-instagram-link')) return;
   const interactive = target.closest(
     'button, a[href], input, select, textarea, [onclick], [data-ui-action], [role="button"], [tabindex]:not([tabindex="-1"])'
   );
