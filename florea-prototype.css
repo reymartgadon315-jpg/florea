@@ -3325,6 +3325,11 @@ body.admin-view .admin-dashboard-panels {
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
 }
 
+#product-management .product-catalog-section {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
 .admin-inline-filter,
 .admin-filter-row label {
     display: flex;
