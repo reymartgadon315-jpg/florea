@@ -136,7 +136,7 @@ async function handleRequest(incoming, response) {
             response.writeHead(cors.allowed ? 204 : 403, {
                 ...cors.headers,
                 ...(cors.allowed ? {
-                    'access-control-allow-methods': 'GET, POST, PATCH, DELETE, OPTIONS',
+                    'access-control-allow-methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                     'access-control-allow-headers': 'content-type',
                     'access-control-max-age': '600'
                 } : {})

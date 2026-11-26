@@ -1,3 +1,8 @@
+let resolveFloreaCatalogReady;
+window.FloreaCatalogReady = new Promise(resolve => {
+    resolveFloreaCatalogReady = resolve;
+});
+
 (async () => {
         const { getRecordedSaleProfit, isRecordedSale } = await import('./florea-accounting.mjs');
         const catalogStorageKey = 'florea-product-catalog';
@@ -67,6 +72,10 @@
         let adminInventory = null;
         let adminOrdersRefreshInProgress = false;
         let activeInventoryFilter = 'all';
+        let catalogUpdatedAt = null;
+        let catalogRefreshInProgress = false;
+        let catalogLoadPromise = Promise.resolve();
+        let inventoryLoadPromise = Promise.resolve();
 
         function escapeHtml(value) {
             return String(value).replace(/[&<>"']/g, character => ({
@@ -145,6 +154,7 @@
             if (!section || !body) return;
             const items = Array.isArray(inventory.items) ? inventory.items : [];
             const visibleItems = items.filter(item =>
+                item.available !== false &&
                 !hiddenInventoryCategories.has(String(item.category || '').trim().toLowerCase())
             );
             const statuses = visibleItems.map(item =>
@@ -198,7 +208,7 @@
 
         function syncMenuStock(inventory) {
             for (const item of inventory.items || []) {
-                if (item.type !== 'product') continue;
+                if (item.type !== 'product' || item.available === false) continue;
                 const product = (products[item.category] || []).find(entry => entry.n === item.name);
                 if (!product) continue;
                 product.quantity = item.quantity;
@@ -981,57 +991,165 @@
         };
     }
 
-    function loadSavedCatalog() {
+    function ensureProductInventoryIds() {
+        Object.entries(products).forEach(([category, items]) => {
+            items.forEach(product => {
+                if (!product.inventoryId) product.inventoryId = `product:${category}:${product.n}`;
+            });
+        });
+    }
+
+    function applySharedCatalog(savedCategories) {
+        Object.keys(products).forEach(category => delete products[category]);
+        Object.entries(savedCategories).forEach(([category, items]) => {
+            products[category] = items.map(item => ({ ...item }));
+        });
+        categories.splice(0, categories.length, ...Object.keys(savedCategories));
+        ensureProductInventoryIds();
+        renderCustomCategories();
+        updateCategoryOptions();
+        window.refreshFloreaCatalog();
+        const selectedProduct = (products[editingCategory] || []).find(item => item.n === editingProduct?.n);
+        const firstProduct = Object.entries(products).find(([, items]) => items.length);
+        if (selectedProduct) setEditorProduct(selectedProduct, editingCategory);
+        else if (firstProduct) setEditorProduct(firstProduct[1][0], firstProduct[0]);
+    }
+
+    function syncProductCatalogMetadata(savedCategories) {
+        Object.entries(savedCategories).forEach(([category, items]) => {
+            const currentItems = products[category] || [];
+            items.forEach(savedItem => {
+                const current = currentItems.find(product => product.n === savedItem.n);
+                if (!current) return;
+                current.inventoryId = savedItem.inventoryId;
+                current.quantity = savedItem.quantity;
+                current.reorderLevel = savedItem.reorderLevel;
+                current.stock = savedItem.stock;
+            });
+        });
+    }
+
+    function applyLegacyCatalog(saved) {
+        if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return false;
+        const validCategories = Object.entries(saved).filter(([, items]) =>
+            Array.isArray(items) && items.every(item =>
+                item && typeof item.n === 'string' && typeof item.p === 'string'
+            )
+        );
+        if (!validCategories.length) return false;
+        const savedProducts = new Map(validCategories);
+        const categoryOrder = [...new Set([...defaultCategoryOrder, ...savedProducts.keys()])];
+        Object.keys(products).forEach(category => delete products[category]);
+        categoryOrder.forEach(category => {
+            const defaultItems = defaultProducts[category] || [];
+            const savedItems = savedProducts.get(category) || [];
+            const defaultsByName = new Map(defaultItems.map(item => [item.n, item]));
+            const savedNames = new Set(savedItems.map(item => item.n));
+            const mergedSaved = savedItems.map(savedItem => {
+                const defaultItem = defaultsByName.get(savedItem.n);
+                if (!defaultItem) return { ...savedItem };
+                return {
+                    ...defaultItem,
+                    ...savedItem,
+                    d: typeof savedItem.d !== 'string' || !savedItem.d.trim() ||
+                        legacyMenuDescriptions.has(savedItem.d.trim())
+                        ? defaultItem.d
+                        : savedItem.d,
+                    ...(
+                        typeof savedItem.image === 'string' && savedItem.image
+                            ? { image: savedItem.image }
+                            : (defaultItem.image ? { image: defaultItem.image } : {})
+                    )
+                };
+            });
+            const newDefaults = defaultItems
+                .filter(item => !savedNames.has(item.n))
+                .map(item => ({ ...item }));
+            products[category] = [...mergedSaved, ...newDefaults];
+        });
+        categories.splice(0, categories.length, ...categoryOrder);
+        ensureProductInventoryIds();
+        if (FloreaOrderSync.isLocal() && JSON.stringify(saved) !== JSON.stringify(products)) {
+            saveJson(catalogStorageKey, products);
+        }
+        renderCustomCategories();
+        updateCategoryOptions();
+        window.refreshFloreaCatalog();
+        return true;
+    }
+
+    async function loadSavedCatalog({ reportErrors = true } = {}) {
+        if (!FloreaOrderSync.isLocal()) {
+            try {
+                const result = await FloreaOrderSync.request('/api/products');
+                if (result.catalog?.categories) {
+                    catalogUpdatedAt = result.catalog.updatedAt || null;
+                    applySharedCatalog(result.catalog.categories);
+                    return;
+                }
+            } catch (error) {
+                console.error('Unable to load the shared product catalog.', error);
+                if (reportErrors) showToast(`Shared product catalog could not be loaded: ${error.message}`);
+                return;
+            }
+        }
+
         try {
             const saved = JSON.parse(localStorage.getItem(catalogStorageKey) || 'null');
-            if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return;
-            const validCategories = Object.entries(saved).filter(([, items]) =>
-                Array.isArray(items) && items.every(item =>
-                    item && typeof item.n === 'string' && typeof item.p === 'string'
-                )
-            );
-            if (!validCategories.length) return;
-            const savedProducts = new Map(validCategories);
-            const categoryOrder = [...new Set([...defaultCategoryOrder, ...savedProducts.keys()])];
-            Object.keys(products).forEach(category => delete products[category]);
-            categoryOrder.forEach(category => {
-                const defaultItems = defaultProducts[category] || [];
-                const savedItems = savedProducts.get(category) || [];
-                const defaultsByName = new Map(defaultItems.map(item => [item.n, item]));
-                const savedNames = new Set(savedItems.map(item => item.n));
-                const mergedSaved = savedItems.map(savedItem => {
-                    const defaultItem = defaultsByName.get(savedItem.n);
-                    if (!defaultItem) return { ...savedItem };
-                    return {
-                        ...defaultItem,
-                        ...savedItem,
-                        d: typeof savedItem.d !== 'string' || !savedItem.d.trim() ||
-                            legacyMenuDescriptions.has(savedItem.d.trim())
-                            ? defaultItem.d
-                            : savedItem.d,
-                        ...(
-                            typeof savedItem.image === 'string' && savedItem.image
-                                ? { image: savedItem.image }
-                                : (defaultItem.image ? { image: defaultItem.image } : {})
-                        )
-                    };
-                });
-                const newDefaults = defaultItems
-                    .filter(item => !savedNames.has(item.n))
-                    .map(item => ({ ...item }));
-                products[category] = [...mergedSaved, ...newDefaults];
-            });
-            categories.splice(0, categories.length, ...categoryOrder);
-            if (JSON.stringify(saved) !== JSON.stringify(products)) persistCatalog();
-            renderCustomCategories();
-            window.refreshFloreaCatalog();
+            if (saved) applyLegacyCatalog(saved);
+            else ensureProductInventoryIds();
         } catch (error) {
             console.warn('Unable to load saved product catalog.', error);
+            if (reportErrors) showToast(`Saved product catalog could not be loaded: ${error.message}`);
         }
     }
 
-    function persistCatalog() {
-        return saveJson(catalogStorageKey, products);
+    async function refreshSharedCatalog() {
+        if (FloreaOrderSync.isLocal() || catalogRefreshInProgress) return;
+        catalogRefreshInProgress = true;
+        try {
+            const result = await FloreaOrderSync.request('/api/products');
+            if (!result.catalog?.categories || result.catalog.updatedAt === catalogUpdatedAt) return;
+            catalogUpdatedAt = result.catalog.updatedAt || null;
+            applySharedCatalog(result.catalog.categories);
+        } catch (error) {
+            console.error('Unable to refresh the shared product catalog.', error);
+        } finally {
+            catalogRefreshInProgress = false;
+        }
+    }
+
+    async function persistCatalog() {
+        ensureProductInventoryIds();
+        if (FloreaOrderSync.isLocal()) {
+            const inventoryModule = await getLocalInventoryModule();
+            const inventory = await getLocalInventory();
+            const updatedInventory = inventoryModule.synchronizeProductCatalog(inventory, products);
+            const previousCatalog = localStorage.getItem(catalogStorageKey);
+            if (!saveJson(catalogStorageKey, products)) return false;
+            try {
+                saveLocalInventory(updatedInventory);
+            } catch (error) {
+                if (previousCatalog === null) localStorage.removeItem(catalogStorageKey);
+                else localStorage.setItem(catalogStorageKey, previousCatalog);
+                throw new Error(`Could not save product inventory: ${error.message}`);
+            }
+            return true;
+        }
+
+        const result = await FloreaOrderSync.request('/api/products', {
+            method: 'PUT',
+            body: JSON.stringify({ categories: products })
+        });
+        if (result.catalog?.categories) {
+            catalogUpdatedAt = result.catalog.updatedAt || null;
+            syncProductCatalogMetadata(result.catalog.categories);
+        }
+        if (result.inventory) {
+            syncMenuStock(result.inventory);
+            renderInventory(result.inventory);
+        }
+        return true;
     }
 
         function renderCustomCategories() {
@@ -1236,22 +1354,30 @@
                 ...(image ? { image } : {})
             };
             products[category].push(product);
-            if (!persistCatalog()) {
-                products[category].pop();
-                return false;
+            try {
+                if (await persistCatalog()) {
+                    renderCustomCategories();
+                    window.refreshFloreaCatalog();
+                    setEditorProduct(product, category);
+                    updateCategoryOptions();
+                    showToast(FloreaOrderSync.isLocal()
+                        ? `${name} was added on this device.`
+                        : `${name} was added to the shared customer menu.`);
+                    return true;
+                }
+            } catch (error) {
+                showToast(`Could not save product changes: ${error.message}`);
             }
-            renderCustomCategories();
-            window.refreshFloreaCatalog();
-            setEditorProduct(product, category);
-            updateCategoryOptions();
-            showToast(`${name} was added on this device.`);
-            return true;
+            if (products[category].includes(product)) {
+                products[category].pop();
+            }
+            return false;
         });
         imagePicker = bindProductImagePicker(dialog);
     }
 
     function addCategory() {
-        createDialog('Add Product Category', field('Category name', 'name', 'text', '', 'required maxlength="60"'), 'Add Category', formData => {
+        createDialog('Add Product Category', field('Category name', 'name', 'text', '', 'required maxlength="60"'), 'Add Category', async formData => {
             const name = String(formData.get('name') || '').trim();
             if (!name) {
                 showToast('Enter a category name.');
@@ -1263,15 +1389,23 @@
             }
             categories.push(name);
             products[name] = [];
-            if (!persistCatalog()) {
+            try {
+                if (await persistCatalog()) {
+                    renderCustomCategories();
+                    updateCategoryOptions();
+                    showToast(FloreaOrderSync.isLocal()
+                        ? `${name} category saved on this device.`
+                        : `${name} category added to the shared menu.`);
+                    return true;
+                }
+            } catch (error) {
+                showToast(`Could not save category: ${error.message}`);
+            }
+            if (categories.includes(name)) {
                 categories.pop();
                 delete products[name];
-                return false;
             }
-            renderCustomCategories();
-            updateCategoryOptions();
-            showToast(`${name} category saved on this device.`);
-            return true;
+            return false;
         });
     }
 
@@ -1440,24 +1574,6 @@
         `, null, null);
     }
 
-    async function setInventoryQuantity(itemId, quantity) {
-        if (FloreaOrderSync.isLocal()) {
-            const shared = await getLocalInventoryModule();
-            const inventory = await getLocalInventory();
-            const result = shared.adjustInventoryItem(inventory, itemId, 'set', quantity);
-            if (!result.success) throw new Error(result.notFound ? 'Inventory item not found.' : 'Invalid stock quantity.');
-            saveLocalInventory(result.inventory);
-            return result.inventory;
-        }
-        const result = await FloreaOrderSync.request('/api/inventory', {
-            method: 'PATCH',
-            body: JSON.stringify({ itemId, direction: 'set', quantity })
-        });
-        syncMenuStock(result.inventory);
-        renderInventory(result.inventory);
-        return result.inventory;
-    }
-
     async function setInventoryUnitCost(itemId, unitCost) {
         if (FloreaOrderSync.isLocal()) {
             const shared = await getLocalInventoryModule();
@@ -1530,26 +1646,6 @@
         }
         const previousCategory = editingCategory;
         const originalProduct = { ...editingProduct };
-        const stockItemId = `product:${previousCategory}:${originalProduct.n}`;
-        let previousSharedStock;
-        let syncSharedStock = false;
-        if (values.name === originalProduct.n && values.category === previousCategory) {
-            try {
-                const inventory = FloreaOrderSync.isLocal()
-                    ? await getLocalInventory()
-                    : (await FloreaOrderSync.request('/api/inventory')).inventory;
-                const stockItem = inventory.items.find(item => item.id === stockItemId);
-                if (stockItem) {
-                    previousSharedStock = stockItem.quantity;
-                    await setInventoryQuantity(stockItemId, values.quantity);
-                    syncSharedStock = true;
-                }
-            } catch (error) {
-                console.error('Unable to synchronize product stock.', error);
-                showToast(`Could not update shared stock: ${error.message}`);
-                return;
-            }
-        }
         const updatedProduct = { ...editingProduct };
         updateProductObject(updatedProduct, values);
         if (imageUrl) updatedProduct.image = imageUrl;
@@ -1559,27 +1655,28 @@
         } else {
             Object.assign(editingProduct, updatedProduct);
         }
-        if (!persistCatalog()) {
+        let saved = false;
+        try {
+            saved = await persistCatalog();
+        } catch (error) {
+            console.error('Unable to save product changes to the shared catalog.', error);
+            showToast(`Could not save product changes: ${error.message}`);
+        }
+        if (!saved) {
             if (values.category !== previousCategory) {
-                products[values.category].pop();
+                products[values.category] = products[values.category].filter(product => product !== updatedProduct);
                 products[previousCategory].push(editingProduct);
             } else {
                 Object.assign(editingProduct, originalProduct);
-            }
-            if (syncSharedStock) {
-                try {
-                    await setInventoryQuantity(stockItemId, previousSharedStock);
-                } catch (error) {
-                    console.error('Unable to restore inventory after product save failed.', error);
-                    showToast(`Product save failed and stock could not be restored: ${error.message}`);
-                }
             }
             return;
         }
         setEditorProduct(values.category === previousCategory ? editingProduct : updatedProduct, values.category);
         renderCustomCategories();
         window.refreshFloreaCatalog();
-        showToast(`${values.name} changes saved on this device.`);
+        showToast(FloreaOrderSync.isLocal()
+            ? `${values.name} changes saved on this device.`
+            : `${values.name} changes saved to the shared customer menu.`);
     }
 
     function duplicateProduct() {
@@ -1596,14 +1693,21 @@
         });
     }
 
-    function deleteProduct() {
+    async function deleteProduct() {
         if (!editingProduct) return;
         if (!window.confirm(`Delete ${editingProduct.n} from the menu?`)) return;
         const category = editingCategory;
         const index = products[category].indexOf(editingProduct);
         if (index < 0) return;
         const [deleted] = products[category].splice(index, 1);
-        if (!persistCatalog()) {
+        let saved = false;
+        try {
+            saved = await persistCatalog();
+        } catch (error) {
+            console.error('Unable to delete product from the shared catalog.', error);
+            showToast(`Could not delete product: ${error.message}`);
+        }
+        if (!saved) {
             products[category].splice(index, 0, deleted);
             return;
         }
@@ -1618,7 +1722,9 @@
         }
         renderCustomCategories();
         window.refreshFloreaCatalog();
-        showToast(`${deleted.n} was deleted.`);
+        showToast(FloreaOrderSync.isLocal()
+            ? `${deleted.n} was deleted on this device.`
+            : `${deleted.n} was removed from the shared customer menu.`);
     }
 
     function createManualOrder() {
@@ -1677,6 +1783,9 @@
         const target = event.target.closest('[data-ui-action]');
         if (!target) return;
         const action = target.dataset.uiAction;
+        if (['edit-catalog-product', 'add-product', 'new-category', 'save-product', 'delete-product', 'duplicate-product'].includes(action)) {
+            await Promise.all([catalogLoadPromise, inventoryLoadPromise]);
+        }
         if (target.tagName === 'A') event.preventDefault();
         switch (action) {
             case 'style-guide':
@@ -1740,7 +1849,7 @@
                 duplicateProduct();
                 break;
             case 'delete-product':
-                deleteProduct();
+                await deleteProduct();
                 break;
             case 'toggle-option':
                 target.classList.toggle('active');
@@ -1801,7 +1910,9 @@
         if (event.target.id === 'admin-sales-period') window.FloreaAdmin?.renderViews();
     });
 
-    loadSavedCatalog();
+    ensureProductInventoryIds();
+    catalogLoadPromise = loadSavedCatalog();
+    catalogLoadPromise.then(resolveFloreaCatalogReady, resolveFloreaCatalogReady);
     window.FloreaInventory = {
         refresh: refreshInventory,
         applyLocalOrder: applyLocalOrderStock,
@@ -1813,7 +1924,7 @@
     };
     window.FloreaAdmin = {
         refresh() {
-            refreshInventory();
+            inventoryLoadPromise = refreshInventory();
             return refreshAdminOrders();
         },
         renderViews: renderAdminViews
@@ -1836,9 +1947,13 @@
         if (!document.hidden) {
             refreshInventory();
             refreshAdminOrders();
+            if (!document.body.classList.contains('admin-view')) refreshSharedCatalog();
         }
     }, 10000);
     const initialCategory = Object.entries(products).find(([, items]) => items.some(item => item.n === 'Sweetheart Peony Bouquet'));
     const firstProduct = initialCategory || Object.entries(products).find(([, items]) => items.length);
     if (firstProduct) setEditorProduct(firstProduct[1].find(item => item.n === 'Sweetheart Peony Bouquet') || firstProduct[1][0], firstProduct[0]);
-})();
+})().catch(error => {
+    console.error('Unable to initialize the Floréa management interface.', error);
+    resolveFloreaCatalogReady();
+});

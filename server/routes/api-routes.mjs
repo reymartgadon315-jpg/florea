@@ -4,6 +4,7 @@ import feedback from '../../netlify/functions/feedback.mjs';
 import inventory from '../../netlify/functions/inventory.mjs';
 import order from '../../netlify/functions/order.mjs';
 import orders from '../../netlify/functions/orders.mjs';
+import products from '../../netlify/functions/products.mjs';
 import productImages from '../../netlify/functions/product-images.mjs';
 import pushKey from '../../netlify/functions/push-key.mjs';
 import ratings from '../../netlify/functions/ratings.mjs';
@@ -14,6 +15,7 @@ const fixedRoutes = new Map([
     ['/api/feedback', feedback],
     ['/api/inventory', inventory],
     ['/api/orders', orders],
+    ['/api/products', products],
     ['/api/push-key', pushKey],
     ['/api/ratings', ratings]
 ]);

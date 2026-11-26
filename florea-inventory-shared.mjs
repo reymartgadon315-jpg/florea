@@ -158,6 +158,7 @@ export function mergeMissingMenuProducts(inventory) {
             (Number.isFinite(item.unitCost) && item.unitCost >= 0)
             ? item
             : { ...item, unitCost: null };
+        if (costedItem.catalogManaged) return costedItem;
         if (item.category === 'Coffee' && item.name === 'Orange Espresso') {
             return { ...costedItem, id: 'product:Flavored Coffee:Orange Espresso', category: 'Flavored Coffee' };
         }
@@ -202,6 +203,89 @@ export function mergeMissingMenuProducts(inventory) {
     };
 }
 
+export function synchronizeProductCatalog(inventory, categories, updatedAt = new Date().toISOString()) {
+    if (!inventory || !Array.isArray(inventory.items) || !categories || typeof categories !== 'object') {
+        throw new Error('Cannot synchronize products without valid inventory and catalog data.');
+    }
+
+    const nextItems = inventory.items.map(item => ({ ...item }));
+    const nextCategories = {};
+    const retainedInventoryIds = new Set();
+
+    for (const [category, products] of Object.entries(categories)) {
+        nextCategories[category] = products.map(product => {
+            const requestedInventoryId = typeof product.inventoryId === 'string'
+                ? product.inventoryId
+                : `product:${category}:${product.n}`;
+            let inventoryIndex = nextItems.findIndex(item =>
+                item.type === 'product' && item.id === requestedInventoryId
+            );
+            if (inventoryIndex < 0) {
+                inventoryIndex = nextItems.findIndex(item =>
+                    item.type === 'product' && item.category === category && item.name === product.n
+                );
+            }
+
+            const existing = inventoryIndex >= 0 ? nextItems[inventoryIndex] : null;
+            const id = existing?.id || `product:${category}:${product.n}`;
+            if (nextItems.some(item => item.id === id && item.id !== existing?.id)) {
+                throw new Error(`The inventory identifier for “${product.n}” is already in use.`);
+            }
+            const quantity = Number.isInteger(product.quantity)
+                ? product.quantity
+                : (existing?.quantity ?? 0);
+            const reorderLevel = Number.isInteger(product.reorderLevel)
+                ? product.reorderLevel
+                : (existing?.reorderLevel ?? 5);
+            const aliases = Array.isArray(existing?.aliases) ? [...existing.aliases] : [];
+            if (existing && (existing.name !== product.n || existing.category !== category) &&
+                !aliases.some(alias => alias.name === existing.name && alias.category === existing.category)) {
+                aliases.push({ name: existing.name, category: existing.category });
+            }
+            const inventoryItem = {
+                ...(existing || {}),
+                id,
+                type: 'product',
+                name: product.n,
+                category,
+                quantity,
+                unitCost: existing?.unitCost ?? null,
+                unit: existing?.unit || 'items',
+                reorderLevel,
+                catalogManaged: true,
+                available: true,
+                ...(aliases.length ? { aliases } : {}),
+                updatedAt
+            };
+            if (inventoryIndex >= 0) nextItems[inventoryIndex] = inventoryItem;
+            else nextItems.push(inventoryItem);
+            retainedInventoryIds.add(id);
+
+            return {
+                ...product,
+                inventoryId: id,
+                quantity,
+                reorderLevel,
+                stock: quantity <= 0 ? 'Sold Out' : (quantity <= reorderLevel ? 'Low Stock' : 'In Stock')
+            };
+        });
+    }
+
+    nextItems.forEach(item => {
+        if (item.type === 'product' && !retainedInventoryIds.has(item.id)) item.available = false;
+    });
+
+    return {
+        ...inventory,
+        items: nextItems,
+        productCatalog: {
+            version: 1,
+            categories: nextCategories,
+            updatedAt
+        }
+    };
+}
+
 function roundStock(value) {
     return Math.round((value + Number.EPSILON) * 1000) / 1000;
 }
@@ -227,16 +311,29 @@ function drinkMilkAmount(item, category) {
     return item.drinkSize === 'Large' ? 0.25 : item.drinkSize === 'Small' ? 0.15 : 0.2;
 }
 
-export function calculateOrderRequirements(inventory, orderItems) {
+export function calculateOrderRequirements(inventory, orderItems, {
+    allowArchived = false,
+    allowAliases = false
+} = {}) {
     const requirements = new Map();
     const productItems = inventory.items.filter(item => item.type === 'product');
     const ingredientItems = inventory.items.filter(item => item.type === 'ingredient');
 
     for (const orderItem of orderItems) {
         const canonicalName = orderItem.name.replace('&amp;', '&');
-        const product = productItems.find(item => item.name === canonicalName);
+        let product = productItems.find(item => item.name === canonicalName && item.available !== false);
+        let productCategory = product?.category;
+        if (!product && allowAliases) {
+            const aliasMatch = productItems
+                .filter(item => item.available !== false || allowArchived)
+                .flatMap(item => (item.aliases || []).map(alias => ({ item, alias })))
+                .find(({ alias }) => alias.name === canonicalName);
+            product = aliasMatch?.item || productItems.find(item => item.name === canonicalName);
+            productCategory = aliasMatch?.alias.category || product?.category;
+        }
+        if (product?.available === false && !allowArchived) product = null;
         if (!product) {
-            return { error: `“${orderItem.name}” is not configured in the shared inventory.` };
+            return { error: `“${orderItem.name}” is not available in the shared catalog.` };
         }
         addRequirement(requirements, product, orderItem.quantity);
 
@@ -244,10 +341,10 @@ export function calculateOrderRequirements(inventory, orderItems) {
         if (orderItem.name === 'Ecuadorian Roses (6pc)') recipe.push(['Ecuadorian Roses', 6]);
         if (orderItem.name === 'Dutch Tulip (single)') recipe.push(['Dutch Tulip', 1]);
         if (orderItem.name === 'Lavender Bunch') recipe.push(['Lavender Bunch', 1]);
-        if (['Flowers', 'Bouquets'].includes(product.category) && orderItem.wrapStyle === 'Kraft Paper') {
+        if (['Flowers', 'Bouquets'].includes(productCategory) && orderItem.wrapStyle === 'Kraft Paper') {
             recipe.push(['Kraft Wrap Paper', 1]);
         }
-        const milkAmount = drinkMilkAmount(orderItem, product.category);
+        const milkAmount = drinkMilkAmount(orderItem, productCategory);
         if (milkAmount) recipe.push(['Oat Milk (1L)', milkAmount]);
         if (orderItem.name === 'Lavender Basque Cake') recipe.push(['Basque Cake (whole)', 0.1]);
 
@@ -263,12 +360,18 @@ export function calculateOrderRequirements(inventory, orderItems) {
     return { requirements: [...requirements.values()] };
 }
 
-export function applyOrderToInventory(inventory, orderId, orderItems, timestamp = new Date().toISOString()) {
+export function applyOrderToInventory(
+    inventory,
+    orderId,
+    orderItems,
+    timestamp = new Date().toISOString(),
+    { allowArchived = false, allowAliases = false } = {}
+) {
     if (inventory.deductedOrderIds.includes(orderId)) {
         return { success: true, alreadyApplied: true, inventory };
     }
 
-    const calculated = calculateOrderRequirements(inventory, orderItems);
+    const calculated = calculateOrderRequirements(inventory, orderItems, { allowArchived, allowAliases });
     if (calculated.error) return { success: false, error: calculated.error };
 
     const shortages = calculated.requirements
@@ -298,7 +401,10 @@ export function restoreOrderInventory(inventory, orderId, orderItems, timestamp 
     if (!inventory.deductedOrderIds.includes(orderId)) {
         return { success: true, alreadyRestored: true, inventory };
     }
-    const calculated = calculateOrderRequirements(inventory, orderItems);
+    const calculated = calculateOrderRequirements(inventory, orderItems, {
+        allowArchived: true,
+        allowAliases: true
+    });
     if (calculated.error) return { success: false, error: calculated.error };
     const requirements = new Map(calculated.requirements.map(entry => [entry.item.id, entry.quantity]));
     const nextInventory = {

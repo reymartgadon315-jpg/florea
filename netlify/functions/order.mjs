@@ -351,7 +351,13 @@ export default async function handler(request, context) {
         }
         if (restoredInventory) {
             const compensation = await updateInventory(inventory => {
-                const result = applyOrderToInventory(inventory, order.id, itemDetails);
+                const result = applyOrderToInventory(
+                    inventory,
+                    order.id,
+                    itemDetails,
+                    new Date().toISOString(),
+                    { allowArchived: true, allowAliases: true }
+                );
                 if (!result.success || result.alreadyApplied) {
                     return { changed: false, ...result };
                 }

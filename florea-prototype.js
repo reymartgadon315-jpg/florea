@@ -1965,6 +1965,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     initializeCashierLogin();
     initializeAdminLogin();
     await restoreInitialScreen();
+    await window.FloreaCatalogReady;
   } finally {
     window.requestAnimationFrame(() => {
       document.documentElement.classList.remove('app-booting');

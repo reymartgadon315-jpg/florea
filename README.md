@@ -106,10 +106,13 @@ be checked against actual counts and recipes.
 The drink catalog follows the printed menus: Coffee (10 items), Matcha (8
 items), and Refreshers (9 Soda Refresher flavors, 11 Milk Based Latte flavors,
 and Coke Float). Rice Meals, Finger Foods, and Pasta also follow the printed
-menus and prices. Existing browser-saved catalogs and shared inventory are
-migrated to include missing menu items without replacing saved product prices,
-custom catalog entries, or current stock. New food inventory starts at a demo
-estimate of 20 items per product with a reorder level of 4; verify these
+menus and prices. Existing browser-saved catalogs are used as the starting
+catalog until an Admin saves it to the shared service. Product changes are
+stored alongside stock in the existing shared inventory record; customer and
+cashier pages check for catalog updates every 10 seconds. Product renames and
+deletions preserve their inventory history for existing orders. Local
+development continues to use browser storage. New food inventory starts at a
+demo estimate of 20 items per product with a reorder level of 4; verify these
 quantities against actual stock. Each menu item has its own cropped product
 image in `assets/products/`, used on catalog cards and product details.
 
@@ -131,15 +134,16 @@ set `CASHIER_PASSWORD` temporarily in your environment and run
 `node scripts/hash-cashier-password.mjs`; save the printed hash as
 `CASHIER_PASSWORD_HASH`, then remove the plain `CASHIER_PASSWORD` variable.
 For a separate Netlify deployment, configure `CASHIER_PASSWORD` and
-`CASHIER_SESSION_SECRET` in the Netlify site environment. Product-image uploads are
-stored as original files in Netlify Blobs and
-require the server-side admin session. Product catalog records, including the
-image URLs, continue to use this prototype's existing browser storage and are not
-synchronized between browsers. Orders can still be read publicly for customer
-and admin views. Hosted image uploads support JPG, PNG, and WEBP files up to
-5 MB; local static development stores images in browser storage and limits them
-to 1 MB. Do not use this system for real customer data or payments until public
-data access and production data protections are reviewed.
+`CASHIER_SESSION_SECRET` in the Netlify site environment. Product-image uploads
+are stored as original files in the configured shared blob store and require the
+server-side admin session. Product catalog records, including image URLs, are
+stored alongside inventory through `/api/products`; Admin writes require its
+server-side session and customer reads are public. Orders can still be read
+publicly for customer and admin views. Hosted image uploads support JPG, PNG,
+and WEBP files up to 5 MB; local static development stores images in browser
+storage and limits them to 1 MB. Do not use this system for real customer data
+or payments until public data access and production data protections are
+reviewed.
 
 The shared staff sign-in page opens at `/staff`, without the prototype
 navigation rail. The `admin` username opens the Admin dashboard; other
