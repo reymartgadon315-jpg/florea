@@ -116,6 +116,7 @@ const menuProducts = [
     name,
     category,
     quantity,
+    unitCost: null,
     unit: 'items',
     reorderLevel,
     updatedAt: null
@@ -153,18 +154,22 @@ export function mergeMissingMenuProducts(inventory) {
     }
     const migratedItems = inventory.items.map(item => {
         if (item.type !== 'product') return item;
+        const costedItem = item.unitCost === null ||
+            (Number.isFinite(item.unitCost) && item.unitCost >= 0)
+            ? item
+            : { ...item, unitCost: null };
         if (item.category === 'Coffee' && item.name === 'Orange Espresso') {
-            return { ...item, id: 'product:Flavored Coffee:Orange Espresso', category: 'Flavored Coffee' };
+            return { ...costedItem, id: 'product:Flavored Coffee:Orange Espresso', category: 'Flavored Coffee' };
         }
         if (item.category === 'Coffee' && item.name === 'Cinnamon Roll Latte') {
-            return { ...item, id: 'product:Premium Latte:Biscoff Latte', name: 'Biscoff Latte', category: 'Premium Latte' };
+            return { ...costedItem, id: 'product:Premium Latte:Biscoff Latte', name: 'Biscoff Latte', category: 'Premium Latte' };
         }
         if (item.category === 'Coffee' && item.name === 'Salted Caramel Latte') {
-            return { ...item, id: 'product:Premium Latte:Salted Caramel Latte', category: 'Premium Latte' };
+            return { ...costedItem, id: 'product:Premium Latte:Salted Caramel Latte', category: 'Premium Latte' };
         }
-        if (item.category !== 'Milk-Based' && !item.name.startsWith('Milk Based Latte — ')) return item;
+        if (item.category !== 'Milk-Based' && !item.name.startsWith('Milk Based Latte — ')) return costedItem;
         const [prefix, flavor] = item.name.split(' — ');
-        if (prefix !== 'Milk Based Latte' || !flavor) return { ...item, category: 'Refreshers' };
+        if (prefix !== 'Milk Based Latte' || !flavor) return { ...costedItem, category: 'Refreshers' };
         const milkLatteNames = {
             Chocolate: 'Chocolate Latte',
             Strawberry: 'Strawberry Latte',
@@ -179,7 +184,7 @@ export function mergeMissingMenuProducts(inventory) {
         const name = milkLatteNames[flavor] || item.name;
         const category = ['Strawberry Coffee', 'Dirty Matcha'].includes(name) ? 'Flavored Coffee' : 'Refreshers';
         return {
-            ...item,
+            ...costedItem,
             id: `product:${category}:${name}`,
             name,
             category
@@ -324,6 +329,26 @@ export function adjustInventoryItem(inventory, itemId, direction, quantity, time
             items: inventory.items.map(entry => entry.id === itemId ?
                 {...entry, quantity: roundStock(nextQuantity), updatedAt: timestamp } :
                 entry)
+        }
+    };
+}
+
+export function setInventoryItemCost(inventory, itemId, unitCost, timestamp = new Date().toISOString()) {
+    if (unitCost !== null && (!Number.isFinite(unitCost) || unitCost < 0 || unitCost > 1000000)) {
+        return { success: false, invalidCost: true };
+    }
+    const item = inventory.items.find(entry => entry.id === itemId && entry.type === 'product');
+    if (!item) return { success: false, notFound: true };
+    const normalizedCost = unitCost === null
+        ? null
+        : Math.round((unitCost + Number.EPSILON) * 100) / 100;
+    return {
+        success: true,
+        inventory: {
+            ...inventory,
+            items: inventory.items.map(entry => entry.id === itemId
+                ? { ...entry, unitCost: normalizedCost, updatedAt: timestamp }
+                : entry)
         }
     };
 }

@@ -15,7 +15,10 @@ export const config = { path: '/api/orders' };
 function jsonResponse(statusCode, body) {
     return new Response(JSON.stringify(body), {
         status: statusCode,
-        headers: { 'content-type': 'application/json; charset=utf-8' }
+        headers: {
+            'content-type': 'application/json; charset=utf-8',
+            'cache-control': 'no-store'
+        }
     });
 }
 

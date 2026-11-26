@@ -21,6 +21,8 @@ test('build serves the customer storefront at the clean root URL', () => {
     assert.equal(index, storefront);
     assert.match(index, /florea-orders\.js/);
     assert.match(index, /florea-prototype\.js/);
+    assert.ok(fs.existsSync(path.join(root, 'dist', 'florea-accounting.mjs')));
+    assert.match(fs.readFileSync(path.join(root, 'dist', 'florea-ui-actions.js'), 'utf8'), /florea-accounting\.mjs/);
 
     const inlineScripts = [...storefront.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
     for (const [index, [, attributes, source]] of inlineScripts.entries()) {

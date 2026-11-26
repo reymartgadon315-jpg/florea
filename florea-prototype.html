@@ -785,7 +785,7 @@
                                 <div class="kpi">
                                     <div class="icon" style="background:var(--blush-soft);">💰</div>
                                     <p class="kicker">Today's Sales</p>
-                                    <p class="value" id="admin-total-sales">—</p><span class="delta">Non-cancelled orders today</span></div>
+                                    <p class="value" id="admin-total-sales">—</p><span class="delta">Paid orders today</span></div>
                                 <div class="kpi">
                                     <div class="icon" style="background:var(--sage-soft);">🧾</div>
                                     <p class="kicker">Total Orders</p>
@@ -827,7 +827,7 @@
                                                 </select>
                                             </label>
                                     </div>
-                                    <p class="admin-chart-caption" id="admin-sales-caption">Sales from saved orders; cancelled orders are excluded.</p>
+                                    <p class="admin-chart-caption" id="admin-sales-caption">Paid sales from saved orders; cancelled and unpaid orders are excluded.</p>
                                     <div id="admin-sales-trend" class="admin-sales-chart" aria-live="polite"></div>
                                 </div>
                                 <div class="card">
@@ -910,6 +910,7 @@
                                 <button type="button" class="chip" data-ui-action="order-filter" data-filter="new">Pending (0)</button>
                                 <button type="button" class="chip" data-ui-action="order-filter" data-filter="preparing">Preparing (0)</button>
                                 <button type="button" class="chip" data-ui-action="order-filter" data-filter="ready">Ready (0)</button>
+                                <button type="button" class="chip" data-ui-action="order-filter" data-filter="completed">Completed (0)</button>
                                 <button type="button" class="chip" data-ui-action="order-filter" data-filter="cancelled">Cancelled (0)</button>
                             </div>
                             <div class="card" style="margin-top:14px;">
@@ -1022,12 +1023,14 @@
                                                 <th>Items</th>
                                                 <th>Time</th>
                                                 <th>Amount</th>
+                                                <th>Payment</th>
+                                                <th>Processed by</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody id="sales-receipt-rows">
                                             <tr>
-                                                <td colspan="6">Sales will appear here when customers order.</td>
+                                                <td colspan="8">Sales will appear here when customers order.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1091,6 +1094,7 @@
                                                 <th>Category</th>
                                                 <th>Stock</th>
                                                 <th>Unit</th>
+                                                <th>Unit Cost</th>
                                                 <th>Reorder Level</th>
                                                 <th>Status</th>
                                                 <th>Last Updated</th>
@@ -1099,7 +1103,7 @@
                                         </thead>
                                         <tbody id="inventory-items">
                                             <tr>
-                                                <td colspan="8">Loading inventory…</td>
+                                                <td colspan="9">Loading inventory…</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1186,12 +1190,13 @@
                                                     <th>Price</th>
                                                     <th>Stock</th>
                                                     <th>Status</th>
+                                                    <th>Unit Cost</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody id="product-catalog-rows">
                                                 <tr>
-                                                    <td colspan="6">Loading catalog…</td>
+                                                    <td colspan="7">Loading catalog…</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -1300,7 +1305,7 @@
                                 <button type="button" class="btn btn-primary btn-sm" data-ui-action="apply-analytics-filter">Apply</button>
                                 <button type="button" class="btn btn-outline btn-sm" data-ui-action="reset-analytics-filter">Reset</button>
                             </div>
-                            <div class="grid grid-3">
+                            <div class="grid grid-4">
                                 <div class="kpi">
                                     <p class="kicker">Orders in Range</p>
                                     <p class="value" id="analytics-order-count">—</p>
@@ -1313,12 +1318,17 @@
                                     <p class="kicker">Catalog Products</p>
                                     <p class="value" id="analytics-product-count">—</p>
                                 </div>
+                                <div class="kpi">
+                                    <p class="kicker">Gross Profit</p>
+                                    <p class="value" id="analytics-gross-profit">—</p>
+                                    <small class="admin-data-note" id="analytics-profit-note">Configure product unit costs to calculate gross profit.</small>
+                                </div>
                             </div>
                             <div class="card" style="margin-top:16px;">
                                 <div class="section-title">
                                     <h3>Sales Trend</h3>
                                 </div>
-                                <p class="admin-chart-caption" id="analytics-sales-caption">Based on saved non-cancelled order records.</p>
+                                <p class="admin-chart-caption" id="analytics-sales-caption">Based on paid order records; unpaid and cancelled orders are excluded.</p>
                                 <div id="analytics-sales-chart" class="admin-sales-chart" aria-live="polite"></div>
                             </div>
                             <div class="card-soft" style="margin-top:14px;">
@@ -1391,7 +1401,14 @@
                                 <div class="card">
                                     <p style="font-size:24px;">📈</p>
                                     <p style="font-weight:700;font-size:13.5px;margin-top:8px;">Order Value Report</p>
-                                    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Non-cancelled order totals from saved records</p>
+                                    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Paid order totals from saved records</p>
+                                    <div style="display:flex;gap:8px;margin-top:12px;"><button type="button" class="btn btn-outline btn-sm" data-ui-action="export-report" data-format="pdf" style="flex:1;">PDF</button><button type="button" class="btn btn-outline btn-sm" data-ui-action="export-report" data-format="excel"
+                                            style="flex:1;">Excel</button></div>
+                                </div>
+                                <div class="card">
+                                    <p style="font-size:24px;">💹</p>
+                                    <p style="font-weight:700;font-size:13.5px;margin-top:8px;">Gross Profit Report</p>
+                                    <p style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">Paid sales less saved product unit costs</p>
                                     <div style="display:flex;gap:8px;margin-top:12px;"><button type="button" class="btn btn-outline btn-sm" data-ui-action="export-report" data-format="pdf" style="flex:1;">PDF</button><button type="button" class="btn btn-outline btn-sm" data-ui-action="export-report" data-format="excel"
                                             style="flex:1;">Excel</button></div>
                                 </div>

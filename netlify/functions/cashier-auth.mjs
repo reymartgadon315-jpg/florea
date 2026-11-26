@@ -39,7 +39,7 @@ export async function handleCashierAuth(request, {
         CASHIER_PASSWORD_HASH,
         CASHIER_SESSION_SECRET
     } = process.env;
-    const cashierUsername = process.env.CASHIER_USERNAME || 'cashier';
+    const cashierUsername = (process.env.CASHIER_USERNAME || 'cashier').trim();
     const hasPasswordConfiguration = Boolean(CASHIER_PASSWORD || CASHIER_PASSWORD_HASH);
 
     if (request.method === 'DELETE') {
@@ -132,7 +132,7 @@ export async function handleCashierAuth(request, {
         return jsonResponse(503, { error: 'Sign-in is temporarily unavailable. Please try again shortly.' });
     }
 
-    const token = createCashierSession(CASHIER_SESSION_SECRET, now);
+    const token = createCashierSession(CASHIER_SESSION_SECRET, now, cashierUsername);
     return jsonResponse(200, { authenticated: true }, {
         'set-cookie': cashierSessionCookie(token)
     });

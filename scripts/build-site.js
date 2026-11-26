@@ -10,6 +10,7 @@ const publicFiles = [
     'florea-prototype.css',
     'florea-prototype.js',
     'florea-inventory-shared.mjs',
+    'florea-accounting.mjs',
     'florea-orders.js',
     'florea-cashier-sound.js',
     'florea-push.js',

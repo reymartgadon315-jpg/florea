@@ -1,4 +1,4 @@
-import { adjustInventoryItem } from '../../florea-inventory-shared.mjs';
+import { adjustInventoryItem, setInventoryItemCost } from '../../florea-inventory-shared.mjs';
 import { getInventoryStore, readInventory, updateInventory } from './lib/inventory-store.mjs';
 import { maintenanceResponse } from './lib/maintenance.mjs';
 
@@ -29,6 +29,21 @@ export default async function handler(request) {
         payload = await request.json();
     } catch {
         return jsonResponse(400, { error: 'Request body must be valid JSON.' });
+    }
+    if (payload && typeof payload === 'object' && !Array.isArray(payload) && payload.action === 'setUnitCost') {
+        if (typeof payload.itemId !== 'string' || payload.itemId.length > 300 ||
+            (payload.unitCost !== null && (!Number.isFinite(payload.unitCost) ||
+                payload.unitCost < 0 || payload.unitCost > 1000000))) {
+            return jsonResponse(400, { error: 'A valid product and non-negative unit cost are required.' });
+        }
+        const costUpdate = await updateInventory(inventory => {
+            const result = setInventoryItemCost(inventory, payload.itemId, payload.unitCost);
+            if (!result.success) return { changed: false, ...result };
+            return { changed: true, inventory: result.inventory };
+        }, getInventoryStore());
+        if (costUpdate.notFound) return jsonResponse(404, { error: 'Product not found in shared inventory.' });
+        if (costUpdate.invalidCost) return jsonResponse(400, { error: 'Unit cost must be between 0 and 1,000,000.' });
+        return jsonResponse(200, { inventory: costUpdate.inventory });
     }
     if (!payload || typeof payload !== 'object' || Array.isArray(payload) ||
         typeof payload.itemId !== 'string' || payload.itemId.length > 300 ||

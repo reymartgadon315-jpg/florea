@@ -154,6 +154,7 @@ window.FloreaOrderSync = {
         const apiOrigin = this.apiOrigin();
         return fetch(this.apiUrl(path), {
             ...options,
+            cache: options.cache || 'no-store',
             credentials: apiOrigin === window.location.origin ? 'same-origin' : 'include'
         });
     },

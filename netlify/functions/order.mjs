@@ -1,7 +1,8 @@
 import { getStore } from './lib/get-store.mjs';
 import webPush from 'web-push';
 import { applyOrderToInventory, restoreOrderInventory } from '../../florea-inventory-shared.mjs';
-import { getInventoryStore, updateInventory } from './lib/inventory-store.mjs';
+import { getInventoryStore, readInventory, updateInventory } from './lib/inventory-store.mjs';
+import { snapshotOrderItemCosts } from '../../florea-accounting.mjs';
 import {
     formatOrderItem,
     getOrderTotal,
@@ -9,7 +10,7 @@ import {
     validateOrderItems,
     validatePushSubscription
 } from './lib/order-validation.mjs';
-import { verifyCashierSession } from './lib/cashier-session.mjs';
+import { getCashierSession, verifyCashierSession } from './lib/cashier-session.mjs';
 import { isTwilioSmsConfigured, sendOrderStatusSms } from './lib/twilio-sms.mjs';
 import { maintenanceResponse } from './lib/maintenance.mjs';
 
@@ -68,7 +69,8 @@ export default async function handler(request, context) {
     }
 
     if (request.method === 'DELETE') {
-        if (!verifyCashierSession(request, process.env.CASHIER_SESSION_SECRET)) {
+        const cashierSession = getCashierSession(request, process.env.CASHIER_SESSION_SECRET);
+        if (!cashierSession) {
             return jsonResponse(401, { error: 'A valid cashier session is required.' });
         }
         await store.delete(key);
@@ -272,11 +274,16 @@ export default async function handler(request, context) {
             return jsonResponse(409, { error: 'Payment is already verified and cannot be changed.' });
         }
 
+        const inventory = await readInventory(getInventoryStore());
+        const itemDetails = snapshotOrderItemCosts(order.itemDetails || [], inventory);
         const updatedOrder = {
             ...order,
+            itemDetails,
             paymentStatus: 'paid',
             paymentMethod: payload.paymentMethod,
             paymentVerifiedAt: new Date().toISOString(),
+            costSnapshotAt: new Date().toISOString(),
+            paymentProcessedBy: cashierSession.username,
             updatedAt: new Date().toISOString()
         };
         const paymentUpdate = await store.setJSON(key, updatedOrder, { onlyIfMatch: orderRecord.etag });
@@ -328,8 +335,12 @@ export default async function handler(request, context) {
     const updatedOrder = {
         ...order,
         status: nextStatus,
+        lastProcessedBy: cashierSession.username,
         updatedAt: new Date().toISOString(),
-        ...(nextStatus === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+        ...(nextStatus === 'completed' ? {
+            completedAt: new Date().toISOString(),
+            completedBy: cashierSession.username
+        } : {}),
         ...(nextStatus === 'cancelled' ? { cancelledAt: new Date().toISOString() } : {})
     };
     const statusUpdate = await store.setJSON(key, updatedOrder, { onlyIfMatch: orderRecord.etag });

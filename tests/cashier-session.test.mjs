@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
     cashierSessionCookieName,
     createCashierSession,
+    getCashierSession,
     verifyCashierPassword,
     verifyCashierSession
 } from '../netlify/functions/lib/cashier-session.mjs';
@@ -11,7 +12,7 @@ const secret = 'a-test-secret-with-at-least-thirty-two-characters';
 
 test('cashier session accepts a valid signed and unexpired cookie', () => {
     const now = 1_800_000_000_000;
-    const token = createCashierSession(secret, now);
+    const token = createCashierSession(secret, now, 'front-counter');
     const secondToken = createCashierSession(secret, now);
     const payload = JSON.parse(Buffer.from(token.split('.')[0], 'base64url').toString('utf8'));
     const secondPayload = JSON.parse(Buffer.from(secondToken.split('.')[0], 'base64url').toString('utf8'));
@@ -23,6 +24,7 @@ test('cashier session accepts a valid signed and unexpired cookie', () => {
     assert.ok(payload.jti.length > 0);
     assert.notEqual(payload.jti, secondPayload.jti);
     assert.equal(verifyCashierSession(request, secret, now), true);
+    assert.equal(getCashierSession(request, secret, now).username, 'front-counter');
 });
 
 test('cashier session rejects tampering, expiration, and a wrong secret', () => {

@@ -496,8 +496,12 @@
         const updatedOrder = {
             ...order,
             status: nextStatus,
+            lastProcessedBy: 'cashier',
             updatedAt: new Date().toISOString(),
-            ...(nextStatus === 'completed' ? { completedAt: new Date().toISOString() } : {}),
+            ...(nextStatus === 'completed' ? {
+                completedAt: new Date().toISOString(),
+                completedBy: 'cashier'
+            } : {}),
             ...(nextStatus === 'cancelled' ? { cancelledAt: new Date().toISOString() } : {})
         };
         const updatedOrders = orders.map(item => item.id === order.id ? updatedOrder : item);
@@ -532,11 +536,15 @@
             });
         }
         if (orderStatus(order) === 'cancelled') throw new Error('Cancelled orders cannot be marked as paid.');
+        const itemDetails = await window.FloreaInventory.snapshotLocalOrderCosts(order.itemDetails || []);
         const updatedOrder = {
             ...order,
+            itemDetails,
             paymentStatus: 'paid',
             paymentMethod,
             paymentVerifiedAt: new Date().toISOString(),
+            costSnapshotAt: new Date().toISOString(),
+            paymentProcessedBy: 'cashier',
             updatedAt: new Date().toISOString()
         };
         const updatedOrders = orders.map(item => item.id === order.id ? updatedOrder : item);

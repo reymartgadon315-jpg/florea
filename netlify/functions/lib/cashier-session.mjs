@@ -19,37 +19,50 @@ export function verifyCashierPassword(candidate, expected) {
     return constantTimeEqual(candidate, expected);
 }
 
-export function createCashierSession(secret, now = Date.now()) {
+export function createCashierSession(secret, now = Date.now(), username = 'cashier') {
     const payload = Buffer.from(JSON.stringify({
         role: 'cashier',
+        username,
         exp: Math.floor(now / 1000) + cashierSessionTtlSeconds,
         jti: randomUUID()
     })).toString('base64url');
     return `${payload}.${signature(payload, secret)}`;
 }
 
-export function verifyCashierSession(request, secret, now = Date.now()) {
-    if (!secret) return false;
+export function getCashierSession(request, secret, now = Date.now()) {
+    if (!secret) return null;
     const cookieHeader = request.headers.get('cookie') || '';
     const cookie = cookieHeader.split(';').map(value => value.trim())
         .find(value => value.startsWith(`${cashierSessionCookieName}=`));
-    if (!cookie) return false;
+    if (!cookie) return null;
 
     const token = cookie.slice(cashierSessionCookieName.length + 1);
     const [payload, providedSignature, ...extra] = token.split('.');
-    if (!payload || !providedSignature || extra.length) return false;
+    if (!payload || !providedSignature || extra.length) return null;
 
     const expectedSignature = signature(payload, secret);
-    if (!constantTimeEqual(providedSignature, expectedSignature)) return false;
+    if (!constantTimeEqual(providedSignature, expectedSignature)) return null;
 
     try {
         const session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-        return session.role === 'cashier' &&
-            Number.isInteger(session.exp) &&
-            session.exp > Math.floor(now / 1000);
+        if (session.role !== 'cashier' ||
+            !Number.isInteger(session.exp) ||
+            session.exp <= Math.floor(now / 1000)) {
+            return null;
+        }
+        return {
+            ...session,
+            username: typeof session.username === 'string' && session.username.trim()
+                ? session.username
+                : 'cashier'
+        };
     } catch {
-        return false;
+        return null;
     }
+}
+
+export function verifyCashierSession(request, secret, now = Date.now()) {
+    return getCashierSession(request, secret, now) !== null;
 }
 
 export function cashierSessionCookie(token) {

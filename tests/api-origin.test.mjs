@@ -27,6 +27,7 @@ test('Render Static Site requests use the separate API host and credentialed COR
     assert.equal(sync.apiUrl('/api/orders'), 'https://florea-api.onrender.com/api/orders');
     assert.equal(calls[0].url, 'https://florea-api.onrender.com/api/orders');
     assert.equal(calls[0].options.credentials, 'include');
+    assert.equal(calls[0].options.cache, 'no-store');
     assert.equal(
         sync.resolveImageUrl('/api/product-images/123e4567-e89b-42d3-a456-426614174000'),
         'https://florea-api.onrender.com/api/product-images/123e4567-e89b-42d3-a456-426614174000'
@@ -40,4 +41,5 @@ test('other deployments keep using their own origin for API requests', async () 
 
     assert.equal(calls[0].url, 'https://florea.netlify.app/api/orders');
     assert.equal(calls[0].options.credentials, 'same-origin');
+    assert.equal(calls[0].options.cache, 'no-store');
 });

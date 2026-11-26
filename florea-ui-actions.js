@@ -1,4 +1,5 @@
-(() => {
+(async () => {
+        const { getRecordedSaleProfit, isRecordedSale } = await import('./florea-accounting.mjs');
         const catalogStorageKey = 'florea-product-catalog';
         const stockStorageKey = 'florea-inventory-stock';
         const sharedInventoryStorageKey = 'florea-inventory-state';
@@ -167,12 +168,16 @@
                 <td>${escapeHtml(item.category)}</td>
                 <td>${formatInventoryQuantity(item.quantity)}</td>
                 <td>${escapeHtml(item.unit)}</td>
+                <td>${item.type === 'product' && Number.isFinite(item.unitCost) ? formatAdminCurrency(item.unitCost) : '—'}</td>
                 <td>${formatInventoryQuantity(item.reorderLevel)}</td>
                 <td><span class="badge ${status.className}">${status.label}</span></td>
                 <td>${escapeHtml(updated)}</td>
-                <td data-no-export><button type="button" class="btn btn-ghost btn-sm" data-ui-action="stock-adjustment" data-item-id="${escapeHtml(item.id)}" data-direction="add">+ Add Stock</button></td>
+                <td data-no-export>
+                    <button type="button" class="btn btn-ghost btn-sm" data-ui-action="stock-adjustment" data-item-id="${escapeHtml(item.id)}" data-direction="add">+ Add Stock</button>
+                    ${item.type === 'product' ? `<button type="button" class="btn btn-ghost btn-sm" data-ui-action="inventory-cost" data-item-id="${escapeHtml(item.id)}">Edit Cost</button>` : ''}
+                </td>
             </tr>`;
-            }).join('') || '<tr><td colspan="8">No inventory items are configured.</td></tr>';
+            }).join('') || '<tr><td colspan="9">No inventory items are configured.</td></tr>';
             const filterContainer = document.getElementById('inventory-category-filters');
             if (filterContainer) {
                 const activeFilter = filterContainer.querySelector('[data-ui-action="inventory-filter"].active')?.dataset.filter || 'all';
@@ -217,7 +222,7 @@
             } catch (error) {
                 console.error('Unable to refresh shared inventory.', error);
                 const body = document.getElementById('inventory-items');
-                if (body) body.innerHTML = `<tr><td colspan="8">Inventory could not be loaded: ${escapeHtml(error.message)}</td></tr>`;
+                if (body) body.innerHTML = `<tr><td colspan="9">Inventory could not be loaded: ${escapeHtml(error.message)}</td></tr>`;
                 if (document.getElementById('inventory-control')?.classList.contains('active')) {
                     showToast(`Inventory update failed: ${error.message}`);
                 }
@@ -246,14 +251,24 @@
         }
 
         function orderStatus(order) {
-            const status = String(order.status || 'new').toLowerCase();
-            if (status === 'completed') return 'ready';
-            return status;
+            return String(order.status || 'new').toLowerCase();
         }
 
         function formatOrderStatus(status) {
-            const labels = { new: 'Pending', preparing: 'Preparing', ready: 'Ready', cancelled: 'Cancelled' };
-            const classes = { new: 'badge-gold', preparing: 'badge-blush', ready: 'badge-sage', cancelled: 'badge-danger' };
+            const labels = {
+                new: 'Pending',
+                preparing: 'Preparing',
+                ready: 'Ready',
+                completed: 'Completed',
+                cancelled: 'Cancelled'
+            };
+            const classes = {
+                new: 'badge-gold',
+                preparing: 'badge-blush',
+                ready: 'badge-sage',
+                completed: 'badge-sage',
+                cancelled: 'badge-danger'
+            };
             return `<span class="badge ${classes[status] || 'badge-ink'}">${escapeHtml(labels[status] || status)}</span>`;
         }
 
@@ -320,9 +335,13 @@
                     <td>₱${escapeHtml(price)}</td>
                     <td>${formatInventoryQuantity(stock)}</td>
                     <td>${status}</td>
-                    <td><button type="button" class="btn btn-ghost btn-sm" data-ui-action="edit-catalog-product" data-category="${escapeHtml(category)}" data-product="${escapeHtml(product.n)}">Edit</button></td>
+                    <td>${Number.isFinite(inventory?.unitCost) ? formatAdminCurrency(inventory.unitCost) : '—'}</td>
+                    <td>
+                        <button type="button" class="btn btn-ghost btn-sm" data-ui-action="edit-catalog-product" data-category="${escapeHtml(category)}" data-product="${escapeHtml(product.n)}">Edit</button>
+                        ${inventory ? `<button type="button" class="btn btn-ghost btn-sm" data-ui-action="inventory-cost" data-item-id="${escapeHtml(inventory.id)}">Unit Cost</button>` : ''}
+                    </td>
                 </tr>`;
-            }).join('') || '<tr><td colspan="6">No catalog products available.</td></tr>';
+            }).join('') || '<tr><td colspan="7">No catalog products available.</td></tr>';
         }
 
         function formatAdminCurrency(value) {
@@ -402,7 +421,7 @@
             const byPeriod = new Map(bucketStarts.map(date => [date.getTime(), 0]));
             const datedOrders = orders.filter(order => {
                 const date = getOrderDate(order);
-                return date && date >= fromDate && date <= toDate && !isCancelledOrder(order);
+                return date && date >= fromDate && date <= toDate && isRecordedSale(order);
             });
             datedOrders.forEach(order => {
                 const key = startOfSalesPeriod(getOrderDate(order), period).getTime();
@@ -438,7 +457,7 @@
                 return;
             }
             if (!series.buckets.some(bucket => bucket.value > 0)) {
-                chart.innerHTML = '<div class="admin-empty-state">No non-cancelled order totals in this period.</div>';
+                chart.innerHTML = '<div class="admin-empty-state">No paid order totals in this period.</div>';
                 return;
             }
             const maximum = Math.max(...series.buckets.map(bucket => bucket.value), 1);
@@ -464,8 +483,9 @@
                 return date && date.getFullYear() === today.getFullYear() &&
                     date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
             });
-            const todaysSales = todaysOrders.filter(order => !isCancelledOrder(order))
+            const todaysSales = todaysOrders.filter(isRecordedSale)
                 .reduce((sum, order) => sum + orderTotal(order), 0);
+            const paidTodayCount = todaysOrders.filter(isRecordedSale).length;
             const pendingOrders = adminOrders.filter(order =>
                 ['new', 'pending'].includes(String(order.status || 'new').toLowerCase())
             );
@@ -478,8 +498,8 @@
             setText('admin-total-orders', String(orderCount));
             setText('admin-pending-orders', String(pendingOrders.length));
             setText('admin-low-stock-count', String(lowStock.length));
-            setText('sales-transactions-today', String(todaysOrders.length));
-            setText('sales-receipts-generated', String(orderCount));
+            setText('sales-transactions-today', String(paidTodayCount));
+            setText('sales-receipts-generated', String(adminOrders.filter(isRecordedSale).length));
             setText('sales-stock-syncs', String((adminInventory?.items || []).filter(item => item.type === 'product').length));
 
             const orderBody = document.getElementById('admin-order-rows');
@@ -501,7 +521,7 @@
             }
 
             const filters = document.querySelectorAll('#order-management [data-ui-action="order-filter"]');
-            const statusCounts = { all: orderCount, new: 0, preparing: 0, ready: 0, cancelled: 0 };
+            const statusCounts = { all: orderCount, new: 0, preparing: 0, ready: 0, completed: 0, cancelled: 0 };
             adminOrders.forEach(order => {
                 const status = orderStatus(order);
                 if (statusCounts[status] !== undefined) statusCounts[status] += 1;
@@ -529,8 +549,12 @@
             if (salesRows) salesRows.innerHTML = adminOrders.map(order => {
                 const timestamp = getOrderDate(order);
                 const time = timestamp ? timestamp.toLocaleString() : '—';
-                return `<tr><td>${escapeHtml(order.id || '—')}</td><td>${escapeHtml(order.customerName || 'Guest')}</td><td>${escapeHtml(orderItems(order).map(item => item.name).join(', ') || '—')}</td><td>${escapeHtml(time)}</td><td>${currency(orderTotal(order))}</td><td>${formatAdminOrderStatus(order)}</td></tr>`;
-            }).join('') || '<tr><td colspan="6">No customer orders yet.</td></tr>';
+                const payment = order.paymentStatus === 'paid'
+                    ? `Paid · ${order.paymentMethod || 'Method not recorded'}`
+                    : 'Pending';
+                const cashier = order.paymentProcessedBy || order.completedBy || order.lastProcessedBy || '—';
+                return `<tr><td>${escapeHtml(order.id || '—')}</td><td>${escapeHtml(order.customerName || 'Guest')}</td><td>${escapeHtml(orderItems(order).map(item => item.name).join(', ') || '—')}</td><td>${escapeHtml(time)}</td><td>${currency(orderTotal(order))}</td><td>${escapeHtml(payment)}</td><td>${escapeHtml(cashier)}</td><td>${formatAdminOrderStatus(order)}</td></tr>`;
+            }).join('') || '<tr><td colspan="8">No customer orders yet.</td></tr>';
 
             const lowStockRows = document.querySelector('#admin-low-stock tbody');
             if (lowStockRows) lowStockRows.innerHTML = lowStock.slice(0, 6).map(item =>
@@ -539,7 +563,7 @@
 
             const productSales = new Map();
             for (const order of adminOrders) {
-                if (isCancelledOrder(order)) continue;
+                if (!isRecordedSale(order)) continue;
                 for (const item of orderItems(order)) {
                     const name = String(item.name || '');
                     const match = Object.entries(products).find(([, list]) => list.some(product => product.n === name));
@@ -571,7 +595,7 @@
                             <strong>${escapeHtml(name)}</strong>
                             <small>${data.quantity} sold · ${currency(data.sales)}</small>
                         </span>
-                    </div>`).join('') || '<div class="admin-empty-state">No non-cancelled product orders yet.</div>';
+                    </div>                    `).join('') || '<div class="admin-empty-state">No paid product orders yet.</div>';
             }
             const dashboardPeriod = document.getElementById('admin-sales-period')?.value || 'daily';
             const periodLabel = dashboardPeriod[0].toUpperCase() + dashboardPeriod.slice(1);
@@ -579,7 +603,7 @@
                 'admin-sales-trend',
                 'admin-sales-caption',
                 buildSalesSeries(adminOrders, dashboardPeriod),
-                `${periodLabel} order totals from saved records; cancelled orders are excluded.`
+                `${periodLabel} paid order totals from saved records; cancelled and unpaid orders are excluded.`
             );
 
             const statusCards = [
@@ -622,7 +646,19 @@
             const analyticsOrders = analyticsSeries.filteredOrders || [];
             setText('analytics-order-count', analyticsSeries.error ? '—' : String(analyticsOrders.length));
             setText('analytics-order-value', analyticsSeries.error ? '—' :
-                currency(analyticsOrders.filter(order => !isCancelledOrder(order)).reduce((sum, order) => sum + orderTotal(order), 0)));
+                currency(analyticsOrders.filter(isRecordedSale).reduce((sum, order) => sum + orderTotal(order), 0)));
+            const paidOrders = analyticsOrders.filter(isRecordedSale);
+            const profitRecords = paidOrders.map(getRecordedSaleProfit);
+            const incompleteProfitCount = profitRecords.filter(record => !record).length;
+            const grossProfit = profitRecords.filter(Boolean).reduce((sum, record) => sum + record.profit, 0);
+            setText('analytics-gross-profit', analyticsSeries.error || incompleteProfitCount
+                ? 'Incomplete'
+                : currency(grossProfit));
+            setText('analytics-profit-note', analyticsSeries.error
+                ? analyticsSeries.error
+                : incompleteProfitCount
+                    ? `${incompleteProfitCount} paid order${incompleteProfitCount === 1 ? '' : 's'} need product cost snapshots before gross profit is complete.`
+                    : 'Based on paid orders and unit-cost snapshots recorded at payment.');
             setText('analytics-product-count', String(Object.values(products).reduce((sum, items) => sum + items.length, 0)));
             const dateRangeLabel = analyticsFrom || analyticsTo
                 ? `Filtered from ${analyticsFrom || 'the earliest saved order'} through ${analyticsTo || 'today'}.`
@@ -631,7 +667,7 @@
                 'analytics-sales-chart',
                 'analytics-sales-caption',
                 analyticsSeries,
-                `Non-cancelled order totals only. ${dateRangeLabel}`
+                `Paid order totals only; cancelled and unpaid orders are excluded. ${dateRangeLabel}`
             );
 
             const customers = new Map();
@@ -640,7 +676,7 @@
                 const key = name.toLocaleLowerCase();
                 const current = customers.get(key) || { name, orders: [], value: 0, latestOrder: null };
                 current.orders.push(order);
-                if (!isCancelledOrder(order)) current.value += orderTotal(order);
+                if (isRecordedSale(order)) current.value += orderTotal(order);
                 const date = getOrderDate(order);
                 if (date && (!current.latestOrder || date > current.latestOrder)) current.latestOrder = date;
                 customers.set(key, current);
@@ -1068,6 +1104,7 @@
             showToast('Add a menu product before creating a manual order.');
             return;
         }
+        const requestId = FloreaOrderSync.createRequestId();
         createDialog('Create Manual Order', `
             ${field('Customer name', 'customerName', 'text', '', 'required maxlength="80"')}
             <label class="florea-action-field">Menu item<select name="product" required>${options}</select></label>
@@ -1092,7 +1129,8 @@
             let order;
             if (FloreaOrderSync.isLocal()) {
                 order = {
-                    id: `ORD-MANUAL-${Date.now()}`,
+                    id: `ORD-${requestId}`,
+                    requestId,
                     customerName,
                     items: [`${product.n} ×${quantity}`],
                     itemDetails,
@@ -1116,7 +1154,7 @@
             } else {
                 const result = await FloreaOrderSync.request('/api/orders', {
                     method: 'POST',
-                    body: JSON.stringify({ customerName, itemDetails })
+                    body: JSON.stringify({ customerName, itemDetails, requestId })
                 });
                 order = result.order;
             }
@@ -1329,7 +1367,7 @@
         const rows = title.startsWith('Order Value')
             ? [
                 ['Order ID', 'Customer', 'Order Date', 'Order Value'],
-                ...adminOrders.filter(order => !isCancelledOrder(order)).map(order => {
+                ...adminOrders.filter(isRecordedSale).map(order => {
                     const date = getOrderDate(order);
                     return [
                         order.id || '—',
@@ -1339,6 +1377,23 @@
                     ];
                 })
             ]
+            : title.startsWith('Gross Profit')
+                ? [
+                    ['Order ID', 'Customer', 'Order Date', 'Sales', 'Product Cost', 'Gross Profit', 'Cost Status'],
+                    ...adminOrders.filter(isRecordedSale).map(order => {
+                        const date = getOrderDate(order);
+                        const profit = getRecordedSaleProfit(order);
+                        return [
+                            order.id || '—',
+                            order.customerName || 'Guest',
+                            date ? date.toLocaleString() : '—',
+                            formatAdminCurrency(orderTotal(order)),
+                            profit ? formatAdminCurrency(profit.cost) : '—',
+                            profit ? formatAdminCurrency(profit.profit) : '—',
+                            profit ? 'Complete' : 'Missing cost snapshot'
+                        ];
+                    })
+                ]
             : reportTable
                 ? tableRows(reportTable)
                 : [['Report', title], ['Description', paragraphs[2] || ''], ['Generated', new Date().toLocaleString()]];
@@ -1379,7 +1434,7 @@
                     <tbody>${rows}</tbody>
                 </table>
             </div>
-            <p class="admin-data-note">Cancelled orders remain in history but are excluded from customer order value totals.</p>
+            <p class="admin-data-note">All orders remain in history; unpaid and cancelled orders are excluded from paid sales totals.</p>
         `, null, null);
     }
 
@@ -1399,6 +1454,50 @@
         syncMenuStock(result.inventory);
         renderInventory(result.inventory);
         return result.inventory;
+    }
+
+    async function setInventoryUnitCost(itemId, unitCost) {
+        if (FloreaOrderSync.isLocal()) {
+            const shared = await getLocalInventoryModule();
+            const inventory = await getLocalInventory();
+            const result = shared.setInventoryItemCost(inventory, itemId, unitCost);
+            if (!result.success) {
+                throw new Error(result.notFound
+                    ? 'Product not found in shared inventory.'
+                    : 'Enter a unit cost between 0 and 1,000,000.');
+            }
+            saveLocalInventory(result.inventory);
+            return result.inventory;
+        }
+        const result = await FloreaOrderSync.request('/api/inventory', {
+            method: 'PATCH',
+            body: JSON.stringify({ action: 'setUnitCost', itemId, unitCost })
+        });
+        syncMenuStock(result.inventory);
+        renderInventory(result.inventory);
+        return result.inventory;
+    }
+
+    function editInventoryCost(itemId) {
+        const item = adminInventory?.items?.find(entry => entry.id === itemId && entry.type === 'product');
+        if (!item) {
+            showToast('Product not found in shared inventory.');
+            return;
+        }
+        createDialog('Set Product Unit Cost', `
+            ${field('Cost per item (₱)', 'unitCost', 'number', item.unitCost ?? '', 'min="0" max="1000000" step="0.01"')}
+            <p class="admin-data-note">This cost is saved to shared inventory and copied to new payment records for gross-profit reporting. Leave blank to clear it.</p>
+        `, 'Save Cost', async formData => {
+            const rawCost = String(formData.get('unitCost') || '').trim();
+            const unitCost = rawCost ? Number(rawCost) : null;
+            if (unitCost !== null && (!Number.isFinite(unitCost) || unitCost < 0 || unitCost > 1000000)) {
+                showToast('Enter a unit cost between ₱0 and ₱1,000,000.');
+                return false;
+            }
+            await setInventoryUnitCost(itemId, unitCost);
+            showToast(`${item.name} unit cost updated.`);
+            return true;
+        });
     }
 
     async function saveProduct() {
@@ -1619,6 +1718,9 @@
             case 'stock-adjustment':
                 adjustStock(target.dataset.itemId || '', target.dataset.direction || 'add');
                 break;
+            case 'inventory-cost':
+                editInventoryCost(target.dataset.itemId);
+                break;
             case 'inventory-filter':
                 setInventoryFilter(target);
                 break;
@@ -1700,7 +1802,11 @@
     window.FloreaInventory = {
         refresh: refreshInventory,
         applyLocalOrder: applyLocalOrderStock,
-        restoreLocalOrder: restoreLocalOrderStock
+        restoreLocalOrder: restoreLocalOrderStock,
+        async snapshotLocalOrderCosts(itemDetails) {
+            const accounting = await import('./florea-accounting.mjs');
+            return accounting.snapshotOrderItemCosts(itemDetails, await getLocalInventory());
+        }
     };
     window.FloreaAdmin = {
         refresh() {

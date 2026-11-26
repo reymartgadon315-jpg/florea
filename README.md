@@ -92,6 +92,12 @@ order confirmation screens; the cashier can review those messages in the
 Customer Feedback section. Feedback is shared through Netlify Blobs and is
 available to cashiers only after sign-in. Cashier screens refresh shared orders
 and feedback every three seconds.
+The customer storefront, cashier dashboard, and admin views use the same orders
+and inventory APIs. Order status and payment updates are written to the shared
+order record; admin views refresh shared orders and inventory automatically.
+Customer records and order history are derived from the customer names and orders
+already saved by that API. Order submissions use request IDs to avoid creating
+duplicate records when a request is retried.
 Customer orders atomically deduct their menu stock and configured ingredient estimates
 when submitted. The Inventory screen reads shared Netlify Blobs stock and supports
 adjustments; the opening quantities and starter recipes are demo estimates and must
@@ -110,7 +116,13 @@ image in `assets/products/`, used on catalog cards and product details.
 The integrated cashier dashboard is designed for order processing, payment
 verification, order history, and daily paid-sales totals. Cashier status changes,
 payment verification, cancellation, and deletion require the server-side cashier
-session. For Render, configure `CASHIER_PASSWORD` (or `CASHIER_PASSWORD_HASH`),
+session. Payment and completion records include the configured cashier username.
+Admin sales analytics count paid, non-cancelled orders. Set each product's unit
+cost in Product Management or Inventory to snapshot its cost when payment is
+verified; gross-profit reports remain incomplete when paid orders have no saved
+cost snapshot. Cost updates do not retroactively alter earlier transactions, and
+gross profit does not include operating expenses. For Render, configure
+`CASHIER_PASSWORD` (or `CASHIER_PASSWORD_HASH`),
 `CASHIER_USERNAME` (optional; defaults to `cashier`), and a `CASHIER_SESSION_SECRET`
 with at least 32 characters in the existing `florea-api` Web Service environment.
 Failed sign-ins are tracked in the configured PostgreSQL database and locked for
