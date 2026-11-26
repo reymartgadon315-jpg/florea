@@ -66,6 +66,7 @@
         let adminOrders = [];
         let adminInventory = null;
         let adminOrdersRefreshInProgress = false;
+        let activeInventoryFilter = 'all';
 
         function escapeHtml(value) {
             return String(value).replace(/[&<>"']/g, character => ({
@@ -182,15 +183,14 @@
             }).join('') || '<tr><td colspan="9">No inventory items are configured.</td></tr>';
             const filterContainer = document.getElementById('inventory-category-filters');
             if (filterContainer) {
-                const activeFilter = filterContainer.querySelector('[data-ui-action="inventory-filter"].active')?.dataset.filter || 'all';
                 const inventoryCategories = [...new Set(visibleItems.map(item => item.category))];
                 filterContainer.innerHTML = ['all', ...inventoryCategories].map(category =>
-                    `<button type="button" class="chip${category === activeFilter ? ' active' : ''}" data-ui-action="inventory-filter" data-filter="${escapeHtml(category)}">${category === 'all' ? 'All' : escapeHtml(category)}</button>`
+                    `<button type="button" class="chip${category.toLowerCase() === activeInventoryFilter ? ' active' : ''}" data-ui-action="inventory-filter" data-filter="${escapeHtml(category)}">${category === 'all' ? 'All' : escapeHtml(category)}</button>`
                 ).join('');
             }
-            const filter = section.querySelector('[data-ui-action="inventory-filter"].active')?.dataset.filter || 'all';
             for (const row of body.rows) {
-                row.hidden = filter !== 'all' && row.cells[1]?.textContent.trim().toLowerCase() !== filter.toLowerCase();
+                row.hidden = activeInventoryFilter !== 'all' &&
+                    row.cells[1]?.textContent.trim().toLowerCase() !== activeInventoryFilter;
             }
             adminInventory = inventory;
             renderAdminViews();
@@ -1663,6 +1663,7 @@
 
     function setInventoryFilter(button) {
         const filter = button.dataset.filter.toLowerCase();
+        activeInventoryFilter = filter;
         const section = button.closest('#inventory-control');
         section.querySelectorAll('[data-ui-action="inventory-filter"]').forEach(chip => chip.classList.toggle('active', chip === button));
         for (const row of section.querySelectorAll('.admin-content table tr')) {

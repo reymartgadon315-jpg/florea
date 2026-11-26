@@ -955,7 +955,39 @@ const AUTH_KEYS = {
   admin: 'florea-admin-auth',
   cashier: 'florea-cashier-auth'
 };
+const staffScreenStateStorageKey = 'florea-staff-screen-v1';
 let adminSessionVerified = false;
+
+function readStaffScreenState() {
+  try {
+    const state = JSON.parse(sessionStorage.getItem(staffScreenStateStorageKey) || 'null');
+    const validAdminScreen = state?.role === 'admin' && adminProtectedScreenIds.has(state.screen);
+    const validCashierScreen = state?.role === 'cashier' && state.screen === 'cashier-dashboard';
+    if (validAdminScreen || validCashierScreen) return state;
+    clearStaffScreenState();
+    return null;
+  } catch (error) {
+    console.warn('Unable to restore the saved staff screen.', error);
+    clearStaffScreenState();
+    return null;
+  }
+}
+
+function saveStaffScreenState(role, screen) {
+  try {
+    sessionStorage.setItem(staffScreenStateStorageKey, JSON.stringify({ role, screen }));
+  } catch (error) {
+    console.warn('Unable to remember the current staff screen.', error);
+  }
+}
+
+function clearStaffScreenState() {
+  try {
+    sessionStorage.removeItem(staffScreenStateStorageKey);
+  } catch (error) {
+    console.warn('Unable to clear the saved staff screen.', error);
+  }
+}
 
 function isAuthenticated(role){
   if (role === 'admin' && !FloreaOrderSync.isLocal()) return adminSessionVerified;
@@ -1418,6 +1450,7 @@ async function loginCashier(event) {
 
 function logoutAdmin() {
   setAuthenticated('admin', false);
+  clearStaffScreenState();
   if (!FloreaOrderSync.isLocal()) {
     FloreaOrderSync.request('/api/admin-auth', { method: 'DELETE' }).catch(error => {
       console.error('Unable to end the admin server session.', error);
@@ -1436,6 +1469,7 @@ async function logoutCashier() {
     }
   }
   setAuthenticated('cashier', false);
+  clearStaffScreenState();
   window.cashierInitialized = false;
   window.resetCashierDashboard?.();
   const loginMessage = document.getElementById('cashier-login-error');
@@ -1769,6 +1803,11 @@ function go(id){
     }
   }
   target.classList.add('active');
+  if (adminProtectedScreenIds.has(id)) {
+    saveStaffScreenState('admin', id);
+  } else if (id === 'cashier-dashboard') {
+    saveStaffScreenState('cashier', id);
+  }
   document.querySelectorAll('.rail-item, .rail-admin-item').forEach(s=>s.classList.remove('active'));
   const navEl = document.getElementById('nav-'+id);
   if(navEl) navEl.classList.add('active');
@@ -1832,9 +1871,35 @@ function go(id){
     });
   }
 }
-function restoreInitialScreen() {
+async function restoreInitialScreen() {
   const savedState = window.FloreaCustomerSession.read();
   if (isStaffPortalView) {
+    const staffState = readStaffScreenState();
+    if (staffState) {
+      try {
+        if (FloreaOrderSync.isLocal()) {
+          if (!isAuthenticated(staffState.role)) {
+            const error = new Error('Your staff session has ended. Please sign in again.');
+            error.status = 401;
+            throw error;
+          }
+        } else {
+          const authEndpoint = staffState.role === 'admin' ? '/api/admin-auth' : '/api/cashier-auth';
+          await FloreaOrderSync.request(authEndpoint, { cache: 'no-store' });
+        }
+        setAuthenticated(staffState.role, true);
+        go(staffState.screen);
+        return;
+      } catch (error) {
+        setAuthenticated(staffState.role, false);
+        if (error.status === 401) clearStaffScreenState();
+        go('admin-login');
+        setAdminLoginMessage(error.status === 401
+          ? error.message
+          : `Unable to verify your staff session. ${error.message || 'Check your connection and try again.'}`);
+        return;
+      }
+    }
     go('admin-login');
     return;
   }
@@ -1895,11 +1960,11 @@ function restoreInitialScreen() {
     }
   }
 }
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   try {
     initializeCashierLogin();
     initializeAdminLogin();
-    restoreInitialScreen();
+    await restoreInitialScreen();
   } finally {
     window.requestAnimationFrame(() => {
       document.documentElement.classList.remove('app-booting');
