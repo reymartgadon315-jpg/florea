@@ -31,12 +31,19 @@ export function createCashierSession(secret, now = Date.now(), username = 'cashi
 
 export function getCashierSession(request, secret, now = Date.now()) {
     if (!secret) return null;
-    const cookieHeader = request.headers.get('cookie') || '';
-    const cookie = cookieHeader.split(';').map(value => value.trim())
-        .find(value => value.startsWith(`${cashierSessionCookieName}=`));
-    if (!cookie) return null;
+    let token = '';
+    const authorization = request.headers.get('authorization') || '';
+    if (authorization.startsWith('Bearer ')) {
+        token = authorization.slice(7).trim();
+    }
+    if (!token) {
+        const cookieHeader = request.headers.get('cookie') || '';
+        const cookie = cookieHeader.split(';').map(value => value.trim())
+            .find(value => value.startsWith(`${cashierSessionCookieName}=`));
+        if (cookie) token = cookie.slice(cashierSessionCookieName.length + 1);
+    }
+    if (!token) return null;
 
-    const token = cookie.slice(cashierSessionCookieName.length + 1);
     const [payload, providedSignature, ...extra] = token.split('.');
     if (!payload || !providedSignature || extra.length) return null;
 

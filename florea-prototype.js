@@ -1004,6 +1004,7 @@ function setAuthenticated(role, value){
   try {
     const storage = role === 'cashier' && !FloreaOrderSync.isLocal() ? sessionStorage : localStorage;
     storage.setItem(AUTH_KEYS[role], value ? 'true' : 'false');
+    if (role === 'cashier' && !value) sessionStorage.removeItem('florea-cashier-session-token');
   } catch (e) {}
 }
 
@@ -1169,10 +1170,13 @@ async function loginAdminForm(event) {
           throw new Error('Incorrect username or password.');
         }
       } else {
-        await FloreaOrderSync.request('/api/cashier-auth', {
+        const result = await FloreaOrderSync.request('/api/cashier-auth', {
           method: 'POST',
           body: JSON.stringify({ username, password })
         });
+        if (typeof result?.sessionToken === 'string') {
+          sessionStorage.setItem('florea-cashier-session-token', result.sessionToken);
+        }
       }
       setAuthenticated('cashier', true);
       if (passwordField) passwordField.value = '';

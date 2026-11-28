@@ -137,7 +137,7 @@ async function handleRequest(incoming, response) {
                 ...cors.headers,
                 ...(cors.allowed ? {
                     'access-control-allow-methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-                    'access-control-allow-headers': 'content-type',
+                    'access-control-allow-headers': 'authorization, content-type',
                     'access-control-max-age': '600'
                 } : {})
             });

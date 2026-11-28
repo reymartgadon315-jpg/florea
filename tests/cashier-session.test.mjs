@@ -27,6 +27,18 @@ test('cashier session accepts a valid signed and unexpired cookie', () => {
     assert.equal(getCashierSession(request, secret, now).username, 'front-counter');
 });
 
+test('cashier session accepts a bearer token fallback', () => {
+    const now = 1_800_000_000_000;
+    const token = createCashierSession(secret, now, 'front-counter');
+    const request = new Request('https://example.test/api/orders/ORD-1001', {
+        headers: { authorization: `Bearer ${token}` },
+        method: 'PATCH'
+    });
+
+    assert.equal(verifyCashierSession(request, secret, now), true);
+    assert.equal(getCashierSession(request, secret, now).username, 'front-counter');
+});
+
 test('cashier session rejects tampering, expiration, and a wrong secret', () => {
     const now = 1_800_000_000_000;
     const token = createCashierSession(secret, now);

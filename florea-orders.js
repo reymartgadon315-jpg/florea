@@ -152,10 +152,18 @@ window.FloreaOrderSync = {
 
     fetchApi(path, options = {}) {
         const apiOrigin = this.apiOrigin();
+        let authorization = '';
+        try {
+            authorization = sessionStorage.getItem('florea-cashier-session-token') || '';
+        } catch {}
         return fetch(this.apiUrl(path), {
             ...options,
             cache: options.cache || 'no-store',
-            credentials: apiOrigin === window.location.origin ? 'same-origin' : 'include'
+            credentials: apiOrigin === window.location.origin ? 'same-origin' : 'include',
+            headers: {
+                ...options.headers,
+                ...(authorization ? { authorization: `Bearer ${authorization}` } : {})
+            }
         });
     },
 

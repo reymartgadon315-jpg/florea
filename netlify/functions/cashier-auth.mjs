@@ -133,7 +133,7 @@ export async function handleCashierAuth(request, {
     }
 
     const token = createCashierSession(CASHIER_SESSION_SECRET, now, cashierUsername);
-    return jsonResponse(200, { authenticated: true }, {
+    return jsonResponse(200, { authenticated: true, sessionToken: token }, {
         'set-cookie': cashierSessionCookie(token)
     });
 }
