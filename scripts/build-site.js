@@ -64,7 +64,8 @@ fs.writeFileSync(path.join(assetLinksDirectory, 'assetlinks.json'), JSON.stringi
 
 const serviceWorkerPath = path.join(output, 'service-worker.js');
 const buildVersion = process.env.DEPLOY_ID || new Date().toISOString();
-fs.appendFileSync(
+const serviceWorkerSource = fs.readFileSync(serviceWorkerPath, 'utf8');
+fs.writeFileSync(
     serviceWorkerPath,
-    `\nself.__FLOREA_BUILD_VERSION__ = ${JSON.stringify(buildVersion)};\n`
+    `self.__FLOREA_BUILD_VERSION__ = ${JSON.stringify(buildVersion)};\n${serviceWorkerSource}`
 );

@@ -1,3 +1,5 @@
+const appShellCacheName = `florea-app-shell-${self.__FLOREA_BUILD_VERSION__ || 'v1'}`;
+
 self.addEventListener('install', event => {
     const appShellFiles = [
     '/',
@@ -17,7 +19,7 @@ self.addEventListener('install', event => {
     event.waitUntil(
         Promise.all([
             self.skipWaiting(),
-            caches.open('florea-app-shell-v1').then(cache => cache.addAll(appShellFiles))
+            caches.open(appShellCacheName).then(cache => cache.addAll(appShellFiles))
         ])
     );
 });
@@ -28,7 +30,7 @@ self.addEventListener('activate', event => {
             self.clients.claim(),
             caches.keys().then(keys => Promise.all(
                 keys
-                    .filter(key => key.startsWith('florea-') && key !== 'florea-app-shell-v1')
+                    .filter(key => key.startsWith('florea-') && key !== appShellCacheName)
                     .map(key => caches.delete(key))
             ))
         ])
@@ -51,12 +53,29 @@ self.addEventListener('fetch', event => {
         return;
     }
 
+    if (['.js', '.css', '.html'].some(extension => url.pathname.endsWith(extension))) {
+        event.respondWith(
+            fetch(event.request).then(async response => {
+                if (response.ok) {
+                    const copy = response.clone();
+                    const cache = await caches.open(appShellCacheName);
+                    await cache.put(event.request, copy);
+                }
+                return response;
+            }).catch(async () =>
+                (await caches.match(event.request)) ||
+                caches.match('/florea-prototype.html')
+            )
+        );
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then(cached => {
             const networkUpdate = fetch(event.request).then(response => {
                 if (response.ok) {
                     const copy = response.clone();
-                    caches.open('florea-app-shell-v1').then(cache => cache.put(event.request, copy));
+                    caches.open(appShellCacheName).then(cache => cache.put(event.request, copy));
                 }
                 return response;
             }).catch(() => cached);
