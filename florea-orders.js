@@ -156,13 +156,22 @@ window.FloreaOrderSync = {
         try {
             authorization = sessionStorage.getItem('florea-cashier-session-token') || '';
         } catch {}
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timeout = controller && typeof window?.setTimeout === 'function'
+            ? window.setTimeout(() => controller.abort(), 20000)
+            : null;
         return fetch(this.apiUrl(path), {
             ...options,
             cache: options.cache || 'no-store',
             credentials: apiOrigin === window.location.origin ? 'same-origin' : 'include',
+            signal: options.signal || controller?.signal,
             headers: {
                 ...options.headers,
                 ...(authorization ? { authorization: `Bearer ${authorization}` } : {})
+            }
+        }).finally(() => {
+            if (timeout !== null && typeof window?.clearTimeout === 'function') {
+                window.clearTimeout(timeout);
             }
         });
     },

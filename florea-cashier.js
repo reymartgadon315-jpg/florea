@@ -595,7 +595,16 @@
             if (document.getElementById('order-detail-modal').style.display === 'flex') openOrderModal(orderId);
         } catch (error) {
             console.error('Unable to update cashier order.', error);
-            showFeedback(error.message || 'The order could not be updated.', true);
+            if (error.status === 401) {
+                setAuthenticated('cashier', false);
+                window.cashierInitialized = false;
+                showFeedback('Your cashier session expired. Sign in again.', true);
+                window.go('cashier-login');
+            } else if (error.name === 'AbortError') {
+                showFeedback('The order update timed out. Check the connection and try again.', true);
+            } else {
+                showFeedback(error.message || 'The order could not be updated.', true);
+            }
         } finally {
             if (button.isConnected) button.disabled = false;
         }
