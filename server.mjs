@@ -198,7 +198,9 @@ const server = createServer((request, response) => {
             ? getApiCorsHeaders(request.headers.origin, process.env.FRONTEND_ORIGIN).headers
             : {};
         jsonResponse(response, error.statusCode || 500, {
-            error: error.statusCode === 413 ? error.message : 'The request could not be completed.'
+            error: error.statusCode === 413
+                ? error.message
+                : (error.message || 'The request could not be completed.')
         }, headers);
     });
 });
