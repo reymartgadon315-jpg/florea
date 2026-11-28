@@ -31,11 +31,17 @@ for (const file of publicFiles) {
     fs.copyFileSync(path.join(root, file), path.join(output, file));
 }
 
-// Make the public Render URL open the customer ordering storefront directly.
-fs.copyFileSync(path.join(output, 'florea-prototype.html'), path.join(output, 'index.html'));
-
 const prototypeHtml = fs.readFileSync(path.join(output, 'florea-prototype.html'), 'utf8');
-const staffRouteHtml = prototypeHtml.replace('<head>', '<head>\n    <base href="/">');
+const buildVersion = process.env.DEPLOY_ID || new Date().toISOString();
+const cacheBustHtml = prototypeHtml.replace(
+    /\b(?:src|href)="([^"]+\.(?:js|css))"/g,
+    (match, assetPath) => match.replace(assetPath, `${assetPath}?v=${encodeURIComponent(buildVersion)}`)
+);
+fs.writeFileSync(path.join(output, 'florea-prototype.html'), cacheBustHtml);
+
+// Make the public Render URL open the customer ordering storefront directly.
+fs.writeFileSync(path.join(output, 'index.html'), cacheBustHtml);
+const staffRouteHtml = cacheBustHtml.replace('<head>', '<head>\n    <base href="/">');
 if (staffRouteHtml === prototypeHtml) {
     throw new Error('Could not prepare standalone staff portal routes.');
 }
@@ -63,7 +69,6 @@ fs.writeFileSync(path.join(assetLinksDirectory, 'assetlinks.json'), JSON.stringi
 ], null, 2));
 
 const serviceWorkerPath = path.join(output, 'service-worker.js');
-const buildVersion = process.env.DEPLOY_ID || new Date().toISOString();
 const serviceWorkerSource = fs.readFileSync(serviceWorkerPath, 'utf8');
 fs.writeFileSync(
     serviceWorkerPath,
